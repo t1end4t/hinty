@@ -1,5 +1,5 @@
 {
-  description = "Nix-flake-based Rust development environment";
+  description = "Nix-flake-based Python development environment";
 
   inputs = {
     devenv-root = {
@@ -9,12 +9,8 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
     devenv.url = "github:cachix/devenv";
-    fenix = {
-      url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
+    nixpkgs-python = {
+      url = "github:cachix/nixpkgs-python";
       inputs = {
         nixpkgs.follows = "nixpkgs";
       };
@@ -58,32 +54,33 @@
           # packages.init = pkgs.hello;
 
           devenv.shells.default = {
-            name = "Rust project";
+            name = "Python project";
 
             imports = [
               # This is just like the imports in devenv.nix.
               # See https://devenv.sh/guides/using-with-flake-parts/#import-a-devenv-module
-              # ./init-project.nix
+              ./init-project.nix
             ];
 
             # https://devenv.sh/reference/options/
-            packages = [ ];
+            packages = with pkgs; [
+              pyright # python lsp
+              ruff # fast linter
+            ];
 
             # https://devenv.sh/reference/options/
-            languages.rust = {
+            languages.python = {
               enable = true;
-              channel = "stable";
-              components = [
-                "rustc"
-                "cargo"
-                "clippy"
-                "rustfmt"
-                "rust-analyzer"
-              ];
+              version = "3.11";
+              uv = {
+                enable = true;
+                sync.enable = true;
+              };
             };
 
             # https://devenv.sh/pre-commit-hooks/
             # pre-commit.hooks = {
+            #   ruff.enable = true; # linting
             # };
           };
 
