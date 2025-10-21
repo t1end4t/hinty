@@ -1,0 +1,19 @@
+[project]
+name = "hinty"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+hinty = "hinty.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+"hinty" = ["**/*.txt", "**/*.json"]
