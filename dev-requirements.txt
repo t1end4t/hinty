@@ -1,3 +1,0 @@
-jupyterlab
-catppuccin-jupyterlab
-jupyterlab-vim
