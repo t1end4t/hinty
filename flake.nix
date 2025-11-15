@@ -1,20 +1,11 @@
 {
-  description = "Nix-flake-based Rust development environment";
-
   inputs = {
-    devenv-root = {
-      url = "file+file:///dev/null";
-      flake = false;
-    };
-    flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
+    systems.url = "github:nix-systems/default";
     devenv.url = "github:cachix/devenv";
-    fenix = {
-      url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
+    devenv.inputs.nixpkgs.follows = "nixpkgs";
+    nixpkgs-python = {
+      url = "github:cachix/nixpkgs-python";
       inputs = {
         nixpkgs.follows = "nixpkgs";
       };
@@ -27,72 +18,64 @@
   };
 
   outputs =
-    inputs@{ flake-parts, devenv-root, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        inputs.devenv.flakeModule
-      ];
-      systems = [
-        "x86_64-linux"
-        "i686-linux"
-        "x86_64-darwin"
-        "aarch64-linux"
-        "aarch64-darwin"
-      ];
-
-      perSystem =
+    {
+      self,
+      nixpkgs,
+      devenv,
+      systems,
+      ...
+    }@inputs:
+    let
+      forEachSystem = nixpkgs.lib.genAttrs (import systems);
+    in
+    {
+      devShells = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
         {
-          config,
-          self',
-          inputs',
-          pkgs,
-          system,
-          ...
-        }:
-        {
-          # Per-system attributes can be defined here. The self' and inputs'
-          # module parameters provide easy access to attributes of the same
-          # system.
+          default = devenv.lib.mkShell {
+            inherit inputs pkgs;
+            modules = [
+              {
+                # https://devenv.sh/reference/options/
+                packages = with pkgs; [
+                  pyright # python lsp
+                  ruff # fast linter
+                ];
 
-          # Equivalent to inputs'.nixpkgs.legacyPackages.hello;
-          # packages.init = pkgs.hello;
+                # https://devenv.sh/reference/options/
+                languages.python = {
+                  enable = true;
+                  version = "3.11";
+                  uv = {
+                    enable = true;
+                    sync.enable = true;
+                  };
+                };
 
-          devenv.shells.default = {
-            name = "Rust project";
+                scripts.init-project.exec = ''
+                  ${pkgs.uv}/bin/uv init
+                  ${pkgs.uv}/bin/uv sync
+                  ${pkgs.uv}/bin/uv add --dev -r dev-requirements.txt
+                '';
 
-            imports = [
-              # This is just like the imports in devenv.nix.
-              # See https://devenv.sh/guides/using-with-flake-parts/#import-a-devenv-module
-              # ./init-project.nix
+                enterShell = ''
+                  source .devenv/state/venv/bin/activate
+                '';
+
+                env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+                  pkgs.stdenv.cc.cc
+                  pkgs.zlib
+                  pkgs.libGL
+                  pkgs.glib
+                ];
+
+              }
             ];
-
-            # https://devenv.sh/reference/options/
-            packages = [ ];
-
-            # https://devenv.sh/reference/options/
-            languages.rust = {
-              enable = true;
-              channel = "stable";
-              components = [
-                "rustc"
-                "cargo"
-                "clippy"
-                "rustfmt"
-                "rust-analyzer"
-              ];
-            };
-
-            # https://devenv.sh/pre-commit-hooks/
-            # pre-commit.hooks = {
-            # };
           };
-
-        };
-      flake = {
-        # The usual flake attributes can be defined here, including system-
-        # agnostic ones like nixosModule and system-enumerating ones, although
-        # those are more easily expressed in perSystem.
-
-      };
+        }
+      );
     };
 }
