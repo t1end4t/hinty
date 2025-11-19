@@ -1,16 +1,24 @@
+import shutil
 import sys
 import tomllib
 from pathlib import Path
 
 from loguru import logger
+from platformdirs import user_config_dir
 
 from hinty.cli import create_cli
 
 # setup level of logging
-config_path = Path.home() / ".config" / "hinty" / "config.toml"
+config_dir = Path(user_config_dir("hinty"))
+config_path = config_dir / "config.toml"
+
 if not config_path.exists():
+    # Auto-create config from example
+    config_dir.mkdir(parents=True, exist_ok=True)
+    example_config = Path(__file__).parent.parent / "config.example.toml"
+    shutil.copy(example_config, config_path)
     print(
-        "Config file not found at ~/.config/hinty/config.toml. Please initialize it by copying config.example.toml to that location."
+        f"Config file created at {config_path}. Please edit it with your API keys."
     )
     sys.exit(1)
 
