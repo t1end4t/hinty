@@ -1,0 +1,7 @@
+[api_keys]
+groq = "GROQ_API_KEY"
+gemini = "GEMINI_API_KEY"
+openrouter = "OPENROUTER_API_KEY"
+
+[logging]
+log_level = "DEBUG"
