@@ -45,7 +45,9 @@ async def chat():
                 user_input, conversation_history, context_manager
             )
             response = agent_response.response
-            assistant_message = ConversationMessage(role="assistant", content=response)
+            assistant_message = ConversationMessage(
+                role="assistant", content=response
+            )
             conversation_history.append(assistant_message)
             console.print(
                 Panel.fit(
