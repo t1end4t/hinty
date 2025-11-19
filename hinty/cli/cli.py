@@ -1,4 +1,5 @@
 import asyncio
+import click
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 from rich.console import Console
@@ -45,5 +46,10 @@ async def chat():
             break
 
 
-if __name__ == "__main__":
+@click.command()
+def main():
     asyncio.run(chat())
+
+
+if __name__ == "__main__":
+    main()
