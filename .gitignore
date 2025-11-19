@@ -171,3 +171,4 @@ cython_debug/
 
 # jupyter stuff
 .virtual_documents/
+.aider*
