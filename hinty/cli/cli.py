@@ -5,6 +5,11 @@ from prompt_toolkit.styles import Style
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
+from typing import List
+
+from ..baml_client.types import ConversationMessage
+from ..core.context_manager import ContextManager
+from ..core.llm import get_agent_response
 
 console = Console()
 
@@ -26,13 +31,22 @@ async def chat():
         )
     )
 
+    conversation_history: List[ConversationMessage] = []
+    context_manager = ContextManager()
+
     while True:
         try:
             user_input = await session.prompt_async("You: ", style=style)
             if user_input.lower() == "exit":
                 break
-            # For now, just respond with "Hello"
-            response = "Hello"
+            user_message = ConversationMessage(role="user", content=user_input)
+            conversation_history.append(user_message)
+            agent_response = get_agent_response(
+                user_input, conversation_history, context_manager
+            )
+            response = agent_response.response
+            assistant_message = ConversationMessage(role="assistant", content=response)
+            conversation_history.append(assistant_message)
             console.print(
                 Panel.fit(
                     Text(response, style="green"),
