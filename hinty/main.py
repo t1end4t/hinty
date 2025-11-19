@@ -9,7 +9,7 @@ from hinty.cli import create_cli
 load_dotenv()
 
 # setup level of logging
-LOG_LEVEL = os.getenv("LOG_LEVEL", "ERROR").upper()
+LOG_LEVEL = os.getenv("HINTY_LOG_LEVEL", "ERROR").upper()
 logger.remove()
 logger.add(sys.stdout, level=LOG_LEVEL)
 
