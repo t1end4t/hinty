@@ -1,4 +1,3 @@
-import asyncio
 import click
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
@@ -15,7 +14,7 @@ console = Console()
 
 
 # Minimal LLM chat interface - for now, just responds with "Hello" to any input
-async def chat():
+def chat():
     session = PromptSession()
     style = Style.from_dict(
         {
@@ -36,7 +35,7 @@ async def chat():
 
     while True:
         try:
-            user_input = await session.prompt_async("You: ", style=style)
+            user_input = session.prompt("You: ", style=style)
             if user_input.lower() == "exit":
                 break
             user_message = ConversationMessage(role="user", content=user_input)
@@ -64,7 +63,7 @@ async def chat():
 
 @click.command()
 def main():
-    asyncio.run(chat())
+    chat()
 
 
 if __name__ == "__main__":
