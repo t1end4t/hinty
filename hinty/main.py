@@ -1,3 +1,4 @@
+import os
 import shutil
 import sys
 import tomllib
@@ -24,6 +25,12 @@ if not config_path.exists():
 
 with open(config_path, "rb") as f:
     config = tomllib.load(f)
+
+# Load API keys into environment variables
+api_keys = config.get("api_keys", {})
+for key, value in api_keys.items():
+    env_var_name = f"{key.upper()}_API_KEY"
+    os.environ[env_var_name] = value
 
 LOG_LEVEL = config.get("logging", {}).get("log_level", "ERROR").upper()
 logger.remove()
