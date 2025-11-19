@@ -16,8 +16,8 @@ from . import stream_types
 
 type_map = {
 
-    "types.Resume": types.Resume,
-    "stream_types.Resume": stream_types.Resume,
+    "types.ConversationMessage": types.ConversationMessage,
+    "stream_types.ConversationMessage": stream_types.ConversationMessage,
 
 
 }

@@ -44,11 +44,9 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 # Generated classes (1)
 # #########################################################################
 
-class Resume(BaseModel):
-    name: str
-    email: str
-    experience: typing.List[str]
-    skills: typing.List[str]
+class ConversationMessage(BaseModel):
+    role: typing.Union[typing_extensions.Literal['user'], typing_extensions.Literal['assistant']]
+    content: str
 
 # #########################################################################
 # Generated type aliases (0)

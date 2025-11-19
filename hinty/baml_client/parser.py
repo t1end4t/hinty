@@ -24,11 +24,11 @@ class LlmResponseParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ExtractResume(
+    def Router(
         self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> types.Resume:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="ExtractResume", llm_response=llm_response, mode="request")
-        return typing.cast(types.Resume, result)
+    ) -> str:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="Router", llm_response=llm_response, mode="request")
+        return typing.cast(str, result)
 
     
 
@@ -38,10 +38,10 @@ class LlmStreamParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ExtractResume(
+    def Router(
         self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> stream_types.Resume:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="ExtractResume", llm_response=llm_response, mode="stream")
-        return typing.cast(stream_types.Resume, result)
+    ) -> str:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="Router", llm_response=llm_response, mode="stream")
+        return typing.cast(str, result)
 
     

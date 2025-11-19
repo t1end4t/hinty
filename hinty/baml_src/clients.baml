@@ -1,21 +1,21 @@
 // Learn more about clients at https://docs.boundaryml.com/docs/snippets/clients/overview
-client<llm> Router {
+client<llm> GeminiRouter {
   provider "openai-generic"
   retry_policy Exponential
   options {
     base_url "https://openrouter.ai/api/v1"
-    api_key env.OPENROUTER_API_KEY
-    model "google/gemini-2.0-flash-001"
+    api_key env.GOOGLE_API_KEY
+    model "gemini-flash-latest"
   }
 }
 
-client<llm> SmartRouter {
-  provider "openai-generic"
+client<llm> GroqRouter {
+  provider openai-generic
   retry_policy Exponential
   options {
-    base_url "https://openrouter.ai/api/v1"
-    api_key env.OPENROUTER_API_KEY
-    model "google/gemini-2.5-flash-preview-09-2025"
+    base_url "https://api.groq.com/openai/v1"
+    api_key env.GROQ_API_KEY
+    model "openai/gpt-oss-120b"
   }
 }
 
@@ -46,15 +46,6 @@ client<llm> Thinking {
     base_url "https://openrouter.ai/api/v1"
     api_key env.OPENROUTER_API_KEY
     model "anthropic/claude-opus-4.1"
-  }
-}
-
-
-client<llm> ThinkingGemini {
-  provider google-ai
-  options {
-    model "gemini-2.5-flash"
-    api_key env.GEMINI_API_KEY
   }
 }
 

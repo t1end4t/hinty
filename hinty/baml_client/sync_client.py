@@ -91,20 +91,20 @@ class BamlSyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
     
-    def ExtractResume(self, resume: str,
+    def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
         baml_options: BamlCallOptions = {},
-    ) -> types.Resume:
+    ) -> str:
         # Check if on_tick is provided
         if 'on_tick' in baml_options:
-            stream = self.stream.ExtractResume(resume=resume,
+            stream = self.stream.Router(message=message,conversation_history=conversation_history,
                 baml_options=baml_options)
             return stream.get_final_response()
         else:
             # Original non-streaming code
-            result = self.__options.merge_options(baml_options).call_function_sync(function_name="ExtractResume", args={
-                "resume": resume,
+            result = self.__options.merge_options(baml_options).call_function_sync(function_name="Router", args={
+                "message": message,"conversation_history": conversation_history,
             })
-            return typing.cast(types.Resume, result.cast_to(types, types, stream_types, False, __runtime__))
+            return typing.cast(str, result.cast_to(types, types, stream_types, False, __runtime__))
     
 
 
@@ -114,16 +114,16 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ExtractResume(self, resume: str,
+    def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
         baml_options: BamlCallOptions = {},
-    ) -> baml_py.BamlSyncStream[stream_types.Resume, types.Resume]:
-        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="ExtractResume", args={
-            "resume": resume,
+    ) -> baml_py.BamlSyncStream[str, str]:
+        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="Router", args={
+            "message": message,"conversation_history": conversation_history,
         })
-        return baml_py.BamlSyncStream[stream_types.Resume, types.Resume](
+        return baml_py.BamlSyncStream[str, str](
           result,
-          lambda x: typing.cast(stream_types.Resume, x.cast_to(types, types, stream_types, True, __runtime__)),
-          lambda x: typing.cast(types.Resume, x.cast_to(types, types, stream_types, False, __runtime__)),
+          lambda x: typing.cast(str, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(str, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
     
@@ -134,11 +134,11 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ExtractResume(self, resume: str,
+    def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ExtractResume", args={
-            "resume": resume,
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="Router", args={
+            "message": message,"conversation_history": conversation_history,
         }, mode="request")
         return result
     
@@ -149,11 +149,11 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ExtractResume(self, resume: str,
+    def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ExtractResume", args={
-            "resume": resume,
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="Router", args={
+            "message": message,"conversation_history": conversation_history,
         }, mode="stream")
         return result
     

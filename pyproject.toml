@@ -5,4 +5,7 @@ description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
     "baml-py>=0.213.0",
+    "click>=8.3.1",
+    "prompt-toolkit>=3.0.52",
+    "rich>=14.2.0",
 ]
