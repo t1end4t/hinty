@@ -62,9 +62,5 @@ def chat():
 
 
 @click.command()
-def main():
+def create_cli():
     chat()
-
-
-if __name__ == "__main__":
-    main()

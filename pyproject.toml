@@ -4,8 +4,25 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
-    "baml-py>=0.213.0",
-    "click>=8.3.1",
-    "prompt-toolkit>=3.0.52",
-    "rich>=14.2.0",
+  "baml-py>=0.213.0",
+  "click>=8.3.1",
+  "dotenv>=0.9.9",
+  "loguru>=0.7.3",
+  "prompt-toolkit>=3.0.52",
+  "pydantic>=2.12.4",
+  "rich>=14.2.0",
+  "typing-extensions>=4.15.0",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+hinty = "hinty.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+"hinty" = ["**/*.txt", "**/*.json"]
