@@ -5,6 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def smooth_print(text, delay=0.01):
+    for char in text:
+        print(char, end="", flush=True)
+        time.sleep(delay)
+
+
 # Using a stream:
 def example1(receipt: str):
     start_time = time.time()
@@ -19,7 +25,7 @@ def example1(receipt: str):
 
         current = str(partial)
         new_content = current[len(previous) :]
-        print(new_content, end="", flush=True)
+        smooth_print(new_content)
         previous = current
 
     # final is the full, original, validated ReceiptInfo type
