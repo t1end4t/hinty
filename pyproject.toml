@@ -19,5 +19,8 @@ dependencies = [
 requires = ["uv_build>=0.9.0,<0.10.0"]
 build-backend = "uv_build"
 
+[tool.uv]
+package-dir = "."
+
 [project.scripts]
 hinty = "hinty.main:cli"
