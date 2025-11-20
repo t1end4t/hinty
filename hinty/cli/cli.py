@@ -2,7 +2,6 @@ import click
 import time
 from prompt_toolkit import PromptSession
 from rich.console import Console
-from rich.markdown import Markdown
 from rich.panel import Panel
 from typing import List
 
@@ -49,38 +48,19 @@ def chat():
                     user_input, conversation_history, context_manager
                 )
                 response = agent_response.response
-                # Handle streaming or string response
-                if hasattr(response, "__iter__") and not isinstance(
-                    response, str
-                ):
-                    # Assume it's a stream like BamlSyncStream
-                    console.print("LLM:", style="green bold", end=" ")
-                    previous = ""
-                    full_response = ""
-                    for partial in response:
-                        current = str(partial)
-                        new_content = current[len(previous) :]
-                        if new_content:
-                            console.print(
-                                new_content, end="", style="green", flush=True
-                            )
-                        full_response += new_content
-                        previous = current
-                    console.print()  # Newline after streaming
-                    response_content = full_response
-                else:
-                    # Fallback for string response
-                    response_content = str(response)
-                    words = response_content.split()
-                    console.print("LLM:", style="green bold", end=" ")
-                    for word in words:
-                        console.print(word, end=" ", style="green")
-                        time.sleep(0.05)
-                    console.print()
                 assistant_message = ConversationMessage(
-                    role="assistant", content=response_content
+                    role="assistant", content=response
                 )
                 conversation_history.append(assistant_message)
+                # Stream response word by word with delay
+                words = response.split()
+                console.print("LLM:", style="green bold", end=" ")
+                for word in words:
+                    console.print(word, end=" ", style="green")
+                    time.sleep(
+                        0.05
+                    )  # Adjust delay as needed (e.g., 0.05 for faster)
+                console.print()  # Newline after streaming
         except KeyboardInterrupt:
             break
         except EOFError:
