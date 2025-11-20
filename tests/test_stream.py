@@ -38,10 +38,12 @@ def example1(receipt: str):
             # Calculate delay based on content length
             # First partial: spread over ~0.05s, others: use standard delay
             if is_first_partial:
-                delay = 0.05 / len(new_content) if len(new_content) > 0 else 0.01
+                delay = (
+                    0.05 / len(new_content) if len(new_content) > 0 else 0.01
+                )
             else:
                 delay = 0.01
-            
+
             smooth_print(new_content, delay=delay)
             is_first_partial = False
 
