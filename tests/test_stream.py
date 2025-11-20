@@ -12,7 +12,7 @@ def example1(receipt: str):
     previous = ""
     for partial in stream:
         current = str(partial)
-        new_content = current[len(previous):]
+        new_content = current[len(previous) :]
         print(new_content, end="", flush=True)
         previous = current
 
