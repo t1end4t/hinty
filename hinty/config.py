@@ -27,7 +27,7 @@ def read_config_file(config_path: Path) -> dict:
     except FileNotFoundError:
         logger.error(f"Config file not found: {config_path}")
         raise
-    except tomllib.TOMLKitError as e:
+    except Exception as e:
         logger.error(f"Error parsing TOML config: {e}")
         raise
 
