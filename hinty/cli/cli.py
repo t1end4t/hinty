@@ -6,21 +6,23 @@ from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
 from typing import List
-  
+
 from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import catppuccin_mocha_style, panel_border_style
 from ..core.context_manager import ContextManager
-  
+
 console = Console()
-  
+
 # Constants for readability
-WELCOME_MESSAGE = "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
+WELCOME_MESSAGE = (
+    "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
+)
 PROMPT_TEXT = ">> "
 REFRESH_RATE = 4
-  
-  
+
+
 def setup_session() -> PromptSession:
     """Set up the prompt session with completer and style."""
     logger.info("Setting up prompt session")
@@ -28,8 +30,8 @@ def setup_session() -> PromptSession:
     session = PromptSession(completer=completer, complete_while_typing=True)
     logger.info("Prompt session setup complete")
     return session
-  
-  
+
+
 def print_welcome():
     """Print the welcome panel."""
     logger.info("Printing welcome message")
@@ -40,9 +42,11 @@ def print_welcome():
             border_style="blue",
         )
     )
-  
-  
-def initialize_conversation() -> tuple[List[ConversationMessage], ContextManager]:
+
+
+def initialize_conversation() -> tuple[
+    List[ConversationMessage], ContextManager
+]:
     """Initialize conversation history and context manager."""
     logger.info("Initializing conversation")
     conversation_history: List[ConversationMessage] = []
@@ -50,8 +54,8 @@ def initialize_conversation() -> tuple[List[ConversationMessage], ContextManager
     console.print(f"Current directory: {context_manager.pwd_path}")
     logger.info("Conversation initialized")
     return conversation_history, context_manager
-  
-  
+
+
 def display_stream_response(stream, console: Console) -> str:
     """Display streaming response and return full response."""
     logger.info("Starting stream display")
@@ -74,8 +78,8 @@ def display_stream_response(stream, console: Console) -> str:
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
-  
-  
+
+
 def process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
@@ -98,8 +102,8 @@ def process_user_message(
     except Exception as e:
         logger.error(f"Error processing user message: {e}")
         raise
-  
-  
+
+
 def handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
@@ -127,8 +131,8 @@ def handle_input_loop(
             logger.error(f"Unexpected error in input loop: {e}")
             break
     logger.info("Input loop ended")
-  
-  
+
+
 # Minimal LLM chat interface
 def chat():
     """Run the chat interface."""
@@ -138,8 +142,8 @@ def chat():
     conversation_history, context_manager = initialize_conversation()
     handle_input_loop(session, conversation_history, context_manager)
     logger.info("Chat ended")
-  
-  
+
+
 @click.command()
 def create_cli():
     """Create and run the CLI."""
