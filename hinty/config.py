@@ -28,7 +28,7 @@ def load_config():
     # Set api_keys as {KEY}_API_KEY
     api_keys = config.get("api_keys", {})
     for key, value in api_keys.items():
-        env_var = f"{key.upper()}_API_KEY"
+        env_var = f"{key.upper()}"
         os.environ[env_var] = str(value)
         print(f"{env_var} set: {bool(os.environ.get(env_var))}")
 
