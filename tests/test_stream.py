@@ -1,3 +1,4 @@
+import threading
 import time
 
 from dotenv import load_dotenv
@@ -33,14 +34,18 @@ def example1(receipt: str):
             partial_count += 1
 
             # Buffer first 5 partials
-            if partial_count <= 10:
+            if partial_count <= 5:
                 buffered_content += new_content
-                if partial_count == 10:
+                if partial_count == 5:
                     print("[LOG] First content received, streaming...\n")
                     print(
                         f"[LOG] Printing buffered content from first 5 partials\n"
                     )
-                    smooth_print(buffered_content)
+                    # Start smooth printing in a separate thread
+                    threading.Thread(target=smooth_print, args=(buffered_content,)).start()
+            else:
+                # Print subsequent partials immediately
+                print(new_content, end="", flush=True)
 
         previous = current
 
