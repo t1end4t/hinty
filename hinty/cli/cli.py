@@ -1,5 +1,6 @@
 import click
 from prompt_toolkit import PromptSession
+from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.styles import Style
 from rich.console import Console
 from rich.panel import Panel
@@ -16,7 +17,9 @@ console = Console()
 
 # Minimal LLM chat interface
 def chat():
-    session = PromptSession()
+    commands = ["/help"]
+    completer = WordCompleter(commands, ignore_case=True)
+    session = PromptSession(completer=completer)
     style = Style.from_dict(
         {
             "prompt": "bold cyan",
