@@ -44,18 +44,22 @@ def example1(receipt: str):
 
 
 def example2(receipt: str):
-    start_time = time.time()
     stream = b.stream.Router(receipt)
 
     print("[LOG] Starting stream with timing for each partial...\n")
 
-    for partial in stream:
-        elapsed = time.time() - start_time
-        print(f"[{elapsed:.3f}s]")
+    partial_count = 0
+    last_time = time.time()
 
-    total_time = time.time() - start_time
+    for partial in stream:
+        current_time = time.time()
+        delta = current_time - last_time
+        partial_count += 1
+        print(f"Partial {partial_count}: {delta:.3f}s")
+        last_time = current_time
+
     print("----------")
-    print(f"Total time: {total_time:.3f}s")
+    print(f"Total partials: {partial_count}")
 
 
 def example3(receipt: str):
