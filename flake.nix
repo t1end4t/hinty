@@ -2,8 +2,10 @@
   inputs = {
     nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
     systems.url = "github:nix-systems/default";
+
     devenv.url = "github:cachix/devenv";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
+
     nixpkgs-python = {
       url = "github:cachix/nixpkgs-python";
       inputs = {
@@ -39,13 +41,11 @@
             inherit inputs pkgs;
             modules = [
               {
-                # https://devenv.sh/reference/options/
                 packages = with pkgs; [
-                  pyright # python lsp
-                  ruff # fast linter
+                  pyright
+                  ruff
                 ];
 
-                # https://devenv.sh/reference/options/
                 languages.python = {
                   enable = true;
                   version = "3.11";
@@ -71,14 +71,10 @@
                   pkgs.libGL
                   pkgs.glib
                 ];
-
               }
             ];
           };
         }
       );
-      packages = forEachSystem (system: {
-        default = nixpkgs.legacyPackages.${system}.callPackage ./default.nix {};
-      });
     };
 }
