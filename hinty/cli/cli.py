@@ -43,12 +43,14 @@ def chat():
                     role="user", content=user_input
                 )
                 conversation_history.append(user_message)
-                stream = b.stream.Router(user_input, conversation_history=conversation_history)
+                stream = b.stream.Router(
+                    user_input, conversation_history=conversation_history
+                )
                 previous = ""
                 console.print("LLM:", style="green bold", end=" ")
                 for partial in stream:
                     current = str(partial)
-                    new_content = current[len(previous):]
+                    new_content = current[len(previous) :]
                     if new_content:
                         console.print(new_content, end="", flush=True)
                     previous = current
