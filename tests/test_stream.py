@@ -39,9 +39,9 @@ def example2(receipt: str):
     print(f"Total time: {total_time:.3f}s")
 
 
-receipt = """
+message = """
 do you think Ho Chi Minh is great leader
 """
 
 if __name__ == "__main__":
-    example1(receipt)
+    example1(message)
