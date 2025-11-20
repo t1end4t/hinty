@@ -43,6 +43,21 @@ def example1(receipt: str):
     print(f"Total time: {total_time:.3f}s")
 
 
+def example2(receipt: str):
+    start_time = time.time()
+    stream = b.stream.Router(receipt)
+
+    print("[LOG] Starting stream with timing for each partial...\n")
+
+    for partial in stream:
+        elapsed = time.time() - start_time
+        print(f"[{elapsed:.3f}s] Partial received: {partial}")
+
+    total_time = time.time() - start_time
+    print("----------")
+    print(f"Total time: {total_time:.3f}s")
+
+
 def example3(receipt: str):
     start_time = time.time()
     resp = b.Router(receipt)
@@ -59,4 +74,5 @@ do you think Ho Chi Minh is great leader
 
 if __name__ == "__main__":
     example1(message)
+    example2(message)
     example3(message)
