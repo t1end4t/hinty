@@ -53,7 +53,13 @@ def chat():
                     for partial in stream:
                         current = str(partial)
                         full_response = current
-                        live.update(Panel(Markdown(full_response), title="LLM", border_style=panel_border_style))
+                        live.update(
+                            Panel(
+                                Markdown(full_response),
+                                title="LLM",
+                                border_style=panel_border_style,
+                            )
+                        )
 
                 # After streaming, add a newline for separation
                 console.print()
