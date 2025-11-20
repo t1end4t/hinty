@@ -43,9 +43,7 @@ def set_environment_variables(config: dict) -> None:
     sections = ["api_keys", "logging"]
     for section in sections:
         vars_dict = config.get(section, {})
-        env_vars = {
-            key.upper(): str(value) for key, value in vars_dict.items()
-        }
+        env_vars = {key.upper(): str(value) for key, value in vars_dict.items()}
         os.environ.update(env_vars)
         logger.debug(f"Set {len(env_vars)} env vars from {section}")
 
