@@ -21,6 +21,12 @@ def example1(receipt: str):
     print(f"\nfinal: {final})")
 
 
+def example2(receipt: str):
+    resp = b.Router(receipt)
+
+    print(f"\nfinal: {resp})")
+
+
 receipt = """
 do you think Ho Chi Minh is great leader
 """
