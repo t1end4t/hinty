@@ -20,6 +20,7 @@ def example1(receipt: str):
     previous = ""
     first_partial_time = None
     first_token_printed = False
+    is_first_partial = True
 
     for partial in stream:
         if first_partial_time is None:
@@ -33,7 +34,11 @@ def example1(receipt: str):
             if not first_token_printed:
                 print("[LOG] First content received, streaming...\n")
                 first_token_printed = True
-            smooth_print(new_content)
+            
+            # Use faster delay for first partial to compensate for longer wait
+            delay = 0.001 if is_first_partial else 0.01
+            smooth_print(new_content, delay=delay)
+            is_first_partial = False
 
         previous = current
 
