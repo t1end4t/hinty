@@ -38,7 +38,7 @@ def chat():
             if not user_input:
                 break
             if user_input.startswith("/"):
-                handle_command(user_input, console)
+                handle_command(user_input, console, conversation_history)
             else:
                 user_message = ConversationMessage(
                     role="user", content=user_input
