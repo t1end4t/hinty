@@ -1,7 +1,6 @@
 import click
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.document import Document
 from prompt_toolkit.styles import Style
 from rich.console import Console
 from rich.panel import Panel
