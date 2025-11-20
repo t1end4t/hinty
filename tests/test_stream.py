@@ -34,7 +34,7 @@ def example1(receipt: str):
             if not first_token_printed:
                 print("[LOG] First content received, streaming...\n")
                 first_token_printed = True
-            
+
             # Use faster delay for first partial to compensate for longer wait
             delay = 0.001 if is_first_partial else 0.01
             smooth_print(new_content, delay=delay)
