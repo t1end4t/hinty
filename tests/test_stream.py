@@ -44,12 +44,7 @@ def example1(receipt: str):
                     print(
                         f"[LOG] Printing buffered content from first 5 partials\n"
                     )
-                    delay = (
-                        0.05 / len(buffered_content)
-                        if len(buffered_content) > 0
-                        else 0.01
-                    )
-                    smooth_print(buffered_content, delay=delay)
+                    smooth_print(buffered_content)
             else:
                 # Print subsequent partials immediately
                 print(new_content, end="", flush=True)
