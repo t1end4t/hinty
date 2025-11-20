@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List
+from baml_py import BamlSyncStream
 
 
 @dataclass
 class AgentResponse:
     """Unified response structure for all agents."""
 
-    response: Any
+    response: BamlSyncStream[str, str]
     metadata: Dict[str, Any] | None = None
     actions: List[str] | None = None
     thinking: str | None = None
