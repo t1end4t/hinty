@@ -4,7 +4,6 @@ import sys
 import tomllib
 from pathlib import Path
 
-from loguru import logger
 from platformdirs import user_config_dir
 
 
