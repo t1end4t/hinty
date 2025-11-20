@@ -37,6 +37,7 @@ def example1(receipt: str):
 
             # Only apply character-by-character for first partial
             if is_first_partial:
+                print(f"[LOG] First partial content: {new_content}\n")
                 delay = (
                     0.05 / len(new_content) if len(new_content) > 0 else 0.01
                 )
