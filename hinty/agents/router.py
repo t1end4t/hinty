@@ -26,16 +26,7 @@ def handle_router_mode(
     start_time = time.time()
     stream = call_router(user_message, conversation_history)
 
-    previous = ""
-    full_response = ""
-
-    for partial in stream:
-        current = str(partial)
-        new_content = current[len(previous) :]
-        full_response += new_content
-        previous = current
-
     total_time = time.time() - start_time
     logger.info(f"Router response time: {total_time:.3f}s")
 
-    return AgentResponse(response=full_response)
+    return AgentResponse(response=stream)

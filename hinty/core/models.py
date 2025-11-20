@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 class AgentResponse:
     """Unified response structure for all agents."""
 
-    response: str
+    response: Any
     metadata: Dict[str, Any] | None = None
     actions: List[str] | None = None
     thinking: str | None = None
