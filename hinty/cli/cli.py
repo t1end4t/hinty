@@ -3,7 +3,6 @@ from prompt_toolkit import PromptSession
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
-from rich.text import Text
 from typing import List
 
 from ..baml_client.types import ConversationMessage
