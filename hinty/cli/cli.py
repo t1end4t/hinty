@@ -1,6 +1,7 @@
 import click
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.document import Document
 from prompt_toolkit.styles import Style
 from rich.console import Console
 from rich.panel import Panel
@@ -15,10 +16,22 @@ from ..core.llm import get_agent_response
 console = Console()
 
 
+class CommandCompleter(Completer):
+    def __init__(self, commands):
+        self.commands = commands
+
+    def get_completions(self, document, complete_event):
+        text = document.text
+        if text.startswith("/"):
+            for cmd in self.commands:
+                if cmd.startswith(text.lower()):
+                    yield Completion(cmd, start_position=-len(text))
+
+
 # Minimal LLM chat interface
 def chat():
     commands = ["/help"]
-    completer = WordCompleter(commands, ignore_case=True)
+    completer = CommandCompleter(commands)
     session = PromptSession(completer=completer, complete_while_typing=True)
     style = Style.from_dict(
         {
