@@ -56,7 +56,9 @@ def chat():
                         console.print(new_content, end="")
                     full_response = current
                 # Clear the streamed partial output
-                console.print("\r\033[K", end="")  # Carriage return and clear line
+                console.print(
+                    "\r\033[K", end=""
+                )  # Carriage return and clear line
                 assistant_message = ConversationMessage(
                     role="assistant", content=full_response
                 )
