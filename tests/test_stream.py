@@ -25,7 +25,7 @@ def example1(receipt: str):
 
         current = str(partial)
         new_content = current[len(previous) :]
-        smooth_print(new_content)
+        print(new_content, end="", flush=True)
         previous = current
 
     # final is the full, original, validated ReceiptInfo type
