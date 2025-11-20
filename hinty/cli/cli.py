@@ -55,16 +55,12 @@ def chat():
                     if new_content:
                         console.print(new_content, end="")
                     full_response = current
-                # Clear the streamed partial output
-                console.print(
-                    "\r\033[K", end=""
-                )  # Carriage return and clear line
+
                 assistant_message = ConversationMessage(
                     role="assistant", content=full_response
                 )
+
                 conversation_history.append(assistant_message)
-                console.print("LLM:", style="green bold")
-                console.print(Markdown(full_response))
         except KeyboardInterrupt:
             break
         except EOFError:
