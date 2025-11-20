@@ -1,6 +1,5 @@
 import click
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.styles import Style
 from rich.console import Console
 from rich.panel import Panel
@@ -8,28 +7,15 @@ from rich.text import Text
 from typing import List
 
 from ..baml_client.types import ConversationMessage
-from ..cli.commands import help_command
+from ..cli.commands import CommandCompleter, commands, help_command
 from ..core.context_manager import ContextManager
 from ..core.llm import get_agent_response
 
 console = Console()
 
 
-class CommandCompleter(Completer):
-    def __init__(self, commands):
-        self.commands = commands
-
-    def get_completions(self, document, complete_event):
-        text = document.text
-        if text.startswith("/"):
-            for cmd in self.commands:
-                if cmd.startswith(text.lower()):
-                    yield Completion(cmd, start_position=-len(text))
-
-
 # Minimal LLM chat interface
 def chat():
-    commands = ["/help"]
     completer = CommandCompleter(commands)
     session = PromptSession(completer=completer, complete_while_typing=True)
     style = Style.from_dict(
