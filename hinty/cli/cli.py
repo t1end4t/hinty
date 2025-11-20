@@ -1,6 +1,7 @@
 import click
 from prompt_toolkit import PromptSession
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.text import Text
 from typing import List
@@ -54,7 +55,7 @@ def chat():
                 conversation_history.append(assistant_message)
                 console.print(
                     Panel.fit(
-                        Text(response, style="green"),
+                        Markdown(response),
                         title="LLM",
                         border_style="green",
                     )
