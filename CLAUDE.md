@@ -3,7 +3,7 @@ When writing code, you MUST follow these principles:
 - READABILITY FIRST: Code should be easy to read and understand.
 - SIMPLICITY: Keep code as simple as possible. Avoid unnecessary complexity.
 - MEANINGFUL NAMES: Use descriptive names for variables, functions, etc. Names should reveal intent.
-- SMALL FUNCTIONS: Functions should be small and do one thing well, not exceeding a few lines.
+- SMALL FUNCTIONS: Functions should be small and do one thing well, typically 5-20 lines, avoiding overly tiny functions (e.g., fewer than 5 lines) unless they represent a clear, reusable abstraction.
 - DESCRIPTIVE FUNCTION NAMES: Function names should clearly describe the action being performed.
 - MINIMAL ARGUMENTS: Prefer fewer function arguments. Aim for no more than two or three.
 - SELF-EXPLANATORY CODE: Minimize comments—they can become outdated. Write code that explains itself.
