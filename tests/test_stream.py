@@ -21,7 +21,6 @@ def example1(receipt: str):
     first_partial_time = None
     for partial in stream:
         if first_partial_time is None:
-            time.sleep(1)  # Add delay to first partial
             first_partial_time = time.time() - start_time
 
         current = str(partial)
