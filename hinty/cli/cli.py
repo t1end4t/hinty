@@ -1,6 +1,7 @@
 import click
 from prompt_toolkit import PromptSession
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.panel import Panel
 from typing import List
 
@@ -46,19 +47,15 @@ def chat():
                 stream = b.stream.Router(
                     user_input, conversation_history=conversation_history
                 )
-                previous = ""
-                console.print("LLM:", style="green bold", end=" ")
+                full_response = ""
                 for partial in stream:
-                    current = str(partial)
-                    new_content = current[len(previous) :]
-                    if new_content:
-                        console.print(new_content, end="")
-                    previous = current
+                    full_response = str(partial)
                 assistant_message = ConversationMessage(
-                    role="assistant", content=previous
+                    role="assistant", content=full_response
                 )
                 conversation_history.append(assistant_message)
-                console.print()  # Newline after streaming
+                console.print("LLM:", style="green bold")
+                console.print(Markdown(full_response))
         except KeyboardInterrupt:
             break
         except EOFError:
