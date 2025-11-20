@@ -7,7 +7,7 @@ from rich.text import Text
 from typing import List
 
 from ..baml_client.types import ConversationMessage
-from ..cli.commands import CommandCompleter, commands, help_command
+from ..cli.commands import CommandCompleter, commands, handle_command
 from ..core.context_manager import ContextManager
 from ..core.llm import get_agent_response
 
@@ -42,10 +42,7 @@ def chat():
             if not user_input:
                 break
             if user_input.startswith("/"):
-                if user_input == "/help":
-                    help_command(console)
-                else:
-                    console.print(f"Unknown command: {user_input}")
+                handle_command(user_input, console)
             else:
                 user_message = ConversationMessage(
                     role="user", content=user_input

@@ -24,3 +24,11 @@ def help_command(console: Console) -> None:
         "/help - Show this help message\n"
         "Type a message to chat with the LLM. Use / to invoke commands."
     )
+
+
+def handle_command(command: str, console: Console) -> None:
+    """Dispatch commands to their handlers."""
+    if command == "/help":
+        help_command(console)
+    else:
+        console.print(f"Unknown command: {command}")
