@@ -32,12 +32,9 @@ def load_config():
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
 
-    # Set api_keys as uppercase env vars
-    api_keys = config.get("api_keys", {})
-    set_env_vars_upper(api_keys)
-
-    # Set logging as uppercase keys
-    logging = config.get("logging", {})
-    set_env_vars_upper(logging)
+    # Set environment variables for api_keys and logging sections
+    for section in ["api_keys", "logging"]:
+        vars_dict = config.get(section, {})
+        set_env_vars_upper(vars_dict)
 
     return os.environ.get("LOG_LEVEL", "ERROR").upper()
