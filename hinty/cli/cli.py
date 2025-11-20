@@ -48,13 +48,18 @@ def chat():
                     user_input, conversation_history=conversation_history
                 )
                 full_response = ""
+                console.print("LLM:", style="green bold", end=" ")
                 for partial in stream:
-                    full_response = str(partial)
+                    current = str(partial)
+                    new_content = current[len(full_response) :]
+                    if new_content:
+                        console.print(new_content, end="")
+                    full_response = current
+                console.print()  # Newline after streaming
                 assistant_message = ConversationMessage(
                     role="assistant", content=full_response
                 )
                 conversation_history.append(assistant_message)
-                console.print("LLM:", style="green bold")
                 console.print(Markdown(full_response))
         except KeyboardInterrupt:
             break
