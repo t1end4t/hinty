@@ -33,7 +33,7 @@ def example1(receipt: str):
             first_partial_content += new_content
         else:
             if first_partial_content:
-                smooth_print(first_partial_content)
+                print(first_partial_content, end="", flush=True)
                 first_partial_content = ""
             smooth_print(new_content)
 
@@ -41,7 +41,7 @@ def example1(receipt: str):
         is_first_partial = False
 
     if first_partial_content:
-        smooth_print(first_partial_content)
+        print(first_partial_content, end="", flush=True)
 
     # final is the full, original, validated ReceiptInfo type
     # final = stream.get_final_response()
