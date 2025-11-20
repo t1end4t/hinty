@@ -2,14 +2,34 @@
   inputs = {
     nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
     systems.url = "github:nix-systems/default";
+
     devenv.url = "github:cachix/devenv";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
+
     nixpkgs-python = {
       url = "github:cachix/nixpkgs-python";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # --- Added for packaging ---
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # ------------------------------
   };
 
   nixConfig = {
@@ -23,12 +43,48 @@
       nixpkgs,
       devenv,
       systems,
+      pyproject-nix,
+      uv2nix,
+      pyproject-build-systems,
       ...
     }@inputs:
     let
       forEachSystem = nixpkgs.lib.genAttrs (import systems);
+
+      # --- Added: uv2nix workspace loader ---
+      workspace = uv2nix.lib.workspace.loadWorkspace {
+        workspaceRoot = ./.;
+      };
+
+      overlay = workspace.mkPyprojectOverlay {
+        sourcePreference = "wheel";
+      };
+
+      editableOverlay = workspace.mkEditablePyprojectOverlay {
+        root = "$REPO_ROOT";
+      };
+
+      pythonSets = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          python = pkgs.python3;
+        in
+        (pkgs.callPackage pyproject-nix.build.packages {
+          inherit python;
+        }).overrideScope
+          (
+            nixpkgs.lib.composeManyExtensions [
+              pyproject-build-systems.overlays.wheel
+              overlay
+            ]
+          )
+      );
+      # -------------------------------------
+
     in
     {
+      # Your original devenv devShell (unchanged)
       devShells = forEachSystem (
         system:
         let
@@ -39,13 +95,11 @@
             inherit inputs pkgs;
             modules = [
               {
-                # https://devenv.sh/reference/options/
                 packages = with pkgs; [
-                  pyright # python lsp
-                  ruff # fast linter
+                  pyright
+                  ruff
                 ];
 
-                # https://devenv.sh/reference/options/
                 languages.python = {
                   enable = true;
                   version = "3.11";
@@ -76,5 +130,11 @@
           };
         }
       );
+
+      # --- Added: Nix package build output ---
+      packages = forEachSystem (system: {
+        default = pythonSets.${system}.mkVirtualEnv "hinty-env" workspace.deps.default;
+      });
+      # ---------------------------------------
     };
 }
