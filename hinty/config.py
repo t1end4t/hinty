@@ -9,7 +9,9 @@ from platformdirs import user_config_dir
 
 def set_env_vars_upper(vars_dict: dict) -> None:
     """Set environment variables with uppercase keys from a dictionary."""
-    os.environ.update({key.upper(): str(value) for key, value in vars_dict.items()})
+    os.environ.update(
+        {key.upper(): str(value) for key, value in vars_dict.items()}
+    )
 
 
 def load_config():
