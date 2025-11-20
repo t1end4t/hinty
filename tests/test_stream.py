@@ -82,6 +82,6 @@ do you think Ho Chi Minh is great leader
 """
 
 if __name__ == "__main__":
-    # example1(message)
-    example2(message)
+    example1(message)
+    # example2(message)
     # example3(message)
