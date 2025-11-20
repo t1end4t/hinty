@@ -1,15 +1,14 @@
 import click
-import time
 from prompt_toolkit import PromptSession
 from rich.console import Console
 from rich.panel import Panel
 from typing import List
 
+from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import catppuccin_mocha_style
 from ..core.context_manager import ContextManager
-from ..core.llm import get_agent_response
 
 console = Console()
 
@@ -44,22 +43,19 @@ def chat():
                     role="user", content=user_input
                 )
                 conversation_history.append(user_message)
-                agent_response = get_agent_response(
-                    user_input, conversation_history, context_manager
-                )
-                response = agent_response.response
+                stream = b.stream.Router(user_input, conversation_history=conversation_history)
+                previous = ""
+                console.print("LLM:", style="green bold", end=" ")
+                for partial in stream:
+                    current = str(partial)
+                    new_content = current[len(previous):]
+                    if new_content:
+                        console.print(new_content, end="", flush=True)
+                    previous = current
                 assistant_message = ConversationMessage(
-                    role="assistant", content=response
+                    role="assistant", content=previous
                 )
                 conversation_history.append(assistant_message)
-                # Stream response word by word with delay
-                words = response.split()
-                console.print("LLM:", style="green bold", end=" ")
-                for word in words:
-                    console.print(word, end=" ", style="green")
-                    time.sleep(
-                        0.05
-                    )  # Adjust delay as needed (e.g., 0.05 for faster)
                 console.print()  # Newline after streaming
         except KeyboardInterrupt:
             break
