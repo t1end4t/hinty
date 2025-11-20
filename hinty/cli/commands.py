@@ -1,5 +1,4 @@
 from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.document import Document
 from rich.console import Console
 
 
