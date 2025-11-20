@@ -2,6 +2,10 @@ import sys
 
 from loguru import logger
 
+# Temporarily set logger to ERROR to prevent debug output during config loading
+logger.remove()
+logger.add(sys.stdout, level="ERROR")
+
 from hinty.cli import create_cli
 from hinty.config import load_config
 
