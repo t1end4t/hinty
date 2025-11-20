@@ -35,17 +35,16 @@ def example1(receipt: str):
                 print("[LOG] First content received, streaming...\n")
                 first_token_printed = True
 
-            # Calculate delay based on content length
-            # First partial: spread over ~0.05s, others: use standard delay
+            # Only apply character-by-character for first partial
             if is_first_partial:
                 delay = (
                     0.05 / len(new_content) if len(new_content) > 0 else 0.01
                 )
+                smooth_print(new_content, delay=delay)
+                is_first_partial = False
             else:
-                delay = 0.01
-
-            smooth_print(new_content, delay=delay)
-            is_first_partial = False
+                # Just print subsequent partials immediately
+                print(new_content, end="", flush=True)
 
         previous = current
 
