@@ -8,7 +8,7 @@ from platformdirs import user_config_dir
 
 
 def load_config():
-    """Load configuration, set API keys, and return log level."""
+    """Load configuration from config.toml, set all values as uppercase env vars, and return log level."""
     config_dir = Path(user_config_dir("hinty"))
     config_path = config_dir / "config.toml"
 
@@ -18,17 +18,22 @@ def load_config():
         example_config = Path(__file__).parent.parent / "config.example.toml"
         shutil.copy(example_config, config_path)
         print(
-            f"Config file created at {config_path}. Please edit it with your API keys."
+            f"Config file created at {config_path}. Please edit it with your values."
         )
         sys.exit(1)
 
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
 
-    # Load API keys into environment variables
-    api_keys = config.get("api_keys", {})
-    for key, value in api_keys.items():
-        env_var_name = f"{key.upper()}_API_KEY"
-        os.environ[env_var_name] = value
+    # Flatten config into uppercase env vars (like dotenv)
+    def set_env_vars(data, prefix=""):
+        for key, value in data.items():
+            env_key = f"{prefix}{key}".upper().replace(".", "_")
+            if isinstance(value, dict):
+                set_env_vars(value, f"{env_key}_")
+            else:
+                os.environ[env_key] = str(value)
 
-    return config.get("logging", {}).get("log_level", "ERROR").upper()
+    set_env_vars(config)
+
+    return os.environ.get("LOG_LEVEL", "ERROR").upper()
