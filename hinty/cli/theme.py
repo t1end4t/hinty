@@ -12,3 +12,6 @@ catppuccin_mocha_style = Style.from_dict(
         "completion-menu.meta.current": "bg:#45475a #bac2de bold",  # Surface1 bg, Subtext1 fg, bold
     }
 )
+
+# Rich Panel border style for Catppuccin Mocha theme
+panel_border_style = "#89b4fa"  # Catppuccin Mocha Blue

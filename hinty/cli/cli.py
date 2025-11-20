@@ -9,7 +9,7 @@ from typing import List
 from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
-from ..cli.theme import catppuccin_mocha_style
+from ..cli.theme import catppuccin_mocha_style, panel_border_style
 from ..core.context_manager import ContextManager
 
 console = Console()
@@ -53,7 +53,7 @@ def chat():
                     for partial in stream:
                         current = str(partial)
                         full_response = current
-                        live.update(Panel(Markdown(full_response), title="LLM"))
+                        live.update(Panel(Markdown(full_response), title="LLM", border_style=panel_border_style))
 
                 # After streaming, add a newline for separation
                 console.print()
