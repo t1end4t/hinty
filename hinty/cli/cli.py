@@ -24,7 +24,7 @@ def chat():
 
     console.print(
         Panel.fit(
-            "Welcome to the LLM Chat CLI! Type 'exit' to quit.",
+            "Welcome to the LLM Chat CLI! Press Enter on an empty line to quit.",
             title="Hinty CLI",
             border_style="blue",
         )
@@ -32,11 +32,12 @@ def chat():
 
     conversation_history: List[ConversationMessage] = []
     context_manager = ContextManager()
+    console.print(f"Current directory: {context_manager.pwd_path}")
 
     while True:
         try:
             user_input = session.prompt("You: ", style=style)
-            if user_input.lower() == "exit":
+            if not user_input:
                 break
             user_message = ConversationMessage(role="user", content=user_input)
             conversation_history.append(user_message)
