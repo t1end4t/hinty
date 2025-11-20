@@ -1,6 +1,7 @@
 import click
 from prompt_toolkit import PromptSession
 from rich.console import Console
+from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
 from typing import List
@@ -48,12 +49,16 @@ def chat():
                     user_input, conversation_history=conversation_history
                 )
                 full_response = ""
-                for partial in stream:
-                    current = str(partial)
-                    new_content = current[len(full_response) :]
-                    full_response = current
-
-                console.print(Markdown(full_response))
+                with Live(console=console, refresh_per_second=4) as live:
+                    for partial in stream:
+                        current = str(partial)
+                        new_content = current[len(full_response) :]
+                        full_response = current
+                        # Render the current accumulated response as Markdown and update live
+                        live.update(Markdown(full_response))
+                
+                # After streaming, add a newline for separation
+                console.print()
 
                 assistant_message = ConversationMessage(
                     role="assistant", content=full_response
