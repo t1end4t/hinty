@@ -17,7 +17,7 @@ def example1(receipt: str):
         if first_partial_time is None:
             first_partial_time = time.time() - start_time
             print(f"[First partial received in {first_partial_time:.3f}s]\n")
-        
+
         current = str(partial)
         new_content = current[len(previous) :]
         print(new_content, end="", flush=True)
