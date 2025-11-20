@@ -9,12 +9,16 @@ def example1(receipt: str):
     stream = b.stream.Router(receipt)
 
     # partial is a Partial type with all Optional fields
+    previous = ""
     for partial in stream:
-        print(str(partial)[-80:])  # Print last 80 chars to show progress
+        current = str(partial)
+        new_content = current[len(previous):]
+        print(new_content, end="", flush=True)
+        previous = current
 
     # final is the full, original, validated ReceiptInfo type
     final = stream.get_final_response()
-    print(f"final: {final})")
+    print(f"\nfinal: {final})")
 
 
 receipt = """
