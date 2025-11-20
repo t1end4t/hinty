@@ -31,13 +31,13 @@ def load_config():
     for key, value in api_keys.items():
         env_var = f"{key.upper()}"
         os.environ[env_var] = str(value)
-        print(f"{env_var} set: {bool(os.environ.get(env_var))}")
+        logger.info(f"{env_var} set: {bool(os.environ.get(env_var))}")
 
     # Set logging as uppercase keys
     logging = config.get("logging", {})
     for key, value in logging.items():
         env_var = key.upper()
         os.environ[env_var] = str(value)
-        print(f"{env_var} set: {os.environ.get(env_var)}")
+        logger.info(f"{env_var} set: {os.environ.get(env_var)}")
 
     return os.environ.get("LOG_LEVEL", "ERROR").upper()
