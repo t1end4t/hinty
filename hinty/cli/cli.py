@@ -13,7 +13,7 @@ from ..core.llm import get_agent_response
 console = Console()
 
 
-# Minimal LLM chat interface - for now, just responds with "Hello" to any input
+# Minimal LLM chat interface
 def chat():
     session = PromptSession()
     style = Style.from_dict(
@@ -24,7 +24,7 @@ def chat():
 
     console.print(
         Panel.fit(
-            "Welcome to the LLM Chat CLI! Press Enter on an empty line to quit.",
+            "Welcome to the Hinty CLI! Press Enter on an empty line to quit.",
             title="Hinty CLI",
             border_style="blue",
         )
@@ -36,7 +36,7 @@ def chat():
 
     while True:
         try:
-            user_input = session.prompt("You: ", style=style)
+            user_input = session.prompt(">> ", style=style)
             if not user_input:
                 break
             user_message = ConversationMessage(role="user", content=user_input)
