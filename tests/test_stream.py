@@ -41,8 +41,14 @@ def example1(receipt: str):
             if partial_count <= 5:
                 buffered_content += new_content
                 if partial_count == 5:
-                    print(f"[LOG] Printing buffered content from first 5 partials\n")
-                    delay = 0.05 / len(buffered_content) if len(buffered_content) > 0 else 0.01
+                    print(
+                        f"[LOG] Printing buffered content from first 5 partials\n"
+                    )
+                    delay = (
+                        0.05 / len(buffered_content)
+                        if len(buffered_content) > 0
+                        else 0.01
+                    )
                     smooth_print(buffered_content, delay=delay)
             else:
                 # Print subsequent partials immediately
