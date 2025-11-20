@@ -50,16 +50,20 @@ def chat():
                 )
                 response = agent_response.response
                 # Handle streaming or string response
-                if hasattr(response, '__iter__') and not isinstance(response, str):
+                if hasattr(response, "__iter__") and not isinstance(
+                    response, str
+                ):
                     # Assume it's a stream like BamlSyncStream
                     console.print("LLM:", style="green bold", end=" ")
                     previous = ""
                     full_response = ""
                     for partial in response:
                         current = str(partial)
-                        new_content = current[len(previous):]
+                        new_content = current[len(previous) :]
                         if new_content:
-                            console.print(new_content, end="", style="green", flush=True)
+                            console.print(
+                                new_content, end="", style="green", flush=True
+                            )
                         full_response += new_content
                         previous = current
                     console.print()  # Newline after streaming
