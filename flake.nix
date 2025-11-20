@@ -31,48 +31,40 @@
       forEachSystem = nixpkgs.lib.genAttrs (import systems);
     in
     {
+      # ------------------------------------------------------------------
+      # 1. PACKAGES: Import the package definition from packages/hinty.nix
+      # ------------------------------------------------------------------
+      packages = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          # Define python for simplicity
+          python = pkgs.python311;
+        in
+        {
+          # Use callPackage to load the function and pass arguments automatically
+          hinty = pkgs.callPackage ./packages/hinty.nix {
+            inherit python;
+            pythonPackages = python.pkgs;
+          };
+
+          # Make the package runnable with 'nix run .'
+          default = self.packages.${system}.hinty;
+        }
+      );
+
+      # ------------------------------------------------------------------
+      # 2. DEV SHELLS: Import the devShell definition from devshell.nix
+      # ------------------------------------------------------------------
       devShells = forEachSystem (
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = devenv.lib.mkShell {
-            inherit inputs pkgs;
-            modules = [
-              {
-                packages = with pkgs; [
-                  pyright
-                  ruff
-                ];
-
-                languages.python = {
-                  enable = true;
-                  version = "3.11";
-                  uv = {
-                    enable = true;
-                    sync.enable = true;
-                  };
-                };
-
-                scripts.init-project.exec = ''
-                  ${pkgs.uv}/bin/uv init
-                  ${pkgs.uv}/bin/uv sync
-                  ${pkgs.uv}/bin/uv add --dev -r dev-requirements.txt
-                '';
-
-                enterShell = ''
-                  source .devenv/state/venv/bin/activate
-                '';
-
-                env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
-                  pkgs.stdenv.cc.cc
-                  pkgs.zlib
-                  pkgs.libGL
-                  pkgs.glib
-                ];
-              }
-            ];
+          # Use callPackage to load the devshell configuration
+          default = pkgs.callPackage ./devshell.nix {
+            inherit inputs pkgs devenv;
           };
         }
       );
