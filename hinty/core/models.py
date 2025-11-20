@@ -14,7 +14,7 @@ class AgentResponse:
 
 
 class Mode(Enum):
-    ROUTER = "router"
+    ROUTER = "smart"
     GENERAL = "general"
 
     @classmethod

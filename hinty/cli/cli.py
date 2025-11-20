@@ -59,7 +59,7 @@ def chat():
                 for word in words:
                     console.print(word, end=" ", style="green")
                     time.sleep(
-                        0.1
+                        0.05
                     )  # Adjust delay as needed (e.g., 0.05 for faster)
                 console.print()  # Newline after streaming
         except KeyboardInterrupt:
