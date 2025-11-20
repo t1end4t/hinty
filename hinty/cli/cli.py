@@ -19,7 +19,7 @@ console = Console()
 def chat():
     commands = ["/help"]
     completer = WordCompleter(commands, ignore_case=True)
-    session = PromptSession(completer=completer)
+    session = PromptSession(completer=completer, complete_while_typing=True)
     style = Style.from_dict(
         {
             "prompt": "bold cyan",
