@@ -16,41 +16,34 @@ def smooth_print(text, delay=0.01):
 def example1(receipt: str):
     start_time = time.time()
     stream = b.stream.Router(receipt)
-
+    
     previous = ""
     first_partial_time = None
-    first_token_printed = False
     partial_count = 0
     buffered_content = ""
-
+    
     for partial in stream:
         if first_partial_time is None:
             first_partial_time = time.time() - start_time
-
+    
         current = str(partial)
         new_content = current[len(previous) :]
-
+    
         if new_content:
             partial_count += 1
-
-            if not first_token_printed:
-                print("[LOG] First content received, streaming...\n")
-                first_token_printed = True
-
+    
             # Buffer first 5 partials
             if partial_count <= 5:
                 buffered_content += new_content
                 if partial_count == 5:
+                    print("[LOG] First content received, streaming...\n")
                     print(
                         f"[LOG] Printing buffered content from first 5 partials\n"
                     )
                     smooth_print(buffered_content)
-            else:
-                # Print subsequent partials immediately
-                print(new_content, end="", flush=True)
-
+    
         previous = current
-
+    
     total_time = time.time() - start_time
     print("\n----------")
     print(f"First partial: {first_partial_time:.3f}s")
