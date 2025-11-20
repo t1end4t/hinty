@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import tomllib
 from pathlib import Path
@@ -12,22 +13,14 @@ def load_config():
     config_path = config_dir / "config.toml"
 
     if not config_path.exists():
-        # Prompt for API keys and create config
+        # Auto-create config from example
         config_dir.mkdir(parents=True, exist_ok=True)
-        groq_key = input("Enter GROQ API key: ")
-        gemini_key = input("Enter GEMINI API key: ")
-        openrouter_key = input("Enter OPENROUTER API key: ")
-        config_content = f"""[api_keys]
-groq = "{groq_key}"
-gemini = "{gemini_key}"
-openrouter = "{openrouter_key}"
-    
-[logging]
-log_level = "DEBUG"
-"""
-        with open(config_path, "w") as f:
-            f.write(config_content)
-        print(f"Config file created at {config_path}.")
+        example_config = Path(__file__).parent.parent / "config.example.toml"
+        shutil.copy(example_config, config_path)
+        print(
+            f"Config file created at {config_path}. Please edit it with your API keys."
+        )
+        sys.exit(1)
 
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
