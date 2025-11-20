@@ -77,5 +77,8 @@
           };
         }
       );
+      packages = forEachSystem (system: {
+        default = nixpkgs.legacyPackages.${system}.callPackage ./default.nix {};
+      });
     };
 }
