@@ -27,10 +27,14 @@ def load_config():
 
     # Set api_keys as uppercase env vars
     api_keys = config.get("api_keys", {})
-    os.environ.update({key.upper(): str(value) for key, value in api_keys.items()})
+    os.environ.update(
+        {key.upper(): str(value) for key, value in api_keys.items()}
+    )
 
     # Set logging as uppercase keys
     logging = config.get("logging", {})
-    os.environ.update({key.upper(): str(value) for key, value in logging.items()})
+    os.environ.update(
+        {key.upper(): str(value) for key, value in logging.items()}
+    )
 
     return os.environ.get("LOG_LEVEL", "ERROR").upper()
