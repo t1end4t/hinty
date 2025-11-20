@@ -25,15 +25,14 @@ def load_config():
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
 
-    # Flatten config into uppercase env vars (like dotenv)
-    def set_env_vars(data, prefix=""):
-        for key, value in data.items():
-            env_key = f"{prefix}{key}".upper().replace(".", "_")
-            if isinstance(value, dict):
-                set_env_vars(value, f"{env_key}_")
-            else:
-                os.environ[env_key] = str(value)
+    # Set api_keys as {KEY}_API_KEY
+    api_keys = config.get("api_keys", {})
+    for key, value in api_keys.items():
+        os.environ[f"{key.upper()}_API_KEY"] = str(value)
 
-    set_env_vars(config)
+    # Set logging as uppercase keys
+    logging = config.get("logging", {})
+    for key, value in logging.items():
+        os.environ[key.upper()] = str(value)
 
     return os.environ.get("LOG_LEVEL", "ERROR").upper()
