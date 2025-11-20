@@ -1,4 +1,3 @@
-import json
 from hinty.baml_client import b
 from dotenv import load_dotenv
 
@@ -10,15 +9,12 @@ def example1(receipt: str):
     stream = b.stream.Router(receipt)
 
     # partial is a Partial type with all Optional fields
-    merged = {}
     for partial in stream:
-        partial_dict = json.loads(str(partial))
-        merged.update(partial_dict)
-        print(f"merged: {json.dumps(merged)}")
+        print(f"items (object: {partial})")
 
     # final is the full, original, validated ReceiptInfo type
     final = stream.get_final_response()
-    print(f"final: {final}")
+    print(f"final: {final})")
 
 
 receipt = """
