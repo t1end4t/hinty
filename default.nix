@@ -1,5 +1,13 @@
-{ lib, python3Packages }:
+{ lib, python3Packages, fetchPypi }:
 
+let
+  baml-py = python3Packages.buildPythonPackage rec {
+    pname = "baml-py";
+    version = "0.213.0";
+    src = fetchPypi { inherit pname version; sha256 = "your-sha256-here"; };  # Replace with actual sha256 from nix-prefetch-url
+    # Add propagatedBuildInputs if baml-py has dependencies (check PyPI)
+  };
+in
 python3Packages.buildPythonPackage rec {
   pname = "hinty";
   version = "0.1.0";
@@ -8,7 +16,7 @@ python3Packages.buildPythonPackage rec {
 
   # Dependencies from pyproject.toml (map to Nixpkgs names)
   propagatedBuildInputs = with python3Packages; [
-    baml-py # Version >=0.213.0; ensure it's in Nixpkgs or add custom derivation
+    baml-py  # Use the custom derivation
     click
     python-dotenv # For 'dotenv'
     loguru
