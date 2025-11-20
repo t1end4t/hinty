@@ -23,9 +23,9 @@ def example1(receipt: str):
         previous = current
 
     # final is the full, original, validated ReceiptInfo type
-    final = stream.get_final_response()
+    # final = stream.get_final_response()
     total_time = time.time() - start_time
-    print(f"\nfinal: {final})")
+    # print(f"\nfinal: {final})")
     print(f"First partial: {first_partial_time:.3f}s")
     print(f"Total time: {total_time:.3f}s")
 
@@ -35,7 +35,7 @@ def example2(receipt: str):
     resp = b.Router(receipt)
     total_time = time.time() - start_time
 
-    print(f"\nfinal: {resp})")
+    # print(f"\nfinal: {resp})")
     print(f"Total time: {total_time:.3f}s")
 
 
@@ -45,3 +45,4 @@ do you think Ho Chi Minh is great leader
 
 if __name__ == "__main__":
     example1(message)
+    example2(message)
