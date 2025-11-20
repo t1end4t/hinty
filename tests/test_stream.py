@@ -10,7 +10,7 @@ def example1(receipt: str):
 
     # partial is a Partial type with all Optional fields
     for partial in stream:
-        print(f"items (object: {partial})")
+        print(str(partial)[-80:])  # Print last 80 chars to show progress
 
     # final is the full, original, validated ReceiptInfo type
     final = stream.get_final_response()
