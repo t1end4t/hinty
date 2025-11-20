@@ -30,14 +30,20 @@ def help_command(console: Console) -> None:
     )
 
 
-def clear_command(console: Console, conversation_history: List[ConversationMessage]) -> None:
+def clear_command(
+    console: Console, conversation_history: List[ConversationMessage]
+) -> None:
     """Clear conversation history and chat display."""
     conversation_history.clear()
     console.clear()
     console.print("Conversation history and chat cleared.")
 
 
-def handle_command(command: str, console: Console, conversation_history: List[ConversationMessage]) -> None:
+def handle_command(
+    command: str,
+    console: Console,
+    conversation_history: List[ConversationMessage],
+) -> None:
     """Dispatch commands to their handlers."""
     if command == "/help":
         help_command(console)
