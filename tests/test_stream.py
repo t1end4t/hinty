@@ -26,6 +26,7 @@ def example1(receipt: str):
     # final = stream.get_final_response()
     total_time = time.time() - start_time
     # print(f"\nfinal: {final})")
+    print("----------")
     print(f"First partial: {first_partial_time:.3f}s")
     print(f"Total time: {total_time:.3f}s")
 
@@ -36,6 +37,7 @@ def example2(receipt: str):
     total_time = time.time() - start_time
 
     # print(f"\nfinal: {resp})")
+    print("----------")
     print(f"Total time: {total_time:.3f}s")
 
 
