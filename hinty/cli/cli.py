@@ -52,9 +52,7 @@ def chat():
                 with Live(console=console, refresh_per_second=4) as live:
                     for partial in stream:
                         current = str(partial)
-                        new_content = current[len(full_response) :]
                         full_response = current
-                        # Render the current accumulated response as Markdown in a Panel and update live
                         live.update(Panel(Markdown(full_response), title="LLM"))
 
                 # After streaming, add a newline for separation
