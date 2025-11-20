@@ -33,9 +33,9 @@ def example1(receipt: str):
             partial_count += 1
 
             # Buffer first 5 partials
-            if partial_count <= 5:
+            if partial_count <= 10:
                 buffered_content += new_content
-                if partial_count == 5:
+                if partial_count == 10:
                     print("[LOG] First content received, streaming...\n")
                     print(
                         f"[LOG] Printing buffered content from first 5 partials\n"
