@@ -56,7 +56,7 @@ def chat():
                         full_response = current
                         # Render the current accumulated response as Markdown in a Panel and update live
                         live.update(Panel(Markdown(full_response), title="LLM"))
-                
+
                 # After streaming, add a newline for separation
                 console.print()
 
