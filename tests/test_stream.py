@@ -16,7 +16,6 @@ def example1(receipt: str):
     for partial in stream:
         if first_partial_time is None:
             first_partial_time = time.time() - start_time
-            print(f"[First partial received in {first_partial_time:.3f}s]\n")
 
         current = str(partial)
         new_content = current[len(previous) :]
@@ -27,6 +26,7 @@ def example1(receipt: str):
     final = stream.get_final_response()
     total_time = time.time() - start_time
     print(f"\nfinal: {final})")
+    print(f"First partial: {first_partial_time:.3f}s")
     print(f"Total time: {total_time:.3f}s")
 
 
