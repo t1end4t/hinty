@@ -7,6 +7,11 @@ from pathlib import Path
 from platformdirs import user_config_dir
 
 
+def set_env_vars_upper(vars_dict: dict) -> None:
+    """Set environment variables with uppercase keys from a dictionary."""
+    os.environ.update({key.upper(): str(value) for key, value in vars_dict.items()})
+
+
 def load_config():
     """Load configuration from config.toml, set all values as uppercase env vars, and return log level."""
     config_dir = Path(user_config_dir("hinty"))
@@ -27,14 +32,10 @@ def load_config():
 
     # Set api_keys as uppercase env vars
     api_keys = config.get("api_keys", {})
-    os.environ.update(
-        {key.upper(): str(value) for key, value in api_keys.items()}
-    )
+    set_env_vars_upper(api_keys)
 
     # Set logging as uppercase keys
     logging = config.get("logging", {})
-    os.environ.update(
-        {key.upper(): str(value) for key, value in logging.items()}
-    )
+    set_env_vars_upper(logging)
 
     return os.environ.get("LOG_LEVEL", "ERROR").upper()
