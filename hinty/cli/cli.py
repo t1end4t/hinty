@@ -46,7 +46,9 @@ def chat():
                 else:
                     console.print(f"Unknown command: {user_input}")
             else:
-                user_message = ConversationMessage(role="user", content=user_input)
+                user_message = ConversationMessage(
+                    role="user", content=user_input
+                )
                 conversation_history.append(user_message)
                 agent_response = get_agent_response(
                     user_input, conversation_history, context_manager
