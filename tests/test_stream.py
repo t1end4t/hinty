@@ -19,14 +19,29 @@ def example1(receipt: str):
     # partial is a Partial type with all Optional fields
     previous = ""
     first_partial_time = None
+    first_partial_content = ""
+    is_first_partial = True
+    
     for partial in stream:
         if first_partial_time is None:
             first_partial_time = time.time() - start_time
 
         current = str(partial)
         new_content = current[len(previous) :]
-        print(new_content, end="", flush=True)
+        
+        if is_first_partial:
+            first_partial_content += new_content
+        else:
+            if first_partial_content:
+                smooth_print(first_partial_content)
+                first_partial_content = ""
+            smooth_print(new_content)
+        
         previous = current
+        is_first_partial = False
+    
+    if first_partial_content:
+        smooth_print(first_partial_content)
 
     # final is the full, original, validated ReceiptInfo type
     # final = stream.get_final_response()
