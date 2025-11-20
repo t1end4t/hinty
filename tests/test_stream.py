@@ -20,7 +20,8 @@ def example1(receipt: str):
     previous = ""
     first_partial_time = None
     first_token_printed = False
-    is_first_partial = True
+    partial_count = 0
+    buffered_content = ""
 
     for partial in stream:
         if first_partial_time is None:
@@ -29,22 +30,21 @@ def example1(receipt: str):
         current = str(partial)
         new_content = current[len(previous) :]
 
-        # Print immediately with smooth animation
         if new_content:
+            partial_count += 1
+
             if not first_token_printed:
                 print("[LOG] First content received, streaming...\n")
                 first_token_printed = True
 
-            # Only apply character-by-character for first partial
-            if is_first_partial:
-                print(f"[LOG] First partial content: {new_content}\n")
-                delay = (
-                    0.05 / len(new_content) if len(new_content) > 0 else 0.01
-                )
-                smooth_print(new_content, delay=delay)
-                is_first_partial = False
+            # Buffer first 5 partials
+            if partial_count <= 5:
+                buffered_content += new_content
+                if partial_count == 5:
+                    print(f"[LOG] Printing buffered content from first 5 partials\n")
+                    print(buffered_content, end="", flush=True)
             else:
-                # Just print subsequent partials immediately
+                # Print subsequent partials immediately
                 print(new_content, end="", flush=True)
 
         previous = current
