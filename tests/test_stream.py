@@ -1,4 +1,3 @@
-import threading
 import time
 
 from dotenv import load_dotenv
@@ -6,12 +5,6 @@ from dotenv import load_dotenv
 from hinty.baml_client import b
 
 load_dotenv()
-
-
-def smooth_print(text, delay=0.01):
-    for char in text:
-        print(char, end="", flush=True)
-        time.sleep(delay)
 
 
 def example1(receipt: str):
@@ -41,10 +34,7 @@ def example1(receipt: str):
                     print(
                         f"[LOG] Printing buffered content from first 5 partials\n"
                     )
-                    # Start smooth printing in a separate thread
-                    threading.Thread(
-                        target=smooth_print, args=(buffered_content,)
-                    ).start()
+                    print(buffered_content, end="", flush=True)
             else:
                 # Print subsequent partials immediately
                 print(new_content, end="", flush=True)
