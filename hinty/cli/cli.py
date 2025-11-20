@@ -48,13 +48,12 @@ def chat():
                     user_input, conversation_history=conversation_history
                 )
                 full_response = ""
-                console.print("LLM:", style="green bold", end=" ")
                 for partial in stream:
                     current = str(partial)
                     new_content = current[len(full_response) :]
-                    if new_content:
-                        console.print(new_content, end="")
                     full_response = current
+
+                console.print(Markdown(full_response))
 
                 assistant_message = ConversationMessage(
                     role="assistant", content=full_response
