@@ -51,7 +51,7 @@ def example2(receipt: str):
 
     for partial in stream:
         elapsed = time.time() - start_time
-        print(f"[{elapsed:.3f}s] Partial received: {partial}")
+        print(f"[{elapsed:.3f}s]")
 
     total_time = time.time() - start_time
     print("----------")
@@ -73,6 +73,6 @@ do you think Ho Chi Minh is great leader
 """
 
 if __name__ == "__main__":
-    example1(message)
+    # example1(message)
     example2(message)
-    example3(message)
+    # example3(message)
