@@ -18,6 +18,12 @@ catppuccin_mocha_style = Style.from_dict(
         "completion-menu": f"bg:{BASE} {TEXT}",
         "completion-menu.completion": f"bg:{SURFACE0} {TEXT}",
         "completion-menu.completion.current": f"bg:{SURFACE1} {TEXT} bold",
+        # Fuzzy matches in completion menu (for FuzzyCompleter).
+        "completion-menu.completion fuzzymatch.outside": f"fg:{SUBTEXT0}",
+        "completion-menu.completion fuzzymatch.inside": "bold",
+        "completion-menu.completion fuzzymatch.inside.character": f"underline {YELLOW}",
+        "completion-menu.completion.current fuzzymatch.outside": f"fg:{TEXT}",
+        "completion-menu.completion.current fuzzymatch.inside": "nobold",
     }
 )
 
