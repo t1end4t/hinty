@@ -39,7 +39,9 @@ class CommandCompleter(Completer):
                     rel_path = os.path.relpath(
                         os.path.join(root, file), self.context_manager.pwd_path
                     )
-                    yield Completion(rel_path, start_position=0, display=rel_path)
+                    yield Completion(
+                        rel_path, start_position=0, display=rel_path
+                    )
         else:
             # Complete file paths that start with the current word
             for root, dirs, files in os.walk(self.context_manager.pwd_path):
