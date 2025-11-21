@@ -59,6 +59,16 @@ class CommandCompleter(Completer):
                         start_position=0,
                         display=file_path.name,
                     )
+            elif text.startswith("/drop "):
+                # Complete file names after "/drop "
+                word = text[6:]  # Remove "/drop " prefix
+                for file_path in self.context_manager.files:
+                    if file_path.name.startswith(word):
+                        yield Completion(
+                            file_path.name[len(word):],
+                            start_position=-len(word),
+                            display=file_path.name,
+                        )
             else:
                 # Allow multiple file names, e.g., "/drop file1.txt file2.txt"
                 pass  # No additional completions needed for now
