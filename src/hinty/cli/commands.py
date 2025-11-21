@@ -19,53 +19,10 @@ class CommandCompleter(Completer):
     def __init__(self, commands):
         self.commands = commands
         # self.context_manager = context_manager
-        self.path_completer = PathCompleter(expanduser=True)
+        self.path_completer = PathCompleter()
 
     def get_completions(self, document, complete_event):
-        text = document.text
-        if text.startswith("/"):
-            if text.startswith("/mode "):
-                prefix = "/mode "
-                remaining = text[len(prefix) :]
-                for mode in Mode.get_values():
-                    if mode.startswith(remaining.lower()):
-                        yield Completion(mode, start_position=-len(remaining))
-            elif text.startswith("/add "):
-                # Use PathCompleter for file paths after "/add "
-                prefix = "/add "
-                remaining = text[len(prefix) :]
-                # Simulate a document for the path part
-                from prompt_toolkit.document import Document
-                import os
-
-                path_doc = Document(remaining)
-                for completion in self.path_completer.get_completions(
-                    path_doc, complete_event
-                ):
-                    # Calculate the full path to display
-                    # PathCompleter gives us the completion relative to what's typed
-                    # We need to reconstruct the full path
-                    if remaining:
-                        # Get the directory part of what's been typed
-                        dir_part = os.path.dirname(remaining)
-                        if dir_part:
-                            full_display = os.path.join(
-                                dir_part, completion.text
-                            )
-                        else:
-                            full_display = completion.text
-                    else:
-                        full_display = completion.text
-
-                    yield Completion(
-                        completion.text,
-                        start_position=completion.start_position,
-                        display=full_display,
-                    )
-            else:
-                for cmd in self.commands:
-                    if cmd.startswith(text.lower()):
-                        yield Completion(cmd, start_position=-len(text))
+        pass
 
 
 def help_command(console: Console) -> None:
@@ -77,7 +34,7 @@ def help_command(console: Console) -> None:
         "/exit        - Exit the CLI\n"
         "/quit        - Quit the CLI\n"
         "/mode <mode> - Change the current mode\n"
-        "/add <file>  - Add file(s) to context (or interactive selection if no files)\n"
+        "/add  <file> - Add file(s) to context (or interactive selection if no files)\n"
         "Type a message to chat with the LLM. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
