@@ -55,7 +55,9 @@ def mode_command(
         context_manager.current_mode = new_mode
         console.print(f"Mode changed to {new_mode.value}")
     except ValueError:
-        console.print(f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}")
+        console.print(
+            f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}"
+        )
 
 
 def handle_command(

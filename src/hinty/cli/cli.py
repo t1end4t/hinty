@@ -114,7 +114,9 @@ def handle_input_loop(
             if not user_input:
                 break
             if user_input.startswith("/"):
-                handle_command(user_input, console, conversation_history, context_manager)
+                handle_command(
+                    user_input, console, conversation_history, context_manager
+                )
             else:
                 process_user_message(user_input, conversation_history, console)
         except KeyboardInterrupt:
