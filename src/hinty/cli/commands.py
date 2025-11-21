@@ -41,50 +41,11 @@ class CommandCompleter(Completer):
             path_document, complete_event
         )
 
-    def _get_drop_completions(self, text):
-        drop_prefix = "/drop "
-        if text == "/drop":
-            # Complete with available file names
-            for file_path in self.context_manager.get_all_files():
-                yield Completion(
-                    f" {file_path.name}",
-                    start_position=0,
-                    display=file_path.name,
-                )
-        elif text.startswith(drop_prefix):
-            # Complete file names after "/drop "
-            word = text[len(drop_prefix) :]  # Remove "/drop " prefix
-            for file_path in self.context_manager.get_all_files():
-                if file_path.name.startswith(word):
-                    yield Completion(
-                        file_path.name[len(word) :],
-                        start_position=-len(word),
-                        display=file_path.name,
-                    )
-        else:
-            # Allow multiple file names, e.g., "/drop file1.txt file2.txt"
-            pass  # No additional completions needed for now
+    def _get_drop_completions():
+        pass
 
-    def _get_mode_completions(self, text):
-        mode_prefix = "/mode "
-        if text == "/mode":
-            # Complete with available mode names
-            for mode_value in Mode.get_values():
-                yield Completion(
-                    f" {mode_value}",
-                    start_position=0,
-                    display=mode_value,
-                )
-        elif text.startswith(mode_prefix):
-            # Complete mode names after "/mode "
-            word = text[len(mode_prefix) :]  # Remove "/mode " prefix
-            for mode_value in Mode.get_values():
-                if mode_value.startswith(word):
-                    yield Completion(
-                        mode_value[len(word) :],
-                        start_position=-len(word),
-                        display=mode_value,
-                    )
+    def _get_mode_completions():
+        pass
 
     def _get_command_completions(self, text):
         word = text
@@ -105,11 +66,11 @@ class CommandCompleter(Completer):
 
         # If typing /drop command, provide file name completions
         elif text.startswith("/drop"):
-            yield from self._get_drop_completions(text)
+            yield from self._get_drop_completions()
 
         # If typing /mode command, provide mode completions
         elif text.startswith("/mode"):
-            yield from self._get_mode_completions(text)
+            yield from self._get_mode_completions()
 
         # Otherwise, provide command completions
         elif text.startswith("/"):
