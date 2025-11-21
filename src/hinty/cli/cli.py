@@ -12,7 +12,6 @@ from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import catppuccin_mocha_style, panel_border_style
 from ..core.context_manager import ContextManager
-from ..core.models import Mode
 
 console = Console()
 
