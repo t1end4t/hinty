@@ -65,7 +65,7 @@ class CommandCompleter(Completer):
                 for file_path in self.context_manager.files:
                     if file_path.name.startswith(word):
                         yield Completion(
-                            file_path.name[len(word):],
+                            file_path.name[len(word) :],
                             start_position=-len(word),
                             display=file_path.name,
                         )
