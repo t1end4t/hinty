@@ -151,7 +151,9 @@ def process_input(
             user_input, console, conversation_history, context_manager
         )
     else:
-        process_user_message(user_input, conversation_history, console, context_manager)
+        process_user_message(
+            user_input, conversation_history, console, context_manager
+        )
 
 
 def handle_input_loop(
