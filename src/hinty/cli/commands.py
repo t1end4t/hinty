@@ -1,6 +1,8 @@
 from typing import List
+import os
 
-from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.completion import Completer, Completion, PathCompleter
+from pyfzf import pyfzf
 from rich.console import Console
 from rich.panel import Panel
 
@@ -9,12 +11,14 @@ from ..core.context_manager import ContextManager
 from ..core.models import Mode
 from .theme import panel_border_style
 
-commands = ["/help", "/clear", "/mode", "/exit", "/quit"]
+commands = ["/help", "/clear", "/mode", "/add", "/exit", "/quit"]
 
 
 class CommandCompleter(Completer):
-    def __init__(self, commands):
+    def __init__(self, commands, context_manager: ContextManager):
         self.commands = commands
+        self.context_manager = context_manager
+        self.path_completer = PathCompleter()
 
     def get_completions(self, document, complete_event):
         text = document.text
@@ -25,6 +29,15 @@ class CommandCompleter(Completer):
                 for mode in Mode.get_values():
                     if mode.startswith(remaining.lower()):
                         yield Completion(mode, start_position=-len(remaining))
+            elif text.startswith("/add "):
+                # Use PathCompleter for file paths after "/add "
+                prefix = "/add "
+                remaining = text[len(prefix) :]
+                # Simulate a document for the path part
+                from prompt_toolkit.document import Document
+                path_doc = Document(remaining)
+                for completion in self.path_completer.get_completions(path_doc, complete_event):
+                    yield Completion(prefix + completion.text, start_position=-len(remaining))
             else:
                 for cmd in self.commands:
                     if cmd.startswith(text.lower()):
@@ -38,6 +51,7 @@ def help_command(console: Console) -> None:
         "/help        - Show this help message\n"
         "/clear       - Clear conversation history and chat\n"
         "/mode <mode> - Change the current mode\n"
+        "/add <file>  - Add file(s) to context (or interactive selection if no files)\n"
         "/exit        - Exit the CLI\n"
         "/quit        - Quit the CLI\n"
         "Type a message to chat with the LLM. Use / to invoke commands."
@@ -75,6 +89,41 @@ def mode_command(
         )
 
 
+def add_command(
+    command: str, console: Console, context_manager: ContextManager
+) -> None:
+    """Add files to context for the agent/LLM."""
+    parts = command.split()
+    if len(parts) < 2:
+        # Interactive mode: Fuzzy search and select files
+        fzf = pyfzf.FzfPrompt()
+        all_files = []
+        for root, dirs, files in os.walk(context_manager.pwd_path):
+            for file in files:
+                all_files.append(os.path.relpath(os.path.join(root, file), context_manager.pwd_path))
+        selected_files = fzf.prompt(all_files, '--multi')  # Multi-select with fuzzy search
+        if not selected_files:
+            console.print("No files selected.")
+            return
+    else:
+        # Direct mode: Use provided paths
+        selected_files = parts[1:]
+
+    # Validate and load files
+    for file_path in selected_files:
+        full_path = os.path.join(context_manager.pwd_path, file_path)
+        if os.path.isfile(full_path):
+            try:
+                with open(full_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                context_manager.add_file(file_path, content)  # Assumes ContextManager has this method
+                console.print(f"Added file: {file_path}")
+            except Exception as e:
+                console.print(f"Error reading {file_path}: {e}")
+        else:
+            console.print(f"File not found: {file_path}")
+
+
 def handle_command(
     command: str,
     console: Console,
@@ -88,6 +137,8 @@ def handle_command(
         clear_command(console, conversation_history)
     elif command.startswith("/mode"):
         mode_command(command, console, context_manager)
+    elif command.startswith("/add"):
+        add_command(command, console, context_manager)
     elif command in ["/exit", "/quit"]:
         console.print("Exiting CLI...")
         raise SystemExit
