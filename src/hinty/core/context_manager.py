@@ -39,9 +39,9 @@ class ContextManager:
         """Add a file to the list."""
         self._files.append(path)
 
-    def remove_file(self, index: int) -> None:
-        """Remove a file from the list by index."""
-        del self._files[index]
+    def remove_file(self, path: Path) -> None:
+        """Remove a file from the list by path."""
+        self._files.remove(path)
 
     @property
     def files(self) -> List[Path]:

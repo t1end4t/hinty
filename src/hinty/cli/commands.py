@@ -189,22 +189,16 @@ def drop_command(
         console.print("All files dropped from context.")
     else:
         # File names provided: drop specific files
-        indices_to_drop = []
         for file_name in parts[1:]:
             found = False
-            for i, file_path in enumerate(context_manager.files):
+            for file_path in context_manager.files[:]:  # Copy to avoid modification during iteration
                 if file_path.name == file_name:
-                    indices_to_drop.append(i)
+                    context_manager.remove_file(file_path)
+                    console.print(f"Dropped file: {file_path}")
                     found = True
                     break
             if not found:
                 console.print(f"File not found: {file_name}")
-        # Sort in descending order to avoid index shifting
-        indices_to_drop.sort(reverse=True)
-        for idx in indices_to_drop:
-            removed_file = context_manager.files[idx]
-            context_manager.remove_file(idx)
-            console.print(f"Dropped file: {removed_file}")
 
 
 def handle_command(
