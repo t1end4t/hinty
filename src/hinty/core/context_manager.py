@@ -31,9 +31,9 @@ class ContextManager:
         """Set the current mode."""
         self._current_mode = value
 
-    def get_file(self, index: int) -> Path:
+    def get_all_files(self) -> List[Path]:
         """Get a specific attached file by index."""
-        return self._files[index]
+        return self._files
 
     def add_file(self, path: Path) -> None:
         """Add a file to the list."""
@@ -42,8 +42,3 @@ class ContextManager:
     def remove_file(self, path: Path) -> None:
         """Remove a file from the list by path."""
         self._files.remove(path)
-
-    @property
-    def files(self) -> List[Path]:
-        """Get the list of attached files."""
-        return self._files
