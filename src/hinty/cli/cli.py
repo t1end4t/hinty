@@ -146,8 +146,11 @@ def process_input(
     else:
         # Run async function in sync context (assuming event loop is available)
         import asyncio
+
         asyncio.run(
-            process_user_message(user_input, conversation_history, console, context_manager)
+            process_user_message(
+                user_input, conversation_history, console, context_manager
+            )
         )
 
 
@@ -169,7 +172,9 @@ async def handle_input_loop(
                     user_input, console, conversation_history, context_manager
                 )
             else:
-                await process_user_message(user_input, conversation_history, console, context_manager)
+                await process_user_message(
+                    user_input, conversation_history, console, context_manager
+                )
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             break
@@ -191,7 +196,10 @@ def chat():
     session = setup_session(context_manager)
     # Run async function in sync context
     import asyncio
-    asyncio.run(handle_input_loop(session, conversation_history, context_manager))
+
+    asyncio.run(
+        handle_input_loop(session, conversation_history, context_manager)
+    )
     logger.debug("Chat ended")
 
 

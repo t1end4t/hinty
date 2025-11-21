@@ -15,7 +15,9 @@ async def get_agent_response(
     context_manager: ContextManager,
 ) -> AsyncIterator[str]:
     """Get a streaming response from the LLM based on the current mode."""
-    logger.debug(f"Getting agent response for mode: {context_manager.current_mode}")
+    logger.debug(
+        f"Getting agent response for mode: {context_manager.current_mode}"
+    )
     try:
         if context_manager.current_mode == Mode.ROUTER:
             # For router mode, use the existing streaming BAML call
