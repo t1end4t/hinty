@@ -49,18 +49,18 @@ class CommandCompleter(Completer):
             ):
                 yield completion
 
-        # If typing /drop command, provide file index completions
+        # If typing /drop command, provide file name completions
         elif text.startswith("/drop"):
             if text == "/drop":
-                # Complete with available file indices
-                for i in range(len(self.context_manager.files)):
+                # Complete with available file names
+                for file_path in self.context_manager.files:
                     yield Completion(
-                        f" {i}",
+                        f" {file_path.name}",
                         start_position=0,
-                        display=f"{i}: {self.context_manager.files[i].name}",
+                        display=file_path.name,
                     )
             else:
-                # Allow multiple indices, e.g., "/drop 0 1"
+                # Allow multiple file names, e.g., "/drop file1.txt file2.txt"
                 pass  # No additional completions needed for now
 
         # Otherwise, provide command completions
@@ -86,7 +86,7 @@ def help_command(console: Console) -> None:
         "/mode  <mode> - Change the current mode\n"
         "/add   <file> - Add file(s) to context (or interactive selection if no files)\n"
         "/files        - List current files in context\n"
-        "/drop  <index> - Drop file(s) from context by index, or all if no index\n"
+        "/drop  <file> - Drop file(s) from context by name, or all if no file\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
@@ -171,24 +171,24 @@ def files_command(console: Console, context_manager: ContextManager) -> None:
 def drop_command(
     command: str, console: Console, context_manager: ContextManager
 ) -> None:
-    """Drop files from context by index, or all if no index provided."""
+    """Drop files from context by name, or all if no file provided."""
     parts = command.split()
     if len(parts) == 1:
-        # No index provided: drop all files
+        # No file provided: drop all files
         context_manager._files.clear()
         console.print("All files dropped from context.")
     else:
-        # Indices provided: drop specific files
+        # File names provided: drop specific files
         indices_to_drop = []
-        for part in parts[1:]:
-            try:
-                idx = int(part)
-                if 0 <= idx < len(context_manager.files):
-                    indices_to_drop.append(idx)
-                else:
-                    console.print(f"Invalid index: {idx}")
-            except ValueError:
-                console.print(f"Invalid index: {part}")
+        for file_name in parts[1:]:
+            found = False
+            for i, file_path in enumerate(context_manager.files):
+                if file_path.name == file_name:
+                    indices_to_drop.append(i)
+                    found = True
+                    break
+            if not found:
+                console.print(f"File not found: {file_name}")
         # Sort in descending order to avoid index shifting
         indices_to_drop.sort(reverse=True)
         for idx in indices_to_drop:
