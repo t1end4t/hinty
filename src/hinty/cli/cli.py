@@ -4,6 +4,7 @@ import click
 from baml_py import AbortController, BamlSyncStream
 from loguru import logger
 from prompt_toolkit import PromptSession
+from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -31,8 +32,30 @@ REFRESH_RATE = 4
 def setup_session(context_manager: ContextManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, context_manager)
+    
+    # Custom key bindings to reverse Enter behavior for multiline input
+    key_bindings = KeyBindings()
+    
+    @key_bindings.add('enter')
+    def _(event):
+        """Insert a new line on Enter."""
+        event.current_buffer.insert_line_below()
+    
+    @key_bindings.add('alt-enter')
+    def _(event):
+        """Accept input on Alt+Enter."""
+        event.current_buffer.validate_and_handle()
+    
+    @key_bindings.add('s-enter')  # Shift+Enter
+    def _(event):
+        """Accept input on Shift+Enter."""
+        event.current_buffer.validate_and_handle()
+    
     session = PromptSession(
-        completer=completer, complete_while_typing=True, multiline=True
+        completer=completer,
+        complete_while_typing=True,
+        multiline=True,
+        key_bindings=key_bindings
     )
     return session
 
