@@ -38,17 +38,31 @@ class CommandCompleter(Completer):
             return  # No completions if empty
 
         pwd = self.context_manager.pwd_path
+
+        # Determine the directory to list and the prefix to match
+        if '/' in path_part:
+            parts = path_part.split('/')
+            dir_path_str = '/'.join(parts[:-1])
+            prefix = parts[-1]
+            full_dir = pwd / dir_path_str
+        else:
+            full_dir = pwd
+            prefix = path_part
+
         items = []
         try:
-            items = os.listdir(pwd)
+            items = os.listdir(full_dir)
         except OSError:
             return
 
         for item in items:
-            if path_part.lower() in item.lower():
+            if prefix.lower() in item.lower():
+                completion_text = item
+                if os.path.isdir(full_dir / item):
+                    completion_text += '/'
                 yield Completion(
-                    item,
-                    start_position=-len(path_part),
+                    completion_text,
+                    start_position=-len(prefix),
                     display=item,
                 )
 
