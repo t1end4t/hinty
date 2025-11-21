@@ -5,6 +5,7 @@ from baml_py import AbortController, BamlSyncStream
 from loguru import logger
 from prompt_toolkit import PromptSession
 from prompt_toolkit.filters import Condition
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.live import Live
@@ -37,6 +38,7 @@ def setup_session(context_manager: ContextManager) -> PromptSession:
     session = PromptSession(
         completer=completer,
         complete_while_typing=True,
+        history=FileHistory(str(context_manager.pwd_path / ".hinty_history")),
     )
     return session
 
