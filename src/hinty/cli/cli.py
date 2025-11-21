@@ -32,7 +32,9 @@ REFRESH_RATE = 4
 def setup_session(context_manager: ContextManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, context_manager)
-    session = PromptSession(completer=completer, complete_while_typing=True)
+    session = PromptSession(
+        completer=completer, complete_while_typing=True, multiline=True
+    )
     return session
 
 
