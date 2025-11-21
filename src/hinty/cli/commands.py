@@ -34,7 +34,7 @@ class CommandCompleter(Completer):
     def _get_add_completions(self, document, complete_event):
         text = document.text_before_cursor
         path_part = text[len("/add ") :]
-        
+
         path_document = Document(path_part, len(path_part))
         yield from self.path_completer.get_completions(
             path_document, complete_event
