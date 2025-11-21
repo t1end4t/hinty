@@ -8,7 +8,6 @@ from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
 
-from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import (
@@ -17,6 +16,7 @@ from ..cli.theme import (
     panel_border_style,
 )
 from ..core.context_manager import ContextManager
+from ..core.llm import get_agent_response
 
 console = Console()
 
@@ -89,9 +89,9 @@ def process_user_message(
     conversation_history.append(user_message)
     try:
         logger.debug("Calling external API for router")
-        stream = b.stream.Router(
-            user_input, conversation_history=conversation_history
-        )
+        # stream = b.stream.Router(
+        #     user_input, conversation_history=conversation_history
+        # )
         full_response = display_stream_response(stream, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
@@ -163,7 +163,7 @@ def handle_input_loop(
                 user_input, conversation_history, console, context_manager
             )
 
-            logger.info(f"Current mode: {context_manager.current_mode}")
+            logger.debug(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             break
