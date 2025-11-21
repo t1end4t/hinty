@@ -21,7 +21,7 @@ class CommandCompleter(Completer):
         if text.startswith("/"):
             if text.startswith("/mode "):
                 prefix = "/mode "
-                remaining = text[len(prefix):]
+                remaining = text[len(prefix) :]
                 for mode in Mode.get_values():
                     if mode.startswith(remaining.lower()):
                         yield Completion(mode, start_position=-len(remaining))
