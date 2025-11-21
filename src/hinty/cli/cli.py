@@ -25,7 +25,6 @@ console = Console()
 WELCOME_MESSAGE = (
     "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
 )
-PROMPT_TEXT = ">> "
 REFRESH_RATE = 4
 
 
@@ -33,7 +32,9 @@ def setup_session(context_manager: ContextManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, context_manager)
     session = PromptSession(
-        completer=completer, complete_while_typing=True, multiline=True
+        completer=completer,
+        complete_while_typing=True,
+        # multiline=True
     )
     return session
 
