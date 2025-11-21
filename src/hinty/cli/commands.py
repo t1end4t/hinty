@@ -6,6 +6,7 @@ from prompt_toolkit.completion import (
     Completer,
     Completion,
     FuzzyCompleter,
+    FuzzyWordCompleter,
     PathCompleter,
     CompleteEvent,
 )
@@ -49,17 +50,13 @@ class CommandCompleter(Completer):
             path_document, complete_event
         )
 
-    def _get_drop_completions(self, document: Document):
+    def _get_drop_completions(self, document: Document, complete_event: CompleteEvent):
         text = document.text_before_cursor
         word = text[len("/drop ") :]
         names = [f.name for f in self.context_manager.get_all_files()]
-        for name in names:
-            if name.startswith(word):
-                yield Completion(
-                    name,
-                    start_position=-len(word),
-                    display=name,
-                )
+        word_document = Document(word, len(word))
+        completer = FuzzyWordCompleter(names)
+        yield from completer.get_completions(word_document, complete_event)
 
     def _get_mode_completions(self, document: Document):
         text = document.text_before_cursor
