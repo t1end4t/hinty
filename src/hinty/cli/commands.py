@@ -2,7 +2,12 @@ import os
 from pathlib import Path
 from typing import List
 
-from prompt_toolkit.completion import Completer, Completion, PathCompleter
+from prompt_toolkit.completion import (
+    Completer,
+    Completion,
+    PathCompleter,
+    CompleteEvent,
+)
 from prompt_toolkit.document import Document
 from pyfzf import pyfzf
 from rich.console import Console
@@ -32,7 +37,9 @@ class CommandCompleter(Completer):
         self.context_manager = context_manager
         self.path_completer = PathCompleter()
 
-    def _get_add_completions(self, document, complete_event):
+    def _get_add_completions(
+        self, document: Document, complete_event: CompleteEvent
+    ):
         text = document.text_before_cursor
         path_part = text[len("/add ") :]
 
@@ -41,7 +48,7 @@ class CommandCompleter(Completer):
             path_document, complete_event
         )
 
-    def _get_drop_completions(self, document):
+    def _get_drop_completions(self, document: Document):
         text = document.text_before_cursor
         word = text[len("/drop ") :]
         names = [f.name for f in self.context_manager.get_all_files()]
@@ -53,7 +60,7 @@ class CommandCompleter(Completer):
                     display=name,
                 )
 
-    def _get_mode_completions(self, document):
+    def _get_mode_completions(self, document: Document):
         text = document.text_before_cursor
         word = text[len("/mode ") :]
         modes = Mode.get_values()
@@ -65,7 +72,7 @@ class CommandCompleter(Completer):
                     display=mode,
                 )
 
-    def _get_command_completions(self, text):
+    def _get_command_completions(self, text: str):
         word = text
         for command in self.commands:
             if command.startswith(word):
@@ -75,7 +82,9 @@ class CommandCompleter(Completer):
                     display=command,
                 )
 
-    def get_completions(self, document, complete_event):
+    def get_completions(
+        self, document: Document, complete_event: CompleteEvent
+    ):
         text = document.text_before_cursor
 
         # If typing /add command, provide path completions
