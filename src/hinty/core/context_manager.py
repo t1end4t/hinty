@@ -32,7 +32,7 @@ class ContextManager:
         return self._pwd_path
 
     @property
-    def attached_files(self) -> List[Path]:
+    def get_files(self) -> List[Path]:
         """Get the list of attached files."""
         return self._files
 
