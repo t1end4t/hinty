@@ -184,6 +184,7 @@ def handle_input_loop(
 ):
     """Handle the main input loop."""
     logger.debug("Starting input loop")
+    interrupted_once = False  # Flag to track first interrupt
     while True:
         try:
             display_files(context_manager)
@@ -200,9 +201,14 @@ def handle_input_loop(
 
             logger.debug(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
-            logger.info("Input loop interrupted by user")
-            controller.abort()  # Abort any ongoing request
-            break
+            if not interrupted_once:
+                logger.info("Input loop interrupted by user (first time), aborting request")
+                interrupted_once = True
+                controller.abort()  # Abort any ongoing request
+                continue  # Continue loop to allow abort to complete
+            else:
+                logger.info("Input loop interrupted by user (second time), exiting")
+                break
         except EOFError:
             logger.info("Input loop ended due to EOF")
             controller.abort()  # Abort any ongoing request
