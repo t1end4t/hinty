@@ -34,18 +34,9 @@ def setup_session(context_manager: ContextManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, context_manager)
 
-    bindings = KeyBindings()
-
-    @bindings.add("escape", "enter")
-    def insert_newline(event):
-        """Insert a newline when Escape+Enter is pressed."""
-        event.current_buffer.insert_text("\n")
-
     session = PromptSession(
         completer=completer,
         complete_while_typing=True,
-        multiline=True,
-        key_bindings=bindings,
     )
     return session
 
@@ -168,9 +159,6 @@ def get_user_input(
     return session.prompt(
         prompt_text,
         style=catppuccin_mocha_style,
-        prompt_continuation=lambda width,
-        line_number,
-        is_soft_wrap: f"{context_manager.current_mode.value} >> ",
     )
 
 
