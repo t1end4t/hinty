@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 
 from .models import Mode
 
@@ -14,6 +15,7 @@ class ContextManager:
         """Initialize project context."""
         self._current_mode = current_mode
         self._pwd_path = pwd_path
+        self._files: List[Path] = []
 
     @property
     def current_mode(self) -> Mode:
@@ -28,3 +30,12 @@ class ContextManager:
     def pwd_path(self) -> Path:
         """Get the present working directory path."""
         return self._pwd_path
+
+    @property
+    def files(self) -> List[Path]:
+        """Get the list of files."""
+        return self._files
+
+    def add_file(self, path: Path) -> None:
+        """Add a file to the list."""
+        self._files.append(path)
