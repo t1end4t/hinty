@@ -49,12 +49,14 @@ class CommandCompleter(Completer):
                         # Get the directory part of what's been typed
                         dir_part = os.path.dirname(remaining)
                         if dir_part:
-                            full_display = os.path.join(dir_part, completion.text)
+                            full_display = os.path.join(
+                                dir_part, completion.text
+                            )
                         else:
                             full_display = completion.text
                     else:
                         full_display = completion.text
-                    
+
                     yield Completion(
                         completion.text,
                         start_position=completion.start_position,
