@@ -48,7 +48,6 @@ def initialize_conversation() -> tuple[
     conversation_history: List[ConversationMessage] = []
     context_manager = ContextManager()
     console.print(f"Current directory: {context_manager.pwd_path}")
-    console.print(f"Current mode: {context_manager.current_mode.value}")
     return conversation_history, context_manager
 
 
