@@ -1,6 +1,7 @@
 from typing import List
 
 import click
+from baml_py import BamlSyncStream
 from loguru import logger
 from prompt_toolkit import PromptSession
 from rich.console import Console
@@ -56,7 +57,9 @@ def initialize_conversation() -> tuple[
     return conversation_history, context_manager
 
 
-def display_stream_response(stream, console: Console) -> str:
+def display_stream_response(
+    stream: BamlSyncStream[str, str] | str, console: Console
+) -> str:
     """Display streaming response and return full response."""
     full_response = ""
     try:
@@ -81,26 +84,23 @@ def display_stream_response(stream, console: Console) -> str:
 def process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
-    console: Console,
     context_manager: ContextManager,
+    console: Console,
 ) -> None:
-    """Process a user message: append to history, get response, update history."""
+    """Process a user message: append to history, stream response, update history."""
     logger.debug("Processing user message")
     user_message = ConversationMessage(role="user", content=user_input)
     conversation_history.append(user_message)
     try:
-        logger.debug("Getting agent response")
-        agent_response = get_agent_response(
-            user_input, conversation_history, context_manager
+        logger.debug("Calling external API for router")
+
+        # NOTE: for now just show response
+        stream = get_agent_response(
+            user_input,
+            conversation_history=conversation_history,
+            context_manager=context_manager,
         )
-        full_response = agent_response.response
-        console.print(
-            Panel(
-                Markdown(full_response),
-                title="LLM",
-                border_style=panel_border_style,
-            )
-        )
+        full_response = display_stream_response(stream.response, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
@@ -152,7 +152,10 @@ def process_input(
         )
     else:
         process_user_message(
-            user_input, conversation_history, console, context_manager
+            user_input,
+            conversation_history=conversation_history,
+            context_manager=context_manager,
+            console=console,
         )
 
 
