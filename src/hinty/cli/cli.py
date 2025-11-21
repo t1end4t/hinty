@@ -202,12 +202,16 @@ def handle_input_loop(
             logger.debug(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
             if not interrupted_once:
-                logger.info("Input loop interrupted by user (first time), aborting request")
+                logger.info(
+                    "Input loop interrupted by user (first time), aborting request"
+                )
                 interrupted_once = True
                 controller.abort()  # Abort any ongoing request
                 continue  # Continue loop to allow abort to complete
             else:
-                logger.info("Input loop interrupted by user (second time), exiting")
+                logger.info(
+                    "Input loop interrupted by user (second time), exiting"
+                )
                 break
         except EOFError:
             logger.info("Input loop ended due to EOF")
