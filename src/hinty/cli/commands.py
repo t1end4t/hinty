@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List
 
 from prompt_toolkit.completion import Completer, Completion, PathCompleter
+from prompt_toolkit.document import Document
 from pyfzf import pyfzf
 from rich.console import Console
 from rich.panel import Panel
@@ -33,9 +34,6 @@ class CommandCompleter(Completer):
     def _get_add_completions(self, text, document, complete_event):
         # Extract the path part after "/add "
         path_part = text[5:]  # Remove "/add " prefix
-
-        # Create a mock document for the path completer
-        from prompt_toolkit.document import Document
 
         path_document = Document(path_part, len(path_part))
 
