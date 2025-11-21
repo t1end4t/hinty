@@ -128,9 +128,6 @@ def add_command(
             try:
                 with open(full_path, "r", encoding="utf-8") as f:
                     content = f.read()
-                # context_manager.add_file(
-                #     file_path, content
-                # )  # Assumes ContextManager has this method
                 console.print(f"Added file: {file_path}")
             except Exception as e:
                 console.print(f"Error reading {file_path}: {e}")
