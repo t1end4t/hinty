@@ -12,14 +12,13 @@ from ..core.context_manager import ContextManager
 from ..core.models import Mode
 from .theme import panel_border_style
 
-commands = ["/help", "/clear", "/mode", "/add", "/files", "/exit", "/quit"]
+commands = ["/help", "/clear", "/mode", "/add", "/files", "/drop", "/exit", "/quit"]
 
 
 class CommandCompleter(Completer):
-    # def __init__(self, commands, context_manager: ContextManager):
-    def __init__(self, commands):
+    def __init__(self, commands, context_manager: ContextManager):
         self.commands = commands
-        # self.context_manager = context_manager
+        self.context_manager = context_manager
         self.path_completer = PathCompleter()
 
     def get_completions(self, document, complete_event):
@@ -40,6 +39,20 @@ class CommandCompleter(Completer):
                 path_document, complete_event
             ):
                 yield completion
+
+        # If typing /drop command, provide file index completions
+        elif text.startswith("/drop"):
+            if text == "/drop":
+                # Complete with available file indices
+                for i in range(len(self.context_manager.files)):
+                    yield Completion(
+                        f" {i}",
+                        start_position=0,
+                        display=f"{i}: {self.context_manager.files[i].name}",
+                    )
+            else:
+                # Allow multiple indices, e.g., "/drop 0 1"
+                pass  # No additional completions needed for now
 
         # Otherwise, provide command completions
         elif text.startswith("/"):
@@ -137,12 +150,41 @@ def add_command(
 
 def files_command(console: Console, context_manager: ContextManager) -> None:
     """List current files in context."""
-    if not context_manager._files:
+    if not context_manager.files:
         console.print("No files attached.")
     else:
         console.print("Attached files:")
-        for i, file_path in enumerate(context_manager._files):
+        for i, file_path in enumerate(context_manager.files):
             console.print(f"  {i}: {file_path}")
+
+
+def drop_command(
+    command: str, console: Console, context_manager: ContextManager
+) -> None:
+    """Drop files from context by index, or all if no index provided."""
+    parts = command.split()
+    if len(parts) == 1:
+        # No index provided: drop all files
+        context_manager._files.clear()
+        console.print("All files dropped from context.")
+    else:
+        # Indices provided: drop specific files
+        indices_to_drop = []
+        for part in parts[1:]:
+            try:
+                idx = int(part)
+                if 0 <= idx < len(context_manager.files):
+                    indices_to_drop.append(idx)
+                else:
+                    console.print(f"Invalid index: {idx}")
+            except ValueError:
+                console.print(f"Invalid index: {part}")
+        # Sort in descending order to avoid index shifting
+        indices_to_drop.sort(reverse=True)
+        for idx in indices_to_drop:
+            removed_file = context_manager.files[idx]
+            context_manager.remove_file(idx)
+            console.print(f"Dropped file: {removed_file}")
 
 
 def handle_command(
@@ -162,6 +204,8 @@ def handle_command(
         add_command(command, console, context_manager)
     elif command == "/files":
         files_command(console, context_manager)
+    elif command.startswith("/drop"):
+        drop_command(command, console, context_manager)
     elif command in ["/exit", "/quit"]:
         console.print("Exiting CLI...")
         raise SystemExit

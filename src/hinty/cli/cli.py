@@ -23,9 +23,9 @@ PROMPT_TEXT = ">> "
 REFRESH_RATE = 4
 
 
-def setup_session() -> PromptSession:
+def setup_session(context_manager: ContextManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
-    completer = CommandCompleter(commands)
+    completer = CommandCompleter(commands, context_manager)
     session = PromptSession(completer=completer, complete_while_typing=True)
     return session
 
@@ -177,9 +177,9 @@ def handle_input_loop(
 def chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
-    session = setup_session()
     print_welcome()
     conversation_history, context_manager = initialize_conversation()
+    session = setup_session(context_manager)
     handle_input_loop(session, conversation_history, context_manager)
     logger.debug("Chat ended")
 
