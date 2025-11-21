@@ -13,6 +13,7 @@ from ..core.context_manager import ContextManager
 from ..core.models import Mode
 from .theme import panel_border_style
 
+
 commands = [
     "/help",
     "/clear",
@@ -100,8 +101,8 @@ def help_command(console: Console) -> None:
         "/clear        - Clear conversation history and chat\n"
         "/files        - List current files in context\n"
         "/mode  <mode> - Change the current mode\n"
-        "/add   <file> - Add file(s) to context (or interactive selection if no files)\n"
-        "/drop  <file> - Drop file(s) from context by name, or all if no file\n"
+        "/add   <file> - Add file to context (or interactive selection if no files)\n"
+        "/drop  <file> - Drop file from context by name, or all if no file\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
