@@ -43,7 +43,7 @@ class CommandCompleter(Completer):
 
     def _get_drop_completions(self, document, complete_event):
         text = document.text_before_cursor
-        word = text[len("/drop "):]
+        word = text[len("/drop ") :]
         names = [f.name for f in self.context_manager.get_all_files()]
         for name in names:
             if name.startswith(word):
