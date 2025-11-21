@@ -4,7 +4,6 @@ import click
 from baml_py import AbortController, BamlSyncStream
 from loguru import logger
 from prompt_toolkit import PromptSession
-from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -33,19 +32,10 @@ def setup_session(context_manager: ContextManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, context_manager)
 
-    bindings = KeyBindings()
-
-    @bindings.add("escape", "enter")
-    @bindings.add("c-m")  # Meta+Enter (Alt+Enter)
-    def insert_newline(event):
-        """Insert a newline when Meta+Enter is pressed."""
-        event.current_buffer.insert_text("\n")
-
     session = PromptSession(
         completer=completer,
         complete_while_typing=True,
-        multiline=True,
-        key_bindings=bindings,
+        # multiline=True,
     )
     return session
 
