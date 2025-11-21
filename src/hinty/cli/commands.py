@@ -95,14 +95,14 @@ def help_command(console: Console) -> None:
     """Display help information for CLI commands."""
     help_text = (
         "Available commands:\n"
-        "/add   <file> - Add file to context (or interactive selection if no files)\n"
         "/clear        - Clear conversation history and chat\n"
-        "/drop  <file> - Drop file from context by name, or all if no file\n"
         "/exit         - Exit the CLI\n"
         "/files        - List current files in context\n"
         "/help         - Show this help message\n"
-        "/mode  <mode> - Change the current mode\n"
         "/quit         - Quit the CLI\n"
+        "/add   <file> - Add file to context (or interactive selection if no files)\n"
+        "/drop  <file> - Drop file from context by name, or all if no file\n"
+        "/mode  <mode> - Change the current mode\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
