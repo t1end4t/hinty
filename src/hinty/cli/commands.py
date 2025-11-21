@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import List
 
-from prompt_toolkit.completion import Completer, Completion, PathCompleter
+from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.document import Document
 from pyfzf import pyfzf
 from rich.console import Console
@@ -29,19 +29,28 @@ class CommandCompleter(Completer):
     def __init__(self, commands, context_manager: ContextManager):
         self.commands = commands
         self.context_manager = context_manager
-        self.path_completer = PathCompleter()
 
     def _get_add_completions(self, text, document, complete_event):
         # Extract the path part after "/add "
-        path_part = text[5:]  # Remove "/add " prefix
+        path_part = text[5:].strip()  # Remove "/add " prefix and strip spaces
 
-        path_document = Document(path_part, len(path_part))
+        if not path_part:
+            return  # No completions if empty
 
-        # Get path completions and yield them
-        for completion in self.path_completer.get_completions(
-            path_document, complete_event
-        ):
-            yield completion
+        pwd = self.context_manager.pwd_path
+        items = []
+        try:
+            items = os.listdir(pwd)
+        except OSError:
+            return
+
+        for item in items:
+            if path_part.lower() in item.lower():
+                yield Completion(
+                    item,
+                    start_position=-len(path_part),
+                    display=item,
+                )
 
     def _get_drop_completions(self, text):
         if text == "/drop":
