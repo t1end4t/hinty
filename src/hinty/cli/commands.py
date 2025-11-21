@@ -109,7 +109,7 @@ def clear_command(
     """Clear conversation history and chat display."""
     conversation_history.clear()
     console.clear()
-    console.print("Conversation history and chat cleared.")
+    console.print("Conversation history and chat cleared.\n")
 
 
 def mode_command(
@@ -118,17 +118,17 @@ def mode_command(
     """Change the current mode."""
     parts = command.split()
     if len(parts) != 2:
-        console.print("Usage: /mode <mode>")
-        console.print(f"Available modes: {', '.join(Mode.get_values())}")
+        console.print("Usage: /mode <mode>\n")
+        console.print(f"Available modes: {', '.join(Mode.get_values())}\n")
         return
     mode_str = parts[1]
     try:
         new_mode = Mode.from_string(mode_str)
         context_manager.set_mode(new_mode)
-        console.print(f"Mode changed to {new_mode.value}")
+        console.print(f"Mode changed to {new_mode.value}\n")
     except ValueError:
         console.print(
-            f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}"
+            f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}\n"
         )
 
 
@@ -152,7 +152,7 @@ def add_command(
             all_files, "--multi"
         )  # Multi-select with fuzzy search
         if not selected_files:
-            console.print("No files selected.")
+            console.print("No files selected.\n")
             return
     else:
         # Direct mode: Use provided paths
@@ -162,20 +162,20 @@ def add_command(
     for file_path in selected_files:
         full_path = os.path.join(context_manager.pwd_path, file_path)
         if os.path.isfile(full_path):
-            console.print(f"Added file: {file_path}")
+            console.print(f"Added file: {file_path}\n")
             context_manager.add_file(Path(full_path))
         else:
-            console.print(f"File not found: {file_path}")
+            console.print(f"File not found: {file_path}\n")
 
 
 def files_command(console: Console, context_manager: ContextManager) -> None:
     """List current files in context."""
     if not context_manager.get_all_files():
-        console.print("No files attached.")
+        console.print("No files attached.\n")
     else:
-        console.print("Attached files:")
+        console.print("Attached files:\n")
         for i, file_path in enumerate(context_manager.get_all_files()):
-            console.print(f"  {i}: {file_path}")
+            console.print(f"  {i}: {file_path}\n")
 
 
 def drop_command(
@@ -186,7 +186,7 @@ def drop_command(
     if len(parts) == 1:
         # No file provided: drop all files
         context_manager._files.clear()
-        console.print("All files dropped from context.")
+        console.print("All files dropped from context.\n")
     else:
         # File names provided: drop specific files
         for file_name in parts[1:]:
@@ -196,11 +196,11 @@ def drop_command(
             ]:  # Copy to avoid modification during iteration
                 if file_path.name == file_name:
                     context_manager.remove_file(file_path)
-                    console.print(f"Dropped file: {file_path}")
+                    console.print(f"Dropped file: {file_path}\n")
                     found = True
                     break
             if not found:
-                console.print(f"File not found: {file_name}")
+                console.print(f"File not found: {file_name}\n")
 
 
 def handle_command(
@@ -223,7 +223,7 @@ def handle_command(
     elif command.startswith("/drop"):
         drop_command(command, console, context_manager)
     elif command in ["/exit", "/quit"]:
-        console.print("Exiting CLI...")
+        console.print("Exiting CLI...\n")
         raise SystemExit
     else:
-        console.print(f"Unknown command: {command}")
+        console.print(f"Unknown command: {command}\n")
