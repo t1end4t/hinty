@@ -108,10 +108,8 @@ def handle_input_loop(
     style = catppuccin_mocha_style
     while True:
         try:
-            file_count = len(context_manager._files)
-            prompt_text = (
-                f"{context_manager.current_mode.value} ({file_count} files) >> "
-            )
+            files_str = " ".join(str(f.relative_to(context_manager.pwd_path)) for f in context_manager._files) if context_manager._files else ""
+            prompt_text = f"{context_manager.current_mode.value} {files_str} >> "
             user_input = session.prompt(prompt_text, style=style)
             if not user_input:
                 break
