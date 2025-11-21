@@ -136,7 +136,9 @@ def mode_command(
     parts = command.split()
     if len(parts) != 2:
         console.print("Usage: /mode <mode>\n", style=YELLOW)
-        console.print(f"Available modes: {', '.join(Mode.get_values())}\n", style=YELLOW)
+        console.print(
+            f"Available modes: {', '.join(Mode.get_values())}\n", style=YELLOW
+        )
         return
     mode_str = parts[1]
     try:
@@ -146,7 +148,7 @@ def mode_command(
     except ValueError:
         console.print(
             f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}\n",
-            style=YELLOW
+            style=YELLOW,
         )
 
 
