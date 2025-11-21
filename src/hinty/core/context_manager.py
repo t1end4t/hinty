@@ -22,14 +22,14 @@ class ContextManager:
         """Get the current mode."""
         return self._current_mode
 
-    def set_mode(self, value: Mode) -> None:
-        """Set the current mode."""
-        self._current_mode = value
-
     @property
     def pwd_path(self) -> Path:
         """Get the present working directory path."""
         return self._pwd_path
+
+    def set_mode(self, value: Mode) -> None:
+        """Set the current mode."""
+        self._current_mode = value
 
     def get_file(self, index: int) -> Path:
         """Get a specific attached file by index."""
