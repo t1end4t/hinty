@@ -56,10 +56,10 @@ def help_command(console: Console) -> None:
         "Available commands:\n"
         "/help        - Show this help message\n"
         "/clear       - Clear conversation history and chat\n"
-        "/mode <mode> - Change the current mode\n"
-        "/add <file>  - Add file(s) to context (or interactive selection if no files)\n"
         "/exit        - Exit the CLI\n"
         "/quit        - Quit the CLI\n"
+        "/mode <mode> - Change the current mode\n"
+        "/add <file>  - Add file(s) to context (or interactive selection if no files)\n"
         "Type a message to chat with the LLM. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
