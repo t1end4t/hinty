@@ -60,7 +60,9 @@ class CommandCompleter(Completer):
         completer = FuzzyWordCompleter(names)
         yield from completer.get_completions(word_document, complete_event)
 
-    def _get_mode_completions(self, document: Document, complete_event: CompleteEvent):
+    def _get_mode_completions(
+        self, document: Document, complete_event: CompleteEvent
+    ):
         text = document.text_before_cursor
         word = text[len("/mode ") :]
         modes = Mode.get_values()
