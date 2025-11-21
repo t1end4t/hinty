@@ -41,23 +41,27 @@ class CommandCompleter(Completer):
         )
 
     def _get_drop_completions(self, text):
-        if not text.startswith("/drop"):
-            return
-
-        # Get the part after "/drop "
-        after_command = text[6:] if len(text) > 6 else ""
-
-        # Find the last word being typed (after the last space)
-        parts = after_command.split()
-        word = parts[-1] if parts else ""
-
-        for file_path in self.context_manager.get_all_files():
-            if file_path.name.startswith(word):
+        if text == "/drop":
+            # Complete with available file names
+            for file_path in self.context_manager.get_all_files():
                 yield Completion(
-                    file_path.name[len(word) :],
-                    start_position=-len(word),
+                    f" {file_path.name}",
+                    start_position=0,
                     display=file_path.name,
                 )
+        elif text.startswith("/drop "):
+            # Complete file names after "/drop "
+            word = text[6:]  # Remove "/drop " prefix
+            for file_path in self.context_manager.get_all_files():
+                if file_path.name.startswith(word):
+                    yield Completion(
+                        file_path.name[len(word) :],
+                        start_position=-len(word),
+                        display=file_path.name,
+                    )
+        else:
+            # Allow multiple file names, e.g., "/drop file1.txt file2.txt"
+            pass  # No additional completions needed for now
 
     def _get_command_completions(self, text):
         word = text
