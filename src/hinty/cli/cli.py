@@ -211,7 +211,6 @@ def handle_input_loop(
                 "Input loop interrupted by user (first time), aborting request"
             )
             controller.abort()  # Abort any ongoing request
-            continue  # Continue loop to allow abort to complete
         except EOFError:
             logger.info("Input loop ended due to EOF")
             controller.abort()  # Abort any ongoing request
