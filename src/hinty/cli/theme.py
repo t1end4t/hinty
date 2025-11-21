@@ -2,15 +2,15 @@ from prompt_toolkit.styles import Style
 
 # Catppuccin Mocha color palette constants
 BLUE = "#89b4fa"
+YELLOW = "#f9e2af"
+GREEN = "#a6e3a1"
 BASE = "#1e1e2e"
 TEXT = "#cdd6f4"
 SURFACE0 = "#313244"
-YELLOW = "#f9e2af"
-SUBTEXT0 = "#a6adc8"
 SURFACE1 = "#45475a"
+SURFACE1 = "#45475a"
+SUBTEXT0 = "#a6adc8"
 SUBTEXT1 = "#bac2de"
-GREEN = "#a6e3a1"
-PINK = "#f5c2e7"
 OVERLAY2 = "#9399b2"
 
 # Catppuccin Mocha theme for prompt_toolkit
