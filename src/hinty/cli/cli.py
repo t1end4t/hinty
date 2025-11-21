@@ -1,3 +1,5 @@
+from typing import List
+
 import click
 from loguru import logger
 from prompt_toolkit import PromptSession
@@ -5,15 +7,14 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
-from typing import List
 
 from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import (
     catppuccin_mocha_style,
-    panel_border_style,
     files_panel_border_style,
+    panel_border_style,
 )
 from ..core.context_manager import ContextManager
 

@@ -12,12 +12,12 @@ def get_agent_response(
     context_manager: ContextManager,
 ) -> AgentResponse:
     """Get a response from the LLM"""
-    # if context_manager.current_mode == Mode.ROUTER:
-    return handle_router_mode(
-        user_message, conversation_history, context_manager
-    )
+    if context_manager.current_mode == Mode.ROUTER:
+        return handle_router_mode(
+            user_message, conversation_history, context_manager
+        )
 
-    # else:
-    #     return AgentResponse(
-    #         response=f"Mode {context_manager.current_mode} not yet implemented"
-    #     )
+    else:
+        return AgentResponse(
+            response=f"Mode {context_manager.current_mode} not yet implemented"
+        )
