@@ -17,6 +17,9 @@ class AgentResponse:
 class Mode(Enum):
     ROUTER = "smart"
     GENERAL = "general"
+    # LITERATURE = ""
+    # CODE = ""
+    # SECONDBRAIN = ""
 
     @classmethod
     def from_string(cls, value: str) -> "Mode":

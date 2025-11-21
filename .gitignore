@@ -172,4 +172,9 @@ result
 
 # jupyter stuff
 .virtual_documents/
+
+# aider stuff
 .aider*
+
+# hinty stuff
+.hinty_history
