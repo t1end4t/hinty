@@ -53,8 +53,17 @@ class CommandCompleter(Completer):
                     display=name,
                 )
 
-    # def _get_mode_completions():
-    #     pass
+    def _get_mode_completions(self, document):
+        text = document.text_before_cursor
+        word = text[len("/mode ") :]
+        modes = Mode.get_values()
+        for mode in modes:
+            if mode.startswith(word):
+                yield Completion(
+                    mode,
+                    start_position=-len(word),
+                    display=mode,
+                )
 
     def _get_command_completions(self, text):
         word = text
@@ -78,8 +87,8 @@ class CommandCompleter(Completer):
             yield from self._get_drop_completions(document)
 
         # If typing /mode command, provide mode completions
-        # elif text.startswith("/mode"):
-        #     yield from self._get_mode_completions()
+        elif text.startswith("/mode"):
+            yield from self._get_mode_completions(document)
 
         # Otherwise, provide command completions
         elif text.startswith("/"):
