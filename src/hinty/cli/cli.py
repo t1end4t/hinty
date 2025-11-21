@@ -106,6 +106,7 @@ def handle_input_loop(
     """Handle the main input loop."""
     logger.debug("Starting input loop")
     style = catppuccin_mocha_style
+    last_files = None
     while True:
         try:
             files_str = (
@@ -116,9 +117,16 @@ def handle_input_loop(
                 if context_manager._files
                 else ""
             )
-            prompt_text = (
-                f"{context_manager.current_mode.value} {files_str} >> "
-            )
+            if files_str != last_files:
+                if files_str:
+                    console.print(f"Added {files_str} to the chat")
+                    console.print(
+                        "───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
+                    )
+                    console.print("Readonly: CLAUDE.md")
+                    console.print(f"Editable: {files_str}")
+                last_files = files_str
+            prompt_text = f"{context_manager.current_mode.value} >> "
             user_input = session.prompt(prompt_text, style=style)
             if not user_input:
                 break
