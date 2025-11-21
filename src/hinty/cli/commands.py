@@ -50,7 +50,9 @@ class CommandCompleter(Completer):
             path_document, complete_event
         )
 
-    def _get_drop_completions(self, document: Document, complete_event: CompleteEvent):
+    def _get_drop_completions(
+        self, document: Document, complete_event: CompleteEvent
+    ):
         text = document.text_before_cursor
         word = text[len("/drop ") :]
         names = [f.name for f in self.context_manager.get_all_files()]
