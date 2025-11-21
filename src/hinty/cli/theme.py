@@ -15,3 +15,6 @@ catppuccin_mocha_style = Style.from_dict(
 
 # Rich Panel border style for Catppuccin Mocha theme
 panel_border_style = "#89b4fa"  # Catppuccin Mocha Blue
+
+# Files panel border style for Catppuccin Mocha theme
+files_panel_border_style = "#a6e3a1"  # Catppuccin Mocha Green

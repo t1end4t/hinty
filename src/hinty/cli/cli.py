@@ -10,7 +10,7 @@ from typing import List
 from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
-from ..cli.theme import catppuccin_mocha_style, panel_border_style
+from ..cli.theme import catppuccin_mocha_style, panel_border_style, files_panel_border_style
 from ..core.context_manager import ContextManager
 
 console = Console()
@@ -113,7 +113,7 @@ def display_files(context_manager: ContextManager) -> None:
             Panel(
                 files_str,
                 title="Files",
-                border_style=panel_border_style,
+                border_style=files_panel_border_style,
             )
         )
 
