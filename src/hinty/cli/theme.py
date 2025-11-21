@@ -10,6 +10,7 @@ SUBTEXT0 = "#a6adc8"
 SURFACE1 = "#45475a"
 SUBTEXT1 = "#bac2de"
 GREEN = "#a6e3a1"
+PINK = "#f5c2e7"
 
 # Catppuccin Mocha theme for prompt_toolkit
 catppuccin_mocha_style = Style.from_dict(
@@ -21,7 +22,7 @@ catppuccin_mocha_style = Style.from_dict(
         # Fuzzy matches in completion menu (for FuzzyCompleter).
         "completion-menu.completion fuzzymatch.outside": f"fg:{SUBTEXT0}",
         "completion-menu.completion fuzzymatch.inside": "bold",
-        "completion-menu.completion fuzzymatch.inside.character": f"underline {YELLOW}",
+        "completion-menu.completion fuzzymatch.inside.character": f"underline {PINK}",
         "completion-menu.completion.current fuzzymatch.outside": f"fg:{TEXT}",
         "completion-menu.completion.current fuzzymatch.inside": "nobold",
     }
