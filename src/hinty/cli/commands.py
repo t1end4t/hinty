@@ -41,7 +41,7 @@ class CommandCompleter(Completer):
             path_document, complete_event
         )
 
-    def _get_drop_completions(self, document, complete_event):
+    def _get_drop_completions(self, document):
         text = document.text_before_cursor
         word = text[len("/drop ") :]
         names = [f.name for f in self.context_manager.get_all_files()]
@@ -53,8 +53,8 @@ class CommandCompleter(Completer):
                     display=name,
                 )
 
-    def _get_mode_completions():
-        pass
+    # def _get_mode_completions():
+    #     pass
 
     def _get_command_completions(self, text):
         word = text
@@ -75,11 +75,11 @@ class CommandCompleter(Completer):
 
         # If typing /drop command, provide file name completions
         elif text.startswith("/drop"):
-            yield from self._get_drop_completions()
+            yield from self._get_drop_completions(document)
 
         # If typing /mode command, provide mode completions
-        elif text.startswith("/mode"):
-            yield from self._get_mode_completions()
+        # elif text.startswith("/mode"):
+        #     yield from self._get_mode_completions()
 
         # Otherwise, provide command completions
         elif text.startswith("/"):
