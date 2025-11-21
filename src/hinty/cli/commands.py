@@ -1,10 +1,11 @@
-from prompt_toolkit.completion import Completer, Completion
-from rich.console import Console
 from typing import List
 
-from ..baml_client.types import ConversationMessage
-from ..core.models import Mode
+from prompt_toolkit.completion import Completer, Completion
+from rich.console import Console
 
+from ..baml_client.types import ConversationMessage
+from ..core.context_manager import ContextManager
+from ..core.models import Mode
 
 commands = ["/help", "/clear", "/mode"]
 
