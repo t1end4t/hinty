@@ -8,10 +8,12 @@ BASE = "#1e1e2e"
 TEXT = "#cdd6f4"
 SURFACE0 = "#313244"
 SURFACE1 = "#45475a"
-SURFACE1 = "#45475a"
+SURFACE2 = "#585b70"
 SUBTEXT0 = "#a6adc8"
 SUBTEXT1 = "#bac2de"
 OVERLAY2 = "#9399b2"
+OVERLAY1 = "#7f849c"
+OVERLAY0 = "#6c7086"
 
 # Catppuccin Mocha theme for prompt_toolkit
 catppuccin_mocha_style = Style.from_dict(
