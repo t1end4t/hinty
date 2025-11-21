@@ -4,6 +4,7 @@ import click
 from baml_py import AbortController, BamlSyncStream
 from loguru import logger
 from prompt_toolkit import PromptSession
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
 from rich.console import Console
 from rich.live import Live
@@ -37,6 +38,7 @@ def setup_session(context_manager: ContextManager) -> PromptSession:
         completer=completer,
         complete_while_typing=True,
         history=FileHistory(str(context_manager.pwd_path / ".hinty_history")),
+        auto_suggest=AutoSuggestFromHistory(),
     )
     return session
 
