@@ -40,7 +40,9 @@ def help_command(console: Console) -> None:
     table.add_row("/mode <mode>", "Change the current mode")
     panel = Panel(table, title="Help", border_style=panel_border_style)
     console.print(panel)
-    console.print("Type a message to chat with the LLM. Use / to invoke commands.")
+    console.print(
+        "Type a message to chat with the LLM. Use / to invoke commands."
+    )
 
 
 def clear_command(
