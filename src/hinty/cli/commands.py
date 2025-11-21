@@ -31,65 +31,7 @@ class CommandCompleter(Completer):
         self.context_manager = context_manager
 
     def _get_add_completions(self, text, document, complete_event):
-        # Extract the path part after "/add "
-        path_part = text[5:]  # Remove "/add " prefix
-
-        pwd = self.context_manager.pwd_path
-
-        # If no path provided, show files/folders in current directory
-        if not path_part:
-            try:
-                items = os.listdir(pwd)
-            except OSError:
-                return
-
-            for item in items:
-                completion_text = item
-                if os.path.isdir(pwd / item):
-                    completion_text += "/"
-                yield Completion(
-                    completion_text,
-                    start_position=0,
-                    display=item,
-                )
-            return
-
-        # Determine the directory to list and the prefix to match
-        full_path = pwd / path_part
-
-        # If path ends with /, list contents of that directory
-        if path_part.endswith("/"):
-            if full_path.is_dir():
-                list_dir = full_path
-                prefix = ""
-            else:
-                return
-        else:
-            # Path doesn't end with /, so we're completing a partial name
-            if full_path.is_dir():
-                # It's a complete directory name, show its contents
-                list_dir = full_path
-                prefix = ""
-            else:
-                # It's a partial name, complete from parent directory
-                list_dir = full_path.parent
-                prefix = full_path.name
-
-        try:
-            items = os.listdir(list_dir)
-        except OSError:
-            return
-
-        for item in items:
-            if item.startswith(prefix):
-                completion_text = item[len(prefix) :]
-                if os.path.isdir(list_dir / item):
-                    completion_text += "/"
-                yield Completion(
-                    completion_text,
-                    start_position=0,
-                    display=item,
-                )
+        pass
 
     def _get_drop_completions(self, text):
         if text == "/drop":
