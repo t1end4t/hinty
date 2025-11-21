@@ -18,7 +18,7 @@ from rich.panel import Panel
 from ..baml_client.types import ConversationMessage
 from ..core.context_manager import ContextManager
 from ..core.models import Mode
-from .theme import panel_border_style
+from .theme import panel_border_style, YELLOW
 
 
 commands = [
@@ -117,7 +117,7 @@ def help_command(console: Console):
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
-    console.print(panel)
+    console.print(panel, style=YELLOW)
 
 
 def clear_command(
@@ -126,7 +126,7 @@ def clear_command(
     """Clear conversation history and chat display."""
     conversation_history.clear()
     console.clear()
-    console.print("Conversation history and chat cleared.\n")
+    console.print("Conversation history and chat cleared.\n", style=YELLOW)
 
 
 def mode_command(
@@ -135,17 +135,18 @@ def mode_command(
     """Change the current mode."""
     parts = command.split()
     if len(parts) != 2:
-        console.print("Usage: /mode <mode>\n")
-        console.print(f"Available modes: {', '.join(Mode.get_values())}\n")
+        console.print("Usage: /mode <mode>\n", style=YELLOW)
+        console.print(f"Available modes: {', '.join(Mode.get_values())}\n", style=YELLOW)
         return
     mode_str = parts[1]
     try:
         new_mode = Mode.from_string(mode_str)
         context_manager.set_mode(new_mode)
-        console.print(f"Mode changed to {new_mode.value}\n")
+        console.print(f"Mode changed to {new_mode.value}\n", style=YELLOW)
     except ValueError:
         console.print(
-            f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}\n"
+            f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}\n",
+            style=YELLOW
         )
 
 
@@ -169,7 +170,7 @@ def add_command(
             all_files, "--multi"
         )  # Multi-select with fuzzy search
         if not selected_files:
-            console.print("No files selected.\n")
+            console.print("No files selected.\n", style=YELLOW)
             return
     else:
         # Direct mode: Use provided paths
@@ -179,20 +180,20 @@ def add_command(
     for file_path in selected_files:
         full_path = os.path.join(context_manager.pwd_path, file_path)
         if os.path.isfile(full_path):
-            console.print(f"Added file: {file_path}\n")
+            console.print(f"Added file: {file_path}\n", style=YELLOW)
             context_manager.add_file(Path(full_path))
         else:
-            console.print(f"File not found: {file_path}\n")
+            console.print(f"File not found: {file_path}\n", style=YELLOW)
 
 
 def files_command(console: Console, context_manager: ContextManager):
     """List current files in context."""
     if not context_manager.get_all_files():
-        console.print("No files attached.\n")
+        console.print("No files attached.\n", style=YELLOW)
     else:
-        console.print("Attached files:\n")
+        console.print("Attached files:\n", style=YELLOW)
         for i, file_path in enumerate(context_manager.get_all_files()):
-            console.print(f"  {i}: {file_path}\n")
+            console.print(f"  {i}: {file_path}\n", style=YELLOW)
 
 
 def drop_command(
@@ -203,7 +204,7 @@ def drop_command(
     if len(parts) == 1:
         # No file provided: drop all files
         context_manager._files.clear()
-        console.print("All files dropped from context.\n")
+        console.print("All files dropped from context.\n", style=YELLOW)
     else:
         # File names provided: drop specific files
         for file_name in parts[1:]:
@@ -213,11 +214,11 @@ def drop_command(
             ]:  # Copy to avoid modification during iteration
                 if file_path.name == file_name:
                     context_manager.remove_file(file_path)
-                    console.print(f"Dropped file: {file_path}\n")
+                    console.print(f"Dropped file: {file_path}\n", style=YELLOW)
                     found = True
                     break
             if not found:
-                console.print(f"File not found: {file_name}\n")
+                console.print(f"File not found: {file_name}\n", style=YELLOW)
 
 
 def handle_command(
@@ -240,7 +241,7 @@ def handle_command(
     elif command.startswith("/drop"):
         drop_command(command, console, context_manager)
     elif command in ["/exit", "/quit"]:
-        console.print("Exiting CLI...\n")
+        console.print("Exiting CLI...\n", style=YELLOW)
         raise SystemExit
     else:
-        console.print(f"Unknown command: {command}\n")
+        console.print(f"Unknown command: {command}\n", style=YELLOW)
