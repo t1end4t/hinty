@@ -191,7 +191,9 @@ def drop_command(
         # File names provided: drop specific files
         for file_name in parts[1:]:
             found = False
-            for file_path in context_manager.files[:]:  # Copy to avoid modification during iteration
+            for file_path in context_manager.files[
+                :
+            ]:  # Copy to avoid modification during iteration
                 if file_path.name == file_name:
                     context_manager.remove_file(file_path)
                     console.print(f"Dropped file: {file_path}")
