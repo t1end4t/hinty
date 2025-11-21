@@ -19,9 +19,16 @@ class CommandCompleter(Completer):
     def get_completions(self, document, complete_event):
         text = document.text
         if text.startswith("/"):
-            for cmd in self.commands:
-                if cmd.startswith(text.lower()):
-                    yield Completion(cmd, start_position=-len(text))
+            if text.startswith("/mode "):
+                prefix = "/mode "
+                remaining = text[len(prefix):]
+                for mode in Mode.get_values():
+                    if mode.startswith(remaining.lower()):
+                        yield Completion(mode, start_position=-len(remaining))
+            else:
+                for cmd in self.commands:
+                    if cmd.startswith(text.lower()):
+                        yield Completion(cmd, start_position=-len(text))
 
 
 def help_command(console: Console) -> None:
