@@ -3,9 +3,10 @@ from rich.console import Console
 from typing import List
 
 from ..baml_client.types import ConversationMessage
+from ..core.models import Mode
 
 
-commands = ["/help", "/clear"]
+commands = ["/help", "/clear", "/mode"]
 
 
 class CommandCompleter(Completer):
@@ -39,15 +40,36 @@ def clear_command(
     console.print("Conversation history and chat cleared.")
 
 
+def mode_command(
+    command: str, console: Console, context_manager: ContextManager
+) -> None:
+    """Change the current mode."""
+    parts = command.split()
+    if len(parts) != 2:
+        console.print("Usage: /mode <mode>")
+        console.print(f"Available modes: {', '.join(Mode.get_values())}")
+        return
+    mode_str = parts[1]
+    try:
+        new_mode = Mode.from_string(mode_str)
+        context_manager.current_mode = new_mode
+        console.print(f"Mode changed to {new_mode.value}")
+    except ValueError:
+        console.print(f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}")
+
+
 def handle_command(
     command: str,
     console: Console,
     conversation_history: List[ConversationMessage],
+    context_manager: ContextManager,
 ) -> None:
     """Dispatch commands to their handlers."""
     if command == "/help":
         help_command(console)
     elif command == "/clear":
         clear_command(console, conversation_history)
+    elif command.startswith("/mode"):
+        mode_command(command, console, context_manager)
     else:
         console.print(f"Unknown command: {command}")
