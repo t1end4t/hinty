@@ -41,6 +41,7 @@ class CommandCompleter(Completer):
         )
 
     def _get_drop_completions(self, text):
+        drop_prefix = "/drop "
         if text == "/drop":
             # Complete with available file names
             for file_path in self.context_manager.get_all_files():
@@ -49,9 +50,9 @@ class CommandCompleter(Completer):
                     start_position=0,
                     display=file_path.name,
                 )
-        elif text.startswith("/drop "):
+        elif text.startswith(drop_prefix):
             # Complete file names after "/drop "
-            word = text[6:]  # Remove "/drop " prefix
+            word = text[len(drop_prefix) :]  # Remove "/drop " prefix
             for file_path in self.context_manager.get_all_files():
                 if file_path.name.startswith(word):
                     yield Completion(
