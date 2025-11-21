@@ -82,17 +82,25 @@ def process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
     console: Console,
+    context_manager: ContextManager,
 ) -> None:
-    """Process a user message: append to history, stream response, update history."""
+    """Process a user message: append to history, get response, update history."""
     logger.debug("Processing user message")
     user_message = ConversationMessage(role="user", content=user_input)
     conversation_history.append(user_message)
     try:
-        logger.debug("Calling external API for router")
-        # stream = b.stream.Router(
-        #     user_input, conversation_history=conversation_history
-        # )
-        full_response = display_stream_response(stream, console)
+        logger.debug("Getting agent response")
+        agent_response = get_agent_response(
+            user_input, conversation_history, context_manager
+        )
+        full_response = agent_response.response
+        console.print(
+            Panel(
+                Markdown(full_response),
+                title="LLM",
+                border_style=panel_border_style,
+            )
+        )
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
@@ -143,7 +151,7 @@ def process_input(
             user_input, console, conversation_history, context_manager
         )
     else:
-        process_user_message(user_input, conversation_history, console)
+        process_user_message(user_input, conversation_history, console, context_manager)
 
 
 def handle_input_loop(
