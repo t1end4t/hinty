@@ -16,6 +16,7 @@ OVERLAY1 = "#7f849c"
 OVERLAY2 = "#9399b2"
 
 # Catppuccin Mocha theme for prompt_toolkit
+# NOTE: get from https://github.com/prompt-toolkit/python-prompt-toolkit/blob/main/src/prompt_toolkit/styles/defaults.py
 catppuccin_mocha_style = Style.from_dict(
     {
         "prompt": f"bold {BLUE}",
