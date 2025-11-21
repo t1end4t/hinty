@@ -105,9 +105,9 @@ def display_files_if_changed(
     files_str = (
         " ".join(
             str(f.relative_to(context_manager.pwd_path))
-            for f in context_manager.files
+            for f in context_manager.get_all_files()
         )
-        if context_manager.files
+        if context_manager.get_all_files()
         else ""
     )
     if files_str != last_files and files_str:
