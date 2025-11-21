@@ -31,10 +31,9 @@ class ContextManager:
         """Get the present working directory path."""
         return self._pwd_path
 
-    @property
-    def get_files(self) -> List[Path]:
-        """Get the list of attached files."""
-        return self._files
+    def get_file(self, index: int) -> Path:
+        """Get a specific attached file by index."""
+        return self._files[index]
 
     def add_file(self, path: Path) -> None:
         """Add a file to the list."""
