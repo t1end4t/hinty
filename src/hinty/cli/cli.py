@@ -32,9 +32,7 @@ def setup_session(context_manager: ContextManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, context_manager)
     session = PromptSession(
-        completer=completer,
-        complete_while_typing=True,
-        multiline=True
+        completer=completer, complete_while_typing=True, multiline=True
     )
     return session
 
@@ -157,7 +155,9 @@ def get_user_input(
     return session.prompt(
         prompt_text,
         style=catppuccin_mocha_style,
-        prompt_continuation=lambda width, line_number, is_soft_wrap: f"{context_manager.current_mode.value} >> "
+        prompt_continuation=lambda width,
+        line_number,
+        is_soft_wrap: f"{context_manager.current_mode.value} >> ",
     )
 
 
