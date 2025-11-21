@@ -33,17 +33,41 @@ class CommandCompleter(Completer):
     def _get_add_completions(self, text, document, complete_event):
         # Extract the path part after "/add "
         path_part = text[5:]  # Remove "/add " prefix
-
-        # Create a mock document for the path completer
-        from prompt_toolkit.document import Document
-
-        path_document = Document(path_part, len(path_part))
-
-        # Get path completions and yield them
-        for completion in self.path_completer.get_completions(
-            path_document, complete_event
-        ):
-            yield completion
+        
+        # If no search term, use PathCompleter for directory navigation
+        if not path_part or path_part.endswith(os.sep):
+            from prompt_toolkit.document import Document
+            path_document = Document(path_part, len(path_part))
+            for completion in self.path_completer.get_completions(
+                path_document, complete_event
+            ):
+                yield completion
+            return
+        
+        # Extract the last part (filename search term)
+        parts = path_part.split(os.sep)
+        search_term = parts[-1].lower()
+        base_dir = os.sep.join(parts[:-1]) if len(parts) > 1 else ""
+        
+        # Walk the directory and find matching files
+        search_root = os.path.join(self.context_manager.pwd_path, base_dir) if base_dir else self.context_manager.pwd_path
+        
+        if os.path.isdir(search_root):
+            for root, dirs, files in os.walk(search_root):
+                for file in files:
+                    # Match substring anywhere in filename
+                    if search_term in file.lower():
+                        rel_path = os.path.relpath(
+                            os.path.join(root, file),
+                            search_root
+                        )
+                        full_suggestion = os.path.join(base_dir, rel_path) if base_dir else rel_path
+                        
+                        yield Completion(
+                            full_suggestion,
+                            start_position=-len(path_part),
+                            display=full_suggestion,
+                        )
 
     def _get_drop_completions(self, text):
         if text == "/drop":
