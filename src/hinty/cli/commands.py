@@ -34,16 +34,23 @@ class CommandCompleter(Completer):
         # Extract the path part after "/add "
         path_part = text[5:]  # Remove "/add " prefix
 
-        # Create a mock document for the path completer
-        from prompt_toolkit.document import Document
+        # Get all files in the project directory
+        all_files = []
+        for root, dirs, files in os.walk(self.context_manager.pwd_path):
+            for file in files:
+                rel_path = os.path.relpath(
+                    os.path.join(root, file), self.context_manager.pwd_path
+                )
+                all_files.append(rel_path)
 
-        path_document = Document(path_part, len(path_part))
-
-        # Get path completions and yield them
-        for completion in self.path_completer.get_completions(
-            path_document, complete_event
-        ):
-            yield completion
+        # Yield completions for files containing the path_part as substring
+        for rel_path in all_files:
+            if path_part in rel_path:
+                yield Completion(
+                    rel_path,
+                    start_position=-len(path_part),
+                    display=rel_path,
+                )
 
     def _get_drop_completions(self, text):
         if text == "/drop":
