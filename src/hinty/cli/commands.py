@@ -12,7 +12,16 @@ from ..core.context_manager import ContextManager
 from ..core.models import Mode
 from .theme import panel_border_style
 
-commands = ["/help", "/clear", "/mode", "/add", "/files", "/drop", "/exit", "/quit"]
+commands = [
+    "/help",
+    "/clear",
+    "/mode",
+    "/add",
+    "/files",
+    "/drop",
+    "/exit",
+    "/quit",
+]
 
 
 class CommandCompleter(Completer):
