@@ -93,7 +93,7 @@ class CommandCompleter(Completer):
 
         # If typing /drop command, provide file name completions
         elif text.startswith("/drop"):
-            yield from self._get_drop_completions(document)
+            yield from self._get_drop_completions(document, complete_event)
 
         # If typing /mode command, provide mode completions
         elif text.startswith("/mode"):
