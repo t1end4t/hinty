@@ -19,7 +19,7 @@ class CommandCompleter(Completer):
     def __init__(self, commands):
         self.commands = commands
         # self.context_manager = context_manager
-        self.path_completer = PathCompleter()
+        self.path_completer = PathCompleter(expanduser=True)
 
     def get_completions(self, document, complete_event):
         text = document.text
@@ -41,9 +41,11 @@ class CommandCompleter(Completer):
                 for completion in self.path_completer.get_completions(
                     path_doc, complete_event
                 ):
+                    # Show full path by replacing from the start of remaining text
                     yield Completion(
                         completion.text,
-                        start_position=completion.start_position,
+                        start_position=-len(remaining),
+                        display=completion.text,
                     )
             else:
                 for cmd in self.commands:
