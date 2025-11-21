@@ -124,17 +124,12 @@ def add_command(
         # Direct mode: Use provided paths
         selected_files = parts[1:]
 
-    # Validate and load files
+    # Validate and add files
     for file_path in selected_files:
         full_path = os.path.join(context_manager.pwd_path, file_path)
         if os.path.isfile(full_path):
-            try:
-                with open(full_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-                console.print(f"Added file: {file_path}")
-                context_manager.add_file(Path(full_path))
-            except Exception as e:
-                console.print(f"Error reading {file_path}: {e}")
+            console.print(f"Added file: {file_path}")
+            context_manager.add_file(Path(full_path))
         else:
             console.print(f"File not found: {file_path}")
 
