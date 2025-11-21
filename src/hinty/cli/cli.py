@@ -109,7 +109,8 @@ def handle_input_loop(
     style = catppuccin_mocha_style
     while True:
         try:
-            user_input = session.prompt(PROMPT_TEXT, style=style)
+            prompt_text = f"{context_manager.current_mode.value} >> "
+            user_input = session.prompt(prompt_text, style=style)
             if not user_input:
                 break
             if user_input.startswith("/"):
