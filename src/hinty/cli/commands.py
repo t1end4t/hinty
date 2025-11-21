@@ -46,15 +46,15 @@ class CommandCompleter(Completer):
 
         # Get the part after "/drop "
         after_command = text[6:] if len(text) > 6 else ""
-        
+
         # Find the last word being typed (after the last space)
         parts = after_command.split()
         word = parts[-1] if parts else ""
-        
+
         for file_path in self.context_manager.get_all_files():
             if file_path.name.startswith(word):
                 yield Completion(
-                    file_path.name[len(word):],
+                    file_path.name[len(word) :],
                     start_position=-len(word),
                     display=file_path.name,
                 )
