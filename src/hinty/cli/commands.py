@@ -43,13 +43,13 @@ class CommandCompleter(Completer):
     def _get_drop_completions(self, text):
         if not text.startswith("/drop"):
             return
-            
+
         word = text[6:] if len(text) > 6 else ""
-        
+
         for file_path in self.context_manager.get_all_files():
             if file_path.name.startswith(word):
                 yield Completion(
-                    file_path.name[len(word):],
+                    file_path.name[len(word) :],
                     start_position=-len(word),
                     display=file_path.name,
                 )
