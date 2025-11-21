@@ -17,9 +17,7 @@ catppuccin_mocha_style = Style.from_dict(
         "prompt": f"bold {BLUE}",
         "completion-menu": f"bg:{BASE} {TEXT}",
         "completion-menu.completion": f"bg:{SURFACE0} {TEXT}",
-        "completion-menu.completion.current": f"bg:{SURFACE1} {YELLOW} bold",
-        "completion-menu.meta": f"bg:{BASE} {SUBTEXT0}",
-        "completion-menu.meta.current": f"bg:{SURFACE1} {SUBTEXT1} bold",
+        "completion-menu.completion.current": f"bg:{SURFACE1} {TEXT} bold",
     }
 )
 
