@@ -119,12 +119,13 @@ def handle_input_loop(
             )
             if files_str != last_files:
                 if files_str:
-                    console.print(f"Added {files_str} to the chat")
                     console.print(
-                        "───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
+                        Panel(
+                            f"Readonly: CLAUDE.md\nEditable: {files_str}",
+                            title=f"Added {files_str} to the chat",
+                            border_style=panel_border_style,
+                        )
                     )
-                    console.print("Readonly: CLAUDE.md")
-                    console.print(f"Editable: {files_str}")
                 last_files = files_str
             prompt_text = f"{context_manager.current_mode.value} >> "
             user_input = session.prompt(prompt_text, style=style)
