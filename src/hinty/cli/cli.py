@@ -1,7 +1,7 @@
 from typing import List
 
 import click
-from baml_py import BamlSyncStream
+from baml_py import AbortController, BamlSyncStream
 from loguru import logger
 from prompt_toolkit import PromptSession
 from rich.console import Console
@@ -48,13 +48,16 @@ def print_welcome():
 
 
 def initialize_conversation() -> tuple[
-    List[ConversationMessage], ContextManager
+    List[ConversationMessage], ContextManager, AbortController
 ]:
     """Initialize conversation history and context manager."""
     conversation_history: List[ConversationMessage] = []
     context_manager = ContextManager()
+    controller = AbortController()
+
     console.print(f"Current directory: {context_manager.pwd_path}")
-    return conversation_history, context_manager
+
+    return conversation_history, context_manager, controller
 
 
 def display_stream_response(
@@ -96,6 +99,7 @@ def process_user_message(
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
     console: Console,
+    controller: AbortController,
 ):
     """Process a user message: append to history, stream response, update history."""
     logger.debug("Processing user message")
@@ -107,8 +111,9 @@ def process_user_message(
         # NOTE: for now just show response
         stream = get_agent_response(
             user_input,
-            conversation_history=conversation_history,
-            context_manager=context_manager,
+            conversation_history,
+            context_manager,
+            controller,
         )
         full_response = display_stream_response(stream.response, console)
         assistant_message = ConversationMessage(
@@ -150,10 +155,11 @@ def get_user_input(
 
 
 def process_input(
+    console: Console,
     user_input: str,
     conversation_history: List[ConversationMessage],
-    console: Console,
     context_manager: ContextManager,
+    controller: AbortController,
 ):
     """Process user input as a command or message."""
     if user_input.startswith("/"):
@@ -163,9 +169,10 @@ def process_input(
     else:
         process_user_message(
             user_input,
-            conversation_history=conversation_history,
-            context_manager=context_manager,
-            console=console,
+            conversation_history,
+            context_manager,
+            console,
+            controller,
         )
 
 
@@ -173,6 +180,7 @@ def handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
+    controller: AbortController,
 ):
     """Handle the main input loop."""
     logger.debug("Starting input loop")
@@ -183,7 +191,11 @@ def handle_input_loop(
             if not user_input:
                 break
             process_input(
-                user_input, conversation_history, console, context_manager
+                console,
+                user_input,
+                conversation_history,
+                context_manager,
+                controller,
             )
 
             logger.debug(f"Current mode: {context_manager.current_mode}")
@@ -204,9 +216,13 @@ def chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
-    conversation_history, context_manager = initialize_conversation()
+    conversation_history, context_manager, controller = (
+        initialize_conversation()
+    )
     session = setup_session(context_manager)
-    handle_input_loop(session, conversation_history, context_manager)
+    handle_input_loop(
+        session, conversation_history, context_manager, controller
+    )
     logger.debug("Chat ended")
 
 
