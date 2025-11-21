@@ -31,31 +31,7 @@ class CommandCompleter(Completer):
         self.context_manager = context_manager
 
     def _get_add_completions(self, document, complete_event):
-        text = document.text_before_cursor
-        word = text[5:].strip()  # Remove "/add " prefix
-        if not word:
-            # Complete with all relative file paths
-            for root, dirs, files in os.walk(self.context_manager.pwd_path):
-                for file in files:
-                    rel_path = os.path.relpath(
-                        os.path.join(root, file), self.context_manager.pwd_path
-                    )
-                    yield Completion(
-                        rel_path, start_position=0, display=rel_path
-                    )
-        else:
-            # Complete file paths that start with the current word
-            for root, dirs, files in os.walk(self.context_manager.pwd_path):
-                for file in files:
-                    rel_path = os.path.relpath(
-                        os.path.join(root, file), self.context_manager.pwd_path
-                    )
-                    if rel_path.startswith(word):
-                        yield Completion(
-                            rel_path[len(word) :],
-                            start_position=-len(word),
-                            display=rel_path,
-                        )
+        pass
 
     def _get_drop_completions(self, text):
         if text == "/drop":
