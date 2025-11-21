@@ -65,6 +65,27 @@ class CommandCompleter(Completer):
             # Allow multiple file names, e.g., "/drop file1.txt file2.txt"
             pass  # No additional completions needed for now
 
+    def _get_mode_completions(self, text):
+        mode_prefix = "/mode "
+        if text == "/mode":
+            # Complete with available mode names
+            for mode_value in Mode.get_values():
+                yield Completion(
+                    f" {mode_value}",
+                    start_position=0,
+                    display=mode_value,
+                )
+        elif text.startswith(mode_prefix):
+            # Complete mode names after "/mode "
+            word = text[len(mode_prefix) :]  # Remove "/mode " prefix
+            for mode_value in Mode.get_values():
+                if mode_value.startswith(word):
+                    yield Completion(
+                        mode_value[len(word) :],
+                        start_position=-len(word),
+                        display=mode_value,
+                    )
+
     def _get_command_completions(self, text):
         word = text
         for command in self.commands:
@@ -85,6 +106,10 @@ class CommandCompleter(Completer):
         # If typing /drop command, provide file name completions
         elif text.startswith("/drop"):
             yield from self._get_drop_completions(text)
+
+        # If typing /mode command, provide mode completions
+        elif text.startswith("/mode"):
+            yield from self._get_mode_completions(text)
 
         # Otherwise, provide command completions
         elif text.startswith("/"):
