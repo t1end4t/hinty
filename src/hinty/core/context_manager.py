@@ -42,3 +42,8 @@ class ContextManager:
     def remove_file(self, index: int) -> None:
         """Remove a file from the list by index."""
         del self._files[index]
+
+    @property
+    def files(self) -> List[Path]:
+        """Get the list of attached files."""
+        return self._files
