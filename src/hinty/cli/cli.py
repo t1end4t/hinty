@@ -163,7 +163,7 @@ def handle_input_loop(
                 user_input, conversation_history, console, context_manager
             )
 
-            # logging to check current mode from context_manager AI!
+            logger.info(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             break
