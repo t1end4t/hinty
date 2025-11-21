@@ -40,9 +40,9 @@ class CommandCompleter(Completer):
         pwd = self.context_manager.pwd_path
 
         # Determine the directory to list and the prefix to match
-        if '/' in path_part:
-            parts = path_part.split('/')
-            dir_path_str = '/'.join(parts[:-1])
+        if "/" in path_part:
+            parts = path_part.split("/")
+            dir_path_str = "/".join(parts[:-1])
             prefix = parts[-1]
             full_dir = pwd / dir_path_str
         else:
@@ -59,7 +59,7 @@ class CommandCompleter(Completer):
             if prefix.lower() in item.lower():
                 completion_text = item
                 if os.path.isdir(full_dir / item):
-                    completion_text += '/'
+                    completion_text += "/"
                 yield Completion(
                     completion_text,
                     start_position=-len(prefix),
