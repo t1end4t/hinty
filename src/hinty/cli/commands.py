@@ -12,7 +12,7 @@ from ..core.context_manager import ContextManager
 from ..core.models import Mode
 from .theme import panel_border_style
 
-commands = ["/help", "/clear", "/mode", "/add", "/exit", "/quit"]
+commands = ["/help", "/clear", "/mode", "/add", "/files", "/exit", "/quit"]
 
 
 class CommandCompleter(Completer):
@@ -63,6 +63,7 @@ def help_command(console: Console) -> None:
         "/clear        - Clear conversation history and chat\n"
         "/mode  <mode> - Change the current mode\n"
         "/add   <file> - Add file(s) to context (or interactive selection if no files)\n"
+        "/files        - List current files in context\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
@@ -134,6 +135,16 @@ def add_command(
             console.print(f"File not found: {file_path}")
 
 
+def files_command(console: Console, context_manager: ContextManager) -> None:
+    """List current files in context."""
+    if not context_manager._files:
+        console.print("No files attached.")
+    else:
+        console.print("Attached files:")
+        for i, file_path in enumerate(context_manager._files):
+            console.print(f"  {i}: {file_path}")
+
+
 def handle_command(
     command: str,
     console: Console,
@@ -149,6 +160,8 @@ def handle_command(
         mode_command(command, console, context_manager)
     elif command.startswith("/add"):
         add_command(command, console, context_manager)
+    elif command == "/files":
+        files_command(console, context_manager)
     elif command in ["/exit", "/quit"]:
         console.print("Exiting CLI...")
         raise SystemExit
