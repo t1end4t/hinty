@@ -42,7 +42,8 @@ class CommandCompleter(Completer):
                     path_doc, complete_event
                 ):
                     yield Completion(
-                        prefix + completion.text, start_position=-len(remaining)
+                        completion.text,
+                        start_position=completion.start_position,
                     )
             else:
                 for cmd in self.commands:
