@@ -36,16 +36,29 @@ class CommandCompleter(Completer):
                 remaining = text[len(prefix) :]
                 # Simulate a document for the path part
                 from prompt_toolkit.document import Document
+                import os
 
                 path_doc = Document(remaining)
                 for completion in self.path_completer.get_completions(
                     path_doc, complete_event
                 ):
-                    # Show full path by replacing from the start of remaining text
+                    # Calculate the full path to display
+                    # PathCompleter gives us the completion relative to what's typed
+                    # We need to reconstruct the full path
+                    if remaining:
+                        # Get the directory part of what's been typed
+                        dir_part = os.path.dirname(remaining)
+                        if dir_part:
+                            full_display = os.path.join(dir_part, completion.text)
+                        else:
+                            full_display = completion.text
+                    else:
+                        full_display = completion.text
+                    
                     yield Completion(
                         completion.text,
-                        start_position=-len(remaining),
-                        display=completion.text,
+                        start_position=completion.start_position,
+                        display=full_display,
                     )
             else:
                 for cmd in self.commands:
