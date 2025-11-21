@@ -22,7 +22,33 @@ class CommandCompleter(Completer):
         self.path_completer = PathCompleter()
 
     def get_completions(self, document, complete_event):
-        pass
+        text = document.text_before_cursor
+        
+        # If typing /add command, provide path completions
+        if text.startswith("/add "):
+            # Extract the path part after "/add "
+            path_part = text[5:]  # Remove "/add " prefix
+            
+            # Create a mock document for the path completer
+            from prompt_toolkit.document import Document
+            path_document = Document(path_part, len(path_part))
+            
+            # Get path completions and yield them
+            for completion in self.path_completer.get_completions(
+                path_document, complete_event
+            ):
+                yield completion
+        
+        # Otherwise, provide command completions
+        elif text.startswith("/"):
+            word = text
+            for command in self.commands:
+                if command.startswith(word):
+                    yield Completion(
+                        command,
+                        start_position=-len(word),
+                        display=command,
+                    )
 
 
 def help_command(console: Console) -> None:
