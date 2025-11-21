@@ -121,8 +121,8 @@ def handle_input_loop(
                 if files_str:
                     console.print(
                         Panel(
-                            f"Readonly: CLAUDE.md\nEditable: {files_str}",
-                            title=f"Added {files_str} to the chat",
+                            files_str,
+                            title="Files",
                             border_style=panel_border_style,
                         )
                     )
