@@ -78,6 +78,7 @@ class CommandCompleter(Completer):
                     command,
                     start_position=-len(word),
                     display=command,
+                    style="completion-menu.completion",
                 )
 
     def get_completions(
