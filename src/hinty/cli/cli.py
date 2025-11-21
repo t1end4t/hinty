@@ -8,6 +8,7 @@ from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
 
+from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import (
@@ -16,7 +17,6 @@ from ..cli.theme import (
     panel_border_style,
 )
 from ..core.context_manager import ContextManager
-from ..core.llm import get_agent_response
 
 console = Console()
 
@@ -56,12 +56,12 @@ def initialize_conversation() -> tuple[
     return conversation_history, context_manager
 
 
-async def display_stream_response(stream, console: Console) -> str:
+def display_stream_response(stream, console: Console) -> str:
     """Display streaming response and return full response."""
     full_response = ""
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
-            async for partial in stream:
+            for partial in stream:
                 current = str(partial)
                 full_response = current
                 live.update(
@@ -78,22 +78,21 @@ async def display_stream_response(stream, console: Console) -> str:
     return full_response
 
 
-async def process_user_message(
+def process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
     console: Console,
-    context_manager: ContextManager,
 ) -> None:
     """Process a user message: append to history, stream response, update history."""
     logger.debug("Processing user message")
     user_message = ConversationMessage(role="user", content=user_input)
     conversation_history.append(user_message)
     try:
-        logger.debug("Getting agent response")
-        stream = get_agent_response(
-            user_input, conversation_history, context_manager
+        logger.debug("Calling external API for router")
+        stream = b.stream.Router(
+            user_input, conversation_history=conversation_history
         )
-        full_response = await display_stream_response(stream, console)
+        full_response = display_stream_response(stream, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
@@ -144,17 +143,10 @@ def process_input(
             user_input, console, conversation_history, context_manager
         )
     else:
-        # Run async function in sync context (assuming event loop is available)
-        import asyncio
-
-        asyncio.run(
-            process_user_message(
-                user_input, conversation_history, console, context_manager
-            )
-        )
+        process_user_message(user_input, conversation_history, console)
 
 
-async def handle_input_loop(
+def handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
@@ -167,14 +159,11 @@ async def handle_input_loop(
             user_input = get_user_input(session, context_manager)
             if not user_input:
                 break
-            if user_input.startswith("/"):
-                handle_command(
-                    user_input, console, conversation_history, context_manager
-                )
-            else:
-                await process_user_message(
-                    user_input, conversation_history, console, context_manager
-                )
+            process_input(
+                user_input, conversation_history, console, context_manager
+            )
+
+            # logging to check current mode from context_manager AI!
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             break
@@ -194,12 +183,7 @@ def chat():
     print_welcome()
     conversation_history, context_manager = initialize_conversation()
     session = setup_session(context_manager)
-    # Run async function in sync context
-    import asyncio
-
-    asyncio.run(
-        handle_input_loop(session, conversation_history, context_manager)
-    )
+    handle_input_loop(session, conversation_history, context_manager)
     logger.debug("Chat ended")
 
 
