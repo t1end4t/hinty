@@ -35,27 +35,10 @@ class CommandCompleter(Completer):
         text = document.text_before_cursor
         path_part = text[len("/add ") :]
 
-        # Split by spaces to handle multiple files
-        parts = path_part.split()
-        if not parts:
-            # No parts, complete from root
-            last_part = ""
-            start_offset = 0
-        else:
-            last_part = parts[-1]
-            # Calculate start position for replacement: from the start of last_part
-            start_offset = len(path_part) - len(last_part)
-
-        path_document = Document(last_part, len(last_part))
-        for completion in self.path_completer.get_completions(
+        path_document = Document(path_part, len(path_part))
+        yield from self.path_completer.get_completions(
             path_document, complete_event
-        ):
-            # Adjust start_position to replace only the last part
-            yield Completion(
-                completion.text,
-                start_position=-len(last_part),
-                display=completion.display,
-            )
+        )
 
     def _get_drop_completions(self, text):
         if text == "/drop":
