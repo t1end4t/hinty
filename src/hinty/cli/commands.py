@@ -102,9 +102,9 @@ def help_command(console: Console) -> None:
         "/exit         - Exit the CLI\n"
         "/quit         - Quit the CLI\n"
         "/clear        - Clear conversation history and chat\n"
+        "/files        - List current files in context\n"
         "/mode  <mode> - Change the current mode\n"
         "/add   <file> - Add file(s) to context (or interactive selection if no files)\n"
-        "/files        - List current files in context\n"
         "/drop  <file> - Drop file(s) from context by name, or all if no file\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
