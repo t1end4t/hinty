@@ -9,7 +9,7 @@ from ..core.context_manager import ContextManager
 from ..core.models import Mode
 from .theme import panel_border_style
 
-commands = ["/help", "/clear", "/mode"]
+commands = ["/help", "/clear", "/mode", "/exit", "/quit"]
 
 
 class CommandCompleter(Completer):
@@ -38,6 +38,8 @@ def help_command(console: Console) -> None:
         "/help        - Show this help message\n"
         "/clear       - Clear conversation history and chat\n"
         "/mode <mode> - Change the current mode\n"
+        "/exit        - Exit the CLI\n"
+        "/quit        - Quit the CLI\n"
         "Type a message to chat with the LLM. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
@@ -86,5 +88,8 @@ def handle_command(
         clear_command(console, conversation_history)
     elif command.startswith("/mode"):
         mode_command(command, console, context_manager)
+    elif command in ["/exit", "/quit"]:
+        console.print("Exiting CLI...")
+        raise SystemExit
     else:
         console.print(f"Unknown command: {command}")
