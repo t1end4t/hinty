@@ -30,7 +30,8 @@ class CommandCompleter(Completer):
         self.commands = commands
         self.context_manager = context_manager
 
-    def _get_add_completions(self, text, document, complete_event):
+    def _get_add_completions(self, document, complete_event):
+        text = document.text_before_cursor
         word = text[5:].strip()  # Remove "/add " prefix
         if not word:
             # Complete with all relative file paths
@@ -94,7 +95,7 @@ class CommandCompleter(Completer):
 
         # If typing /add command, provide path completions
         if text.startswith("/add "):
-            yield from self._get_add_completions(text, document, complete_event)
+            yield from self._get_add_completions(document, complete_event)
 
         # If typing /drop command, provide file name completions
         elif text.startswith("/drop"):
