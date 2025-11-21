@@ -1,5 +1,5 @@
-from typing import List
 import os
+from typing import List
 
 from prompt_toolkit.completion import Completer, Completion, PathCompleter
 from pyfzf import pyfzf
@@ -15,9 +15,10 @@ commands = ["/help", "/clear", "/mode", "/add", "/exit", "/quit"]
 
 
 class CommandCompleter(Completer):
-    def __init__(self, commands, context_manager: ContextManager):
+    # def __init__(self, commands, context_manager: ContextManager):
+    def __init__(self, commands):
         self.commands = commands
-        self.context_manager = context_manager
+        # self.context_manager = context_manager
         self.path_completer = PathCompleter()
 
     def get_completions(self, document, complete_event):
@@ -127,9 +128,9 @@ def add_command(
             try:
                 with open(full_path, "r", encoding="utf-8") as f:
                     content = f.read()
-                context_manager.add_file(
-                    file_path, content
-                )  # Assumes ContextManager has this method
+                # context_manager.add_file(
+                #     file_path, content
+                # )  # Assumes ContextManager has this method
                 console.print(f"Added file: {file_path}")
             except Exception as e:
                 console.print(f"Error reading {file_path}: {e}")
