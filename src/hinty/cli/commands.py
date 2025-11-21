@@ -39,15 +39,16 @@ class CommandCompleter(Completer):
 
         pwd = self.context_manager.pwd_path
 
-        # Determine the directory to list and the prefix to match
-        if "/" in path_part:
-            parts = path_part.split("/")
-            dir_path_str = "/".join(parts[:-1])
-            prefix = parts[-1]
-            full_dir = pwd / dir_path_str
+        # Normalize the path to handle double slashes and other issues
+        normalized_path = os.path.normpath(path_part)
+        full_path = pwd / normalized_path
+
+        if full_path.is_dir():
+            full_dir = full_path
+            prefix = ""
         else:
-            full_dir = pwd
-            prefix = path_part
+            full_dir = full_path.parent
+            prefix = full_path.name
 
         items = []
         try:
