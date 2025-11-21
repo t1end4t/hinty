@@ -32,38 +32,62 @@ class CommandCompleter(Completer):
 
     def _get_add_completions(self, text, document, complete_event):
         # Extract the path part after "/add "
-        path_part = text[5:].strip()  # Remove "/add " prefix and strip spaces
-
-        if not path_part:
-            return  # No completions if empty
+        path_part = text[5:]  # Remove "/add " prefix
 
         pwd = self.context_manager.pwd_path
 
-        # Normalize the path to handle double slashes and other issues
-        normalized_path = os.path.normpath(path_part)
-        full_path = pwd / normalized_path
+        # If no path provided, show files/folders in current directory
+        if not path_part:
+            try:
+                items = os.listdir(pwd)
+            except OSError:
+                return
 
-        if full_path.is_dir():
-            full_dir = full_path
-            prefix = ""
+            for item in items:
+                completion_text = item
+                if os.path.isdir(pwd / item):
+                    completion_text += "/"
+                yield Completion(
+                    completion_text,
+                    start_position=0,
+                    display=item,
+                )
+            return
+
+        # Determine the directory to list and the prefix to match
+        full_path = pwd / path_part
+
+        # If path ends with /, list contents of that directory
+        if path_part.endswith("/"):
+            if full_path.is_dir():
+                list_dir = full_path
+                prefix = ""
+            else:
+                return
         else:
-            full_dir = full_path.parent
-            prefix = full_path.name
+            # Path doesn't end with /, so we're completing a partial name
+            if full_path.is_dir():
+                # It's a complete directory name, show its contents
+                list_dir = full_path
+                prefix = ""
+            else:
+                # It's a partial name, complete from parent directory
+                list_dir = full_path.parent
+                prefix = full_path.name
 
-        items = []
         try:
-            items = os.listdir(full_dir)
+            items = os.listdir(list_dir)
         except OSError:
             return
 
         for item in items:
-            if prefix.lower() in item.lower():
-                completion_text = item
-                if os.path.isdir(full_dir / item):
+            if item.startswith(prefix):
+                completion_text = item[len(prefix) :]
+                if os.path.isdir(list_dir / item):
                     completion_text += "/"
                 yield Completion(
                     completion_text,
-                    start_position=-len(prefix),
+                    start_position=0,
                     display=item,
                 )
 
