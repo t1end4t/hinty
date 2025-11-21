@@ -5,6 +5,7 @@ from typing import List
 from prompt_toolkit.completion import (
     Completer,
     Completion,
+    FuzzyCompleter,
     PathCompleter,
     CompleteEvent,
 )
@@ -35,7 +36,7 @@ class CommandCompleter(Completer):
     def __init__(self, commands, context_manager: ContextManager):
         self.commands = commands
         self.context_manager = context_manager
-        self.path_completer = PathCompleter()
+        self.path_completer = FuzzyCompleter(PathCompleter())
 
     def _get_add_completions(
         self, document: Document, complete_event: CompleteEvent
