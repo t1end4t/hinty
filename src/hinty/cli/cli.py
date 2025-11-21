@@ -98,10 +98,8 @@ def process_user_message(
         raise
 
 
-def display_files_if_changed(
-    context_manager: ContextManager, last_files: str | None
-) -> str:
-    """Display files panel if the file list has changed."""
+def display_files(context_manager: ContextManager) -> None:
+    """Display files panel if the file list is not empty."""
     files_str = (
         " ".join(
             str(f.relative_to(context_manager.pwd_path))
@@ -110,7 +108,7 @@ def display_files_if_changed(
         if context_manager.get_all_files()
         else ""
     )
-    if files_str != last_files and files_str:
+    if files_str:
         console.print(
             Panel(
                 files_str,
@@ -118,7 +116,6 @@ def display_files_if_changed(
                 border_style=panel_border_style,
             )
         )
-    return files_str
 
 
 def get_user_input(
@@ -151,10 +148,9 @@ def handle_input_loop(
 ) -> None:
     """Handle the main input loop."""
     logger.debug("Starting input loop")
-    last_files = None
     while True:
         try:
-            last_files = display_files_if_changed(context_manager, last_files)
+            display_files(context_manager)
             user_input = get_user_input(session, context_manager)
             if not user_input:
                 break
