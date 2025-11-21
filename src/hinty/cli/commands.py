@@ -33,7 +33,7 @@ class CommandCompleter(Completer):
 
     def _get_add_completions(self, document, complete_event):
         text = document.text_before_cursor
-        path_part = text[len("/add "):]
+        path_part = text[len("/add ") :]
         # If no search term, use PathCompleter for directory navigation
         if not path_part or path_part.endswith(os.sep):
             # Create a mock document for the path completer
