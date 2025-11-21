@@ -11,9 +11,9 @@ SURFACE1 = "#45475a"
 SURFACE2 = "#585b70"
 SUBTEXT0 = "#a6adc8"
 SUBTEXT1 = "#bac2de"
-OVERLAY2 = "#9399b2"
-OVERLAY1 = "#7f849c"
 OVERLAY0 = "#6c7086"
+OVERLAY1 = "#7f849c"
+OVERLAY2 = "#9399b2"
 
 # Catppuccin Mocha theme for prompt_toolkit
 catppuccin_mocha_style = Style.from_dict(
