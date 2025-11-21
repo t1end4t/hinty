@@ -29,22 +29,22 @@ class CommandCompleter(Completer):
         self.commands = commands
         self.context_manager = context_manager
         self.path_completer = PathCompleter()
-    
+
     def _get_add_completions(self, text, document, complete_event):
         # Extract the path part after "/add "
         path_part = text[5:]  # Remove "/add " prefix
-    
+
         # Create a mock document for the path completer
         from prompt_toolkit.document import Document
-    
+
         path_document = Document(path_part, len(path_part))
-    
+
         # Get path completions and yield them
         for completion in self.path_completer.get_completions(
             path_document, complete_event
         ):
             yield completion
-    
+
     def _get_drop_completions(self, text):
         if text == "/drop":
             # Complete with available file names
@@ -67,7 +67,7 @@ class CommandCompleter(Completer):
         else:
             # Allow multiple file names, e.g., "/drop file1.txt file2.txt"
             pass  # No additional completions needed for now
-    
+
     def _get_command_completions(self, text):
         word = text
         for command in self.commands:
@@ -77,18 +77,18 @@ class CommandCompleter(Completer):
                     start_position=-len(word),
                     display=command,
                 )
-    
+
     def get_completions(self, document, complete_event):
         text = document.text_before_cursor
-    
+
         # If typing /add command, provide path completions
         if text.startswith("/add "):
             yield from self._get_add_completions(text, document, complete_event)
-    
+
         # If typing /drop command, provide file name completions
         elif text.startswith("/drop"):
             yield from self._get_drop_completions(text)
-    
+
         # Otherwise, provide command completions
         elif text.startswith("/"):
             yield from self._get_command_completions(text)
