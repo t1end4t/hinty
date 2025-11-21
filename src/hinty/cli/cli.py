@@ -63,18 +63,28 @@ def display_stream_response(
     """Display streaming response and return full response."""
     full_response = ""
     try:
-        with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
-            for partial in stream:
-                current = str(partial)
-                full_response = current
-                live.update(
-                    Panel(
-                        Markdown(full_response),
-                        title="LLM",
-                        border_style=panel_border_style,
-                    )
+        if isinstance(stream, str):
+            full_response = stream
+            console.print(
+                Panel(
+                    Markdown(full_response),
+                    title="LLM",
+                    border_style=panel_border_style,
                 )
-        console.print()  # Newline for separation
+            )
+        else:
+            with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
+                for partial in stream:
+                    current = str(partial)
+                    full_response = current
+                    live.update(
+                        Panel(
+                            Markdown(full_response),
+                            title="LLM",
+                            border_style=panel_border_style,
+                        )
+                    )
+            console.print()  # Newline for separation
     except Exception as e:
         logger.error(f"Error during streaming: {e}")
         raise
