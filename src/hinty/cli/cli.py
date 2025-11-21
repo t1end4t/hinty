@@ -98,6 +98,50 @@ def process_user_message(
         raise
 
 
+def display_files_if_changed(
+    context_manager: ContextManager, last_files: str | None
+) -> str:
+    """Display files panel if the file list has changed."""
+    files_str = (
+        " ".join(
+            str(f.relative_to(context_manager.pwd_path))
+            for f in context_manager.files
+        )
+        if context_manager.files
+        else ""
+    )
+    if files_str != last_files and files_str:
+        console.print(
+            Panel(
+                files_str,
+                title="Files",
+                border_style=panel_border_style,
+            )
+        )
+    return files_str
+
+
+def get_user_input(session: PromptSession, context_manager: ContextManager) -> str:
+    """Prompt for and return user input."""
+    prompt_text = f"{context_manager.current_mode.value} >> "
+    return session.prompt(prompt_text, style=catppuccin_mocha_style)
+
+
+def process_input(
+    user_input: str,
+    conversation_history: List[ConversationMessage],
+    console: Console,
+    context_manager: ContextManager,
+) -> None:
+    """Process user input as a command or message."""
+    if user_input.startswith("/"):
+        handle_command(
+            user_input, console, conversation_history, context_manager
+        )
+    else:
+        process_user_message(user_input, conversation_history, console)
+
+
 def handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
@@ -105,41 +149,19 @@ def handle_input_loop(
 ) -> None:
     """Handle the main input loop."""
     logger.debug("Starting input loop")
-    style = catppuccin_mocha_style
     last_files = None
     while True:
         try:
-            files_str = (
-                " ".join(
-                    str(f.relative_to(context_manager.pwd_path))
-                    for f in context_manager.files
-                )
-                if context_manager.files
-                else ""
-            )
-            if files_str != last_files:
-                if files_str:
-                    console.print(
-                        Panel(
-                            files_str,
-                            title="Files",
-                            border_style=panel_border_style,
-                        )
-                    )
-                last_files = files_str
-            prompt_text = f"{context_manager.current_mode.value} >> "
-            user_input = session.prompt(prompt_text, style=style)
+            last_files = display_files_if_changed(context_manager, last_files)
+            user_input = get_user_input(session, context_manager)
             if not user_input:
                 break
-            if user_input.startswith("/"):
-                handle_command(
-                    user_input, console, conversation_history, context_manager
-                )
-            else:
-                process_user_message(user_input, conversation_history, console)
+            process_input(user_input, conversation_history, console, context_manager)
         except KeyboardInterrupt:
+            logger.info("Input loop interrupted by user")
             break
         except EOFError:
+            logger.info("Input loop ended due to EOF")
             break
         except Exception as e:
             logger.error(f"Unexpected error in input loop: {e}")
