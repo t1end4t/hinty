@@ -2,10 +2,12 @@ from typing import List
 
 from prompt_toolkit.completion import Completer, Completion
 from rich.console import Console
+from rich.panel import Panel
 
 from ..baml_client.types import ConversationMessage
 from ..core.context_manager import ContextManager
 from ..core.models import Mode
+from .theme import panel_border_style
 
 commands = ["/help", "/clear", "/mode"]
 
@@ -24,13 +26,15 @@ class CommandCompleter(Completer):
 
 def help_command(console: Console) -> None:
     """Display help information for CLI commands."""
-    console.print(
+    help_text = (
         "Available commands:\n"
         "/help - Show this help message\n"
         "/clear - Clear conversation history and chat\n"
         "/mode <mode> - Change the current mode\n"
         "Type a message to chat with the LLM. Use / to invoke commands."
     )
+    panel = Panel(help_text, title="Help", border_style=panel_border_style)
+    console.print(panel)
 
 
 def clear_command(
