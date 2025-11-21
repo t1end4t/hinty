@@ -20,8 +20,7 @@ class ContextManager:
         """Get the current mode."""
         return self._current_mode
 
-    @current_mode.setter
-    def current_mode(self, value: Mode) -> None:
+    def set_mode(self, value: Mode) -> None:
         """Set the current mode."""
         self._current_mode = value
 

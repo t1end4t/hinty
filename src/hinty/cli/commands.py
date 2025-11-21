@@ -54,7 +54,7 @@ def mode_command(
     mode_str = parts[1]
     try:
         new_mode = Mode.from_string(mode_str)
-        context_manager.current_mode = new_mode
+        context_manager.set_mode(new_mode)
         console.print(f"Mode changed to {new_mode.value}")
     except ValueError:
         console.print(
