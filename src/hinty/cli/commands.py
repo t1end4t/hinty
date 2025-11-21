@@ -28,6 +28,7 @@ def help_command(console: Console) -> None:
         "Available commands:\n"
         "/help - Show this help message\n"
         "/clear - Clear conversation history and chat\n"
+        "/mode <mode> - Change the current mode\n"
         "Type a message to chat with the LLM. Use / to invoke commands."
     )
 
