@@ -4,9 +4,7 @@ import click
 from baml_py import AbortController, BamlSyncStream
 from loguru import logger
 from prompt_toolkit import PromptSession
-from prompt_toolkit.filters import Condition
 from prompt_toolkit.history import FileHistory
-from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
