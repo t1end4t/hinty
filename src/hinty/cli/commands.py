@@ -53,7 +53,7 @@ class CommandCompleter(Completer):
         elif text.startswith("/drop"):
             if text == "/drop":
                 # Complete with available file names
-                for file_path in self.context_manager.files:
+                for file_path in self.context_manager.get_all_files():
                     yield Completion(
                         f" {file_path.name}",
                         start_position=0,
@@ -62,7 +62,7 @@ class CommandCompleter(Completer):
             elif text.startswith("/drop "):
                 # Complete file names after "/drop "
                 word = text[6:]  # Remove "/drop " prefix
-                for file_path in self.context_manager.files:
+                for file_path in self.context_manager.get_all_files():
                     if file_path.name.startswith(word):
                         yield Completion(
                             file_path.name[len(word) :],
@@ -170,11 +170,11 @@ def add_command(
 
 def files_command(console: Console, context_manager: ContextManager) -> None:
     """List current files in context."""
-    if not context_manager.files:
+    if not context_manager.get_all_files():
         console.print("No files attached.")
     else:
         console.print("Attached files:")
-        for i, file_path in enumerate(context_manager.files):
+        for i, file_path in enumerate(context_manager.get_all_files()):
             console.print(f"  {i}: {file_path}")
 
 
@@ -191,7 +191,7 @@ def drop_command(
         # File names provided: drop specific files
         for file_name in parts[1:]:
             found = False
-            for file_path in context_manager.files[
+            for file_path in context_manager.get_all_files()[
                 :
             ]:  # Copy to avoid modification during iteration
                 if file_path.name == file_name:
