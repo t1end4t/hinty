@@ -86,6 +86,7 @@ def help_command(console: Console) -> None:
         "/mode  <mode> - Change the current mode\n"
         "/add   <file> - Add file(s) to context (or interactive selection if no files)\n"
         "/files        - List current files in context\n"
+        "/drop  <index> - Drop file(s) from context by index, or all if no index\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=panel_border_style)
