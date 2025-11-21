@@ -27,7 +27,7 @@ class ContextManager:
         """Get the present working directory path."""
         return self._pwd_path
 
-    def set_mode(self, value: Mode) -> None:
+    def set_mode(self, value: Mode):
         """Set the current mode."""
         self._current_mode = value
 
@@ -35,10 +35,10 @@ class ContextManager:
         """Get a specific attached file by index."""
         return self._files
 
-    def add_file(self, path: Path) -> None:
+    def add_file(self, path: Path):
         """Add a file to the list."""
         self._files.append(path)
 
-    def remove_file(self, path: Path) -> None:
+    def remove_file(self, path: Path):
         """Remove a file from the list by path."""
         self._files.remove(path)

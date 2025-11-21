@@ -8,7 +8,7 @@ from loguru import logger
 from platformdirs import user_config_dir
 
 
-def create_config_from_example(config_path: Path) -> None:
+def create_config_from_example(config_path: Path):
     """Create config file from example template."""
     config_path.parent.mkdir(parents=True, exist_ok=True)
     example_config_path = Path(__file__).parent.parent / "config.example.toml"
@@ -32,7 +32,7 @@ def read_config_file(config_path: Path) -> dict:
         raise
 
 
-def set_environment_variables(config: dict) -> None:
+def set_environment_variables(config: dict):
     """Set environment variables from config sections."""
     sections = ["api_keys", "logging"]
     for section in sections:

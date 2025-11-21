@@ -116,7 +116,7 @@ class CommandCompleter(Completer):
             yield from self._get_command_completions(text)
 
 
-def help_command(console: Console) -> None:
+def help_command(console: Console):
     """Display help information for CLI commands."""
     help_text = (
         "Available commands:\n"
@@ -136,7 +136,7 @@ def help_command(console: Console) -> None:
 
 def clear_command(
     console: Console, conversation_history: List[ConversationMessage]
-) -> None:
+):
     """Clear conversation history and chat display."""
     conversation_history.clear()
     console.clear()
@@ -145,7 +145,7 @@ def clear_command(
 
 def mode_command(
     command: str, console: Console, context_manager: ContextManager
-) -> None:
+):
     """Change the current mode."""
     parts = command.split()
     if len(parts) != 2:
@@ -165,7 +165,7 @@ def mode_command(
 
 def add_command(
     command: str, console: Console, context_manager: ContextManager
-) -> None:
+):
     """Add files to context for the agent/LLM."""
     parts = command.split()
     if len(parts) < 2:
@@ -199,7 +199,7 @@ def add_command(
             console.print(f"File not found: {file_path}\n")
 
 
-def files_command(console: Console, context_manager: ContextManager) -> None:
+def files_command(console: Console, context_manager: ContextManager):
     """List current files in context."""
     if not context_manager.get_all_files():
         console.print("No files attached.\n")
@@ -211,7 +211,7 @@ def files_command(console: Console, context_manager: ContextManager) -> None:
 
 def drop_command(
     command: str, console: Console, context_manager: ContextManager
-) -> None:
+):
     """Drop files from context by name, or all if no file provided."""
     parts = command.split()
     if len(parts) == 1:
@@ -239,7 +239,7 @@ def handle_command(
     console: Console,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
-) -> None:
+):
     """Dispatch commands to their handlers."""
     if command == "/help":
         help_command(console)

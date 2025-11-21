@@ -96,7 +96,7 @@ def process_user_message(
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
     console: Console,
-) -> None:
+):
     """Process a user message: append to history, stream response, update history."""
     logger.debug("Processing user message")
     user_message = ConversationMessage(role="user", content=user_input)
@@ -121,7 +121,7 @@ def process_user_message(
         raise
 
 
-def display_files(context_manager: ContextManager) -> None:
+def display_files(context_manager: ContextManager):
     """Display files panel if the file list is not empty."""
     files_str = (
         " ".join(
@@ -154,7 +154,7 @@ def process_input(
     conversation_history: List[ConversationMessage],
     console: Console,
     context_manager: ContextManager,
-) -> None:
+):
     """Process user input as a command or message."""
     if user_input.startswith("/"):
         handle_command(
@@ -173,7 +173,7 @@ def handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
-) -> None:
+):
     """Handle the main input loop."""
     logger.debug("Starting input loop")
     while True:
