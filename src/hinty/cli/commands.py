@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import List
 
 from prompt_toolkit.completion import Completer, Completion, PathCompleter
@@ -131,6 +132,7 @@ def add_command(
                 with open(full_path, "r", encoding="utf-8") as f:
                     content = f.read()
                 console.print(f"Added file: {file_path}")
+                context_manager.add_file(Path(full_path))
             except Exception as e:
                 console.print(f"Error reading {file_path}: {e}")
         else:
