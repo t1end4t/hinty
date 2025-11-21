@@ -121,7 +121,9 @@ def display_files_if_changed(
     return files_str
 
 
-def get_user_input(session: PromptSession, context_manager: ContextManager) -> str:
+def get_user_input(
+    session: PromptSession, context_manager: ContextManager
+) -> str:
     """Prompt for and return user input."""
     prompt_text = f"{context_manager.current_mode.value} >> "
     return session.prompt(prompt_text, style=catppuccin_mocha_style)
@@ -156,7 +158,9 @@ def handle_input_loop(
             user_input = get_user_input(session, context_manager)
             if not user_input:
                 break
-            process_input(user_input, conversation_history, console, context_manager)
+            process_input(
+                user_input, conversation_history, console, context_manager
+            )
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             break
