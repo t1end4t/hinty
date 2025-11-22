@@ -12,17 +12,23 @@ nix build
 ```nu
 cd hinty/
 nix profile install .#
+```
+
+3. To update after code changes
+
+```nu
+cd hinty/
 nix profile upgrade .#
 ```
 
-3. To remove profile
+4. To remove profile
 
 ```nu
 nix profile remove <name>
 ```
 
-4. To remove result/ folder after built
+5. To remove result/ folder after built
 
 ```nu
-nix profile remove <name>
+rm -rf result
 ```
