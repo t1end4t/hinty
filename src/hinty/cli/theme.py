@@ -20,6 +20,7 @@ OVERLAY2 = "#9399b2"
 catppuccin_mocha_style = Style.from_dict(
     {
         "prompt": f"bold {BLUE}",
+        "text": f"bold {BLUE}",
         "completion-menu": f"bg:{BASE} {TEXT}",
         "completion-menu.completion": f"bg:{SURFACE0} {TEXT}",
         "completion-menu.completion.current": f"bg:{SURFACE1} {TEXT} bold",
