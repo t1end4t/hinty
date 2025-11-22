@@ -15,8 +15,8 @@ from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import (
     catppuccin_mocha_style,
-    files_panel_border_style,
-    panel_border_style,
+    context_style,
+    llm_response_style,
 )
 from ..core.context_manager import ContextManager
 from ..core.llm import get_agent_response
@@ -79,7 +79,8 @@ def display_stream_response(
                 Panel(
                     Markdown(full_response),
                     title="LLM",
-                    border_style=panel_border_style,
+                    style=llm_response_style,
+                    border_style=llm_response_style,
                 )
             )
         else:
@@ -91,7 +92,8 @@ def display_stream_response(
                         Panel(
                             Markdown(full_response),
                             title="LLM",
-                            border_style=panel_border_style,
+                            style=llm_response_style,
+                            border_style=llm_response_style,
                         )
                     )
             console.print()  # Newline for separation
@@ -148,7 +150,8 @@ def display_files(context_manager: ContextManager):
             Panel(
                 files_str,
                 title="Files",
-                border_style=files_panel_border_style,
+                style=context_style,
+                border_style=context_style,
             )
         )
 
