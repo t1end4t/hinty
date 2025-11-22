@@ -14,11 +14,11 @@ cd hinty/
 nix profile install .#
 ```
 
-3. To update after code changes
+3. To update after code changes (hinty should exist)
 
 ```nu
 cd hinty/
-nix profile upgrade .#
+nix profile upgrade hinty
 ```
 
 4. To remove profile
