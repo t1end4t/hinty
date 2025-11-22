@@ -18,7 +18,7 @@ from rich.panel import Panel
 from ..baml_client.types import ConversationMessage
 from ..core.context_manager import ContextManager
 from ..core.models import Mode
-from .theme import panel_border_style, YELLOW
+from .theme import YELLOW
 
 
 commands = [
@@ -116,7 +116,7 @@ def help_command(console: Console):
         "/mode  <mode> - Change the current mode\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
-    panel = Panel(help_text, title="Help", border_style=panel_border_style)
+    panel = Panel(help_text, title="Help", border_style=YELLOW)
     console.print(panel, style=YELLOW)
 
 
