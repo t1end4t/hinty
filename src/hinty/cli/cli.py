@@ -14,6 +14,7 @@ from rich.panel import Panel
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
 from ..cli.theme import (
+    BLUE,
     catppuccin_mocha_style,
     context_style,
     llm_response_style,
@@ -114,6 +115,14 @@ def process_user_message(
     logger.debug("Processing user message")
     user_message = ConversationMessage(role="user", content=user_input)
     conversation_history.append(user_message)
+    console.print(
+        Panel(
+            user_input,
+            title="User",
+            style=f"bold {BLUE}",
+            border_style=BLUE,
+        )
+    )
     try:
         logger.debug("Calling external API for router")
 
