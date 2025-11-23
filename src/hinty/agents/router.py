@@ -24,7 +24,7 @@ def call_router(
     return resp
 
 
-def handle_router_mode(
+def handle_smart_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,

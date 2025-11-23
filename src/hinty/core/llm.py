@@ -2,7 +2,7 @@ from typing import List
 
 from baml_py import AbortController
 
-from ..agents.router import handle_router_mode
+from ..agents.router import handle_smart_mode
 from ..baml_client.types import ConversationMessage
 from ..core.context_manager import ContextManager
 from ..core.models import AgentResponse, Mode
@@ -16,7 +16,7 @@ def get_agent_response(
 ) -> AgentResponse:
     """Get a response from the LLM"""
     if context_manager.current_mode == Mode.SMART:
-        return handle_router_mode(
+        return handle_smart_mode(
             user_message, conversation_history, context_manager, controller
         )
     else:

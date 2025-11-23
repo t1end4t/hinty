@@ -93,7 +93,7 @@ class BamlSyncClient:
     
     def Coder(self, user_message: str,file_content: str,file_path: str,conversation_history: typing.List["types.ConversationMessage"],
         baml_options: BamlCallOptions = {},
-    ) -> types.FileDiff:
+    ) -> str:
         # Check if on_tick is provided
         if 'on_tick' in baml_options:
             stream = self.stream.Coder(user_message=user_message,file_content=file_content,file_path=file_path,conversation_history=conversation_history,
@@ -104,7 +104,7 @@ class BamlSyncClient:
             result = self.__options.merge_options(baml_options).call_function_sync(function_name="Coder", args={
                 "user_message": user_message,"file_content": file_content,"file_path": file_path,"conversation_history": conversation_history,
             })
-            return typing.cast(types.FileDiff, result.cast_to(types, types, stream_types, False, __runtime__))
+            return typing.cast(str, result.cast_to(types, types, stream_types, False, __runtime__))
     def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
         baml_options: BamlCallOptions = {},
     ) -> str:
@@ -130,14 +130,14 @@ class BamlStreamClient:
 
     def Coder(self, user_message: str,file_content: str,file_path: str,conversation_history: typing.List["types.ConversationMessage"],
         baml_options: BamlCallOptions = {},
-    ) -> baml_py.BamlSyncStream[stream_types.FileDiff, types.FileDiff]:
+    ) -> baml_py.BamlSyncStream[str, str]:
         ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="Coder", args={
             "user_message": user_message,"file_content": file_content,"file_path": file_path,"conversation_history": conversation_history,
         })
-        return baml_py.BamlSyncStream[stream_types.FileDiff, types.FileDiff](
+        return baml_py.BamlSyncStream[str, str](
           result,
-          lambda x: typing.cast(stream_types.FileDiff, x.cast_to(types, types, stream_types, True, __runtime__)),
-          lambda x: typing.cast(types.FileDiff, x.cast_to(types, types, stream_types, False, __runtime__)),
+          lambda x: typing.cast(str, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(str, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
     def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
