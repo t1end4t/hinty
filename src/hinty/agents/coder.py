@@ -1,3 +1,4 @@
+import mimetypes
 from typing import List
 
 from baml_py import AbortController, BamlSyncStream
@@ -40,9 +41,13 @@ def handle_coder_mode(
     context_manager: ContextManager,
     controller: AbortController,
 ) -> AgentResponse:
-    files = context_manager.get_all_files()
+    all_files = context_manager.get_all_files()
+    files = [
+        f for f in all_files
+        if mimetypes.guess_type(str(f))[0] and mimetypes.guess_type(str(f))[0].startswith("text")
+    ]
     if not files:
-        raise ValueError("No files in context for coder mode")
+        raise ValueError("No text files in context for coder mode")
     files_info = [
         FileInfo(file_path=str(f), file_content=tool_read_file(f))
         for f in files
