@@ -16,10 +16,11 @@ class AgentResponse:
 
 class Mode(Enum):
     ROUTER = "smart"
-    GENERAL = "general"
-    # LITERATURE = ""
-    # CODE = ""
-    # SECONDBRAIN = ""
+    GENERAL = "chatgpt"
+    CODER = "code"
+    RESEARCHER = "research"
+    WRITER = "write"
+    SECOND_BRAIN = "second-brain"
 
     @classmethod
     def from_string(cls, value: str) -> "Mode":
