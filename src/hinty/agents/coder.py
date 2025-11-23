@@ -1,4 +1,3 @@
-import mimetypes
 from typing import List
 
 from baml_py import AbortController, BamlSyncStream
