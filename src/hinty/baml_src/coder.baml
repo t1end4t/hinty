@@ -1,9 +1,14 @@
+class CoderOutput {
+  diff_content string
+  response string
+}
+
 function Coder(
   user_message: string,
   file_content: string,
   file_path: string,
   conversation_history: ConversationMessage[]
-) -> string {
+) -> CoderOutput {
   client GroqRouter
   
   prompt #"
@@ -36,7 +41,8 @@ function Coder(
     
     Generate a unified diff (in standard diff -u format) that shows the changes needed to address the user's request.
     The diff should include the file path and be directly applicable by tools like patch.
-    Do not include any extra text outside the diff format.
+    
+    Also provide a clear response explaining the changes made and why.
 
     {{ ctx.output_format }}
   "#
