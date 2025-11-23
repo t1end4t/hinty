@@ -1,34 +1,32 @@
 from typing import List
-
+  
 from baml_py import AbortController, BamlSyncStream
-
+  
 from hinty.core.models import AgentResponse
-
+  
 from ..baml_client import b
-from ..baml_client.types import ConversationMessage
+from ..baml_client.types import ConversationMessage, FileInfo
 from ..core.context_manager import ContextManager
 from ..tools.file_operations import tool_read_file
-
-
+  
+  
 def call_coder(
     user_message: str,
-    file_content: str,
-    file_path: str,
+    files: List[FileInfo],
     conversation_history: List[ConversationMessage],
     controller: AbortController,
 ) -> BamlSyncStream[str, str]:
-    """Call the coder agent with a user message, file content, file path, and conversation history"""
+    """Call the coder agent with a user message, files, and conversation history"""
     resp = b.stream.Coder(
         user_message,
-        file_content,
-        file_path,
+        files,
         conversation_history,
         baml_options={"abort_controller": controller},
     )
-
+  
     return resp
-
-
+  
+  
 def handle_coder_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
@@ -38,11 +36,11 @@ def handle_coder_mode(
     files = context_manager.get_all_files()
     if not files:
         raise ValueError("No files in context for coder mode")
-    file_path_obj = files[0]
-    file_content = tool_read_file(file_path_obj)
-    file_path = str(file_path_obj)
+    files_info = [
+        FileInfo(file_path=str(f), file_content=tool_read_file(f)) for f in files
+    ]
     stream = call_coder(
-        user_message, file_content, file_path, conversation_history, controller
+        user_message, files_info, conversation_history, controller
     )
-
+  
     return AgentResponse(response=stream)
