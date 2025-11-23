@@ -7,6 +7,7 @@ from hinty.core.models import AgentResponse
 from ..baml_client import b
 from ..baml_client.types import ConversationMessage
 from ..core.context_manager import ContextManager
+from ..tools.file_operations import tool_read_file
 
 
 def call_coder(
@@ -38,7 +39,7 @@ def handle_coder_mode(
     if not files:
         raise ValueError("No files in context for coder mode")
     file_path_obj = files[0]
-    file_content = file_path_obj.read_text()
+    file_content = tool_read_file(file_path_obj)
     file_path = str(file_path_obj)
     stream = call_coder(
         user_message, file_content, file_path, conversation_history, controller
