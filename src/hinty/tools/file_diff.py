@@ -1,74 +1,51 @@
 from pathlib import Path
 from typing import List, Tuple
 from loguru import logger
+from unidiff import PatchSet
 
 
-def parse_unified_diff(diff_content: str) -> List[Tuple[str, List[str]]]:
-    """Parse unified diff format into file changes.
+def parse_unified_diff(diff_content: str) -> List[Tuple[str, List]]:
+    """Parse unified diff format into file changes using unidiff.
 
-    Returns list of (filepath, diff_lines) tuples.
+    Returns list of (filepath, hunks) tuples, where hunks are unidiff.Hunk objects.
     """
-    logger.debug("Parsing unified diff content")
+    logger.debug("Parsing unified diff content with unidiff")
 
+    patch_set = PatchSet.from_string(diff_content)
     files = []
-    current_file = None
-    current_lines = []
 
-    for line in diff_content.split("\n"):
-        if line.startswith("--- "):
-            if current_file and current_lines:
-                files.append((current_file, current_lines))
-            current_file = None
-            current_lines = []
-        elif line.startswith("+++ "):
-            filepath = line[4:].split("\t")[0].strip()
-            if filepath.startswith("b/"):
-                filepath = filepath[2:]
-            current_file = filepath
-        elif current_file:
-            current_lines.append(line)
-
-    if current_file and current_lines:
-        files.append((current_file, current_lines))
+    for patch in patch_set:
+        filepath = patch.target_file
+        if filepath.startswith("b/"):
+            filepath = filepath[2:]
+        files.append((filepath, patch.hunks))
 
     logger.info(f"Parsed {len(files)} file(s) from diff")
     return files
 
 
-def apply_hunk(original_lines: List[str], hunk_lines: List[str]) -> List[str]:
-    """Apply a single diff hunk to original content."""
+def apply_hunk(original_lines: List[str], hunk) -> List[str]:
+    """Apply a single diff hunk to original content using unidiff.Hunk."""
     result = []
     orig_idx = 0
-    i = 0
 
-    while i < len(hunk_lines):
-        line = hunk_lines[i]
+    # Add lines before this hunk
+    while orig_idx < hunk.source_start:
+        result.append(original_lines[orig_idx])
+        orig_idx += 1
 
-        if line.startswith("@@"):
-            # Parse hunk header: @@ -start,count +start,count @@
-            parts = line.split("@@")[1].strip().split()
-            orig_start = int(parts[0].split(",")[0][1:]) - 1
-
-            # Add lines before this hunk
-            while orig_idx < orig_start:
-                result.append(original_lines[orig_idx])
-                orig_idx += 1
-
-        elif line.startswith("-"):
+    for line in hunk:
+        if line.is_removed:
             # Line removed - skip in original
             orig_idx += 1
-
-        elif line.startswith("+"):
+        elif line.is_added:
             # Line added - add to result
-            result.append(line[1:])
-
-        elif line.startswith(" "):
+            result.append(line.value)
+        elif line.is_context:
             # Context line - verify and add
             if orig_idx < len(original_lines):
                 result.append(original_lines[orig_idx])
                 orig_idx += 1
-
-        i += 1
 
     # Add remaining lines
     while orig_idx < len(original_lines):
@@ -78,7 +55,7 @@ def apply_hunk(original_lines: List[str], hunk_lines: List[str]) -> List[str]:
     return result
 
 
-def apply_diff_to_file(filepath: Path, diff_lines: List[str]) -> bool:
+def apply_diff_to_file(filepath: Path, hunks: List) -> bool:
     """Apply diff to a single file.
 
     Returns True if successful, False otherwise.
@@ -93,8 +70,11 @@ def apply_diff_to_file(filepath: Path, diff_lines: List[str]) -> bool:
             logger.warning(f"File {filepath} does not exist, creating new")
             original_lines = []
 
-        modified_lines = apply_hunk(original_lines, diff_lines)
-        modified_content = "\n".join(modified_lines)
+        # Apply all hunks sequentially
+        for hunk in hunks:
+            original_lines = apply_hunk(original_lines, hunk)
+
+        modified_content = "\n".join(original_lines)
 
         filepath.parent.mkdir(parents=True, exist_ok=True)
         filepath.write_text(modified_content)
@@ -126,9 +106,9 @@ def tool_apply_diff(diff_content: str, base_path: Path = Path.cwd()) -> bool:
         return False
 
     success = True
-    for filepath_str, diff_lines in file_changes:
+    for filepath_str, hunks in file_changes:
         filepath = base_path / filepath_str
-        if not apply_diff_to_file(filepath, diff_lines):
+        if not apply_diff_to_file(filepath, hunks):
             success = False
 
     logger.info(f"Diff application {'successful' if success else 'failed'}")
