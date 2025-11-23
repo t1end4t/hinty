@@ -44,8 +44,10 @@ def handle_coder_mode(
     files_info = []
     for file_path in context_manager.get_all_files():
         file_content = tool_read_file(file_path)
-        files_info.append(FileInfo(file_path=str(file_path), file_content=file_content))
-    
+        files_info.append(
+            FileInfo(file_path=str(file_path), file_content=file_content)
+        )
+
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
