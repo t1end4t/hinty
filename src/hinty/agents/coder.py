@@ -5,6 +5,7 @@ from baml_py import AbortController, BamlSyncStream
 from hinty.core.models import AgentResponse
 
 from ..baml_client import b
+from ..baml_client.stream_types import CoderOutput
 from ..baml_client.types import ConversationMessage, FileInfo
 from ..core.context_manager import ContextManager
 from ..tools.file_operations import tool_read_file
@@ -15,7 +16,7 @@ def call_coder(
     files: List[FileInfo],
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlSyncStream[str, str]:
+) -> BamlSyncStream[CoderOutput, CoderOutput]:
     """Call the coder agent with a user message, files, and conversation history"""
     resp = b.stream.Coder(
         user_message,
