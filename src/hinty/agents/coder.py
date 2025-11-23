@@ -43,8 +43,10 @@ def handle_coder_mode(
 ) -> AgentResponse:
     all_files = context_manager.get_all_files()
     files = [
-        f for f in all_files
-        if mimetypes.guess_type(str(f))[0] and mimetypes.guess_type(str(f))[0].startswith("text")
+        f
+        for f in all_files
+        if mimetypes.guess_type(str(f))[0]
+        and mimetypes.guess_type(str(f))[0].startswith("text")
     ]
     if not files:
         raise ValueError("No text files in context for coder mode")
