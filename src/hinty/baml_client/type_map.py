@@ -19,5 +19,8 @@ type_map = {
     "types.ConversationMessage": types.ConversationMessage,
     "stream_types.ConversationMessage": stream_types.ConversationMessage,
 
+    "types.FileDiff": types.FileDiff,
+    "stream_types.FileDiff": stream_types.FileDiff,
+
 
 }

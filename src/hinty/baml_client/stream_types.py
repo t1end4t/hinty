@@ -23,12 +23,18 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (1)
+# Generated classes (2)
 # #########################################################################
 
 class ConversationMessage(BaseModel):
     role: typing.Optional[typing.Union[str, str]] = None
     content: typing.Optional[str] = None
+
+class FileDiff(BaseModel):
+    file_path: typing.Optional[str] = None
+    original_content: typing.Optional[str] = None
+    modified_content: typing.Optional[str] = None
+    explanation: typing.Optional[str] = None
 
 # #########################################################################
 # Generated type aliases (0)

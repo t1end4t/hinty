@@ -11,7 +11,7 @@ function Coder(
   file_path: string,
   conversation_history: ConversationMessage[]
 ) -> FileDiff {
-  client GrokCoder
+  client GroqRouter
   
   prompt #"
     You are an expert code editor assistant.
@@ -44,6 +44,8 @@ function Coder(
     
     Generate the modified version of the file that addresses the user's request.
     Provide a clear explanation of the changes made.
+
+    {{ ctx.output_format }}
   "#
 }
 

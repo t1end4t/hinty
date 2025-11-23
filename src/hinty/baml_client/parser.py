@@ -24,6 +24,12 @@ class LlmResponseParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def Coder(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.FileDiff:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="request")
+        return typing.cast(types.FileDiff, result)
+
     def Router(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> str:
@@ -37,6 +43,12 @@ class LlmStreamParser:
 
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
+
+    def Coder(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.FileDiff:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.FileDiff, result)
 
     def Router(
         self, llm_response: str, baml_options: BamlCallOptions = {},
