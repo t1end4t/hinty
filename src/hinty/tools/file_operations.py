@@ -2,8 +2,10 @@ import base64
 import mimetypes
 from pathlib import Path
 from typing import List, Tuple
+
 from loguru import logger
-from unidiff import PatchSet, Hunk
+from pypdf import PdfReader
+from unidiff import Hunk, PatchSet
 
 
 def parse_unified_diff(diff_content: str) -> List[Tuple[str, List[Hunk]]]:
@@ -145,8 +147,6 @@ def tool_read_file(filepath: Path) -> str:
         elif mime_type == "application/pdf":
             # Handle PDF files by extracting text
             try:
-                from pypdf import PdfReader
-
                 reader = PdfReader(filepath)
                 text = ""
                 for page in reader.pages:

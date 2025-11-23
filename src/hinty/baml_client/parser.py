@@ -26,9 +26,9 @@ class LlmResponseParser:
 
     def Coder(
         self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> str:
+    ) -> types.CoderOutput:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="request")
-        return typing.cast(str, result)
+        return typing.cast(types.CoderOutput, result)
 
     def Router(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -46,9 +46,9 @@ class LlmStreamParser:
 
     def Coder(
         self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> str:
+    ) -> stream_types.CoderOutput:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="stream")
-        return typing.cast(str, result)
+        return typing.cast(stream_types.CoderOutput, result)
 
     def Router(
         self, llm_response: str, baml_options: BamlCallOptions = {},

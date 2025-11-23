@@ -41,12 +41,20 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 # #########################################################################
 
 # #########################################################################
-# Generated classes (1)
+# Generated classes (3)
 # #########################################################################
+
+class CoderOutput(BaseModel):
+    diff_content: str
+    response: str
 
 class ConversationMessage(BaseModel):
     role: typing.Union[typing_extensions.Literal['user'], typing_extensions.Literal['assistant']]
     content: str
+
+class FileInfo(BaseModel):
+    file_path: str
+    file_content: str
 
 # #########################################################################
 # Generated type aliases (0)

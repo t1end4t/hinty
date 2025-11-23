@@ -17,25 +17,25 @@ function Coder(
     
   prompt #"
     You are an expert code editor assistant.
-      
+    
     Your task is to modify code based on the user's request and generate a unified diff.
-      
+    
     IMPORTANT RULES:
     - Make minimal, focused changes that address the user's request
     - Preserve existing code style and formatting
     - Do not add unnecessary changes
     - Provide clear explanation of what changed and why
-      
+    
     {% for file in files %}
     FILE: {{ file.file_path }}
-      
+    
     ORIGINAL CONTENT:
     ```
     {{ file.file_content }}
     ```
-      
+
     {% endfor %}
-      
+
     {% if conversation_history|length > 0 %}
     CONVERSATION HISTORY:
     {% for msg in conversation_history %}
@@ -45,13 +45,13 @@ function Coder(
       
     USER REQUEST:
     {{ user_message }}
-      
+
     Generate a unified diff (in standard diff -u format) that shows the changes needed to address the user's request.
     The diff can include changes to multiple files if needed, with each file's path included.
     The diff should be directly applicable by tools like patch.
-      
+
     Also provide a clear response explaining the changes made and why.
-  
+
     {{ ctx.output_format }}
   "#
 }

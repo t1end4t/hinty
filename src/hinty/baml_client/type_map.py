@@ -16,8 +16,14 @@ from . import stream_types
 
 type_map = {
 
+    "types.CoderOutput": types.CoderOutput,
+    "stream_types.CoderOutput": stream_types.CoderOutput,
+
     "types.ConversationMessage": types.ConversationMessage,
     "stream_types.ConversationMessage": stream_types.ConversationMessage,
+
+    "types.FileInfo": types.FileInfo,
+    "stream_types.FileInfo": stream_types.FileInfo,
 
 
 }
