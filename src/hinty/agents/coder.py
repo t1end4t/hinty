@@ -11,12 +11,16 @@ from ..core.context_manager import ContextManager
 
 def call_coder(
     user_message: str,
+    file_content: str,
+    file_path: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
 ) -> BamlSyncStream[str, str]:
-    """Call the orchestrator agent with a user message and conversation history"""
+    """Call the coder agent with a user message, file content, file path, and conversation history"""
     resp = b.stream.Coder(
         user_message,
+        file_content,
+        file_path,
         conversation_history,
         baml_options={"abort_controller": controller},
     )
