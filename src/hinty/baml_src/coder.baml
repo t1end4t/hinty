@@ -46,13 +46,13 @@ function Coder(
     USER REQUEST:
     {{ user_message }}
 
-    Generate a unified diff (in standard diff -u format) that shows the changes needed to address the user's request.
-    The diff can include changes to multiple files if needed, with each file's path included.
-    The diff should be directly applicable by tools like patch.
+    Generate search/replace blocks that show the changes needed to address the user's request.
+    Use the following format for each block:
 
-    Also provide a clear response explaining the changes made and why.
-
-    {{ ctx.output_format }}
+    file_path
+    ```language
+    <<<<<<< SEARCH
+    old_content
   "#
 }
   
