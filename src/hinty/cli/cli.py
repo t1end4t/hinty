@@ -10,7 +10,6 @@ from rich.console import Console
 
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
-from ..cli.theme import catppuccin_mocha_style
 from ..cli.utils import (
     display_files,
     display_stream_response,

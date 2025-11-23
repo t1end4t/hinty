@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Generator, List
 
 from baml_py import AbortController, BamlSyncStream
@@ -15,7 +14,8 @@ from ..baml_client.types import (
     FileInfo,
 )
 from ..core.context_manager import ContextManager
-from ..tools.file_operations import tool_apply_search_replace, tool_read_file
+from ..tools.file_operations import tool_read_file
+from ..tools.search_and_replace import tool_apply_search_replace
 
 
 def call_coder(
@@ -67,4 +67,4 @@ def handle_coder_mode(
     success = tool_apply_search_replace(
         final.diff_content, base_path=context_manager.pwd_path
     )
-    yield AgentResponse(response=f"Changes applied successfully: {success}")
+    yield AgentResponse(actions=[f"Changes applied successfully: {success}"])

@@ -7,55 +7,59 @@ class FileInfo {
   file_path string
   file_content string
 }
-  
+
 function Coder(
   user_message: string,
   files: FileInfo[],
   conversation_history: ConversationMessage[]
 ) -> CoderOutput {
   client GroqRouter
-    
   prompt #"
-    You are an expert code editor assistant.
-    
-    Your task is to modify code based on the user's request and generate a unified diff.
-    
-    IMPORTANT RULES:
-    - Make minimal, focused changes that address the user's request
-    - Preserve existing code style and formatting
-    - Do not add unnecessary changes
-    - Provide clear explanation of what changed and why
-    
-    {% for file in files %}
-    FILE: {{ file.file_path }}
-    
-    ORIGINAL CONTENT:
-    ```
-    {{ file.file_content }}
-    ```
+You are an expert code editor assistant. Analyze the provided files and generate precise search/replace blocks to implement the requested changes.
 
-    {% endfor %}
+FILES TO MODIFY:
+{% for file in files %}
+{{ file.file_path }}
+```
+{{ file.file_content }}
+```
 
-    {% if conversation_history|length > 0 %}
-    CONVERSATION HISTORY:
-    {% for msg in conversation_history %}
-    {{ msg.role }}: {{ msg.content }}
-    {% endfor %}
-    {% endif %}
-      
-    USER REQUEST:
-    {{ user_message }}
+{% endfor %}
 
-    Generate search/replace blocks that show the changes needed to address the user's request.
-    Use the following format for each block:
+{% if conversation_history|length > 0 %}
+PREVIOUS CONVERSATION:
+{% for msg in conversation_history %}
+{{ msg.role }}: {{ msg.content }}
+{% endfor %}
 
-    file_path
-    ```language
-    <<<<<<< SEARCH
-    old_content
+{% endif %}
+
+USER REQUEST:
+{{ user_message }}
+
+OUTPUT FORMAT:
+Generate search/replace blocks using this exact format:
+
+file_path
+```language
+<<<<<<< SEARCH
+[exact code to find - must match precisely including whitespace]
+=======
+[replacement code with same indentation]
+>>>>>>> REPLACE
+```
+
+CRITICAL REQUIREMENTS:
+1. SEARCH blocks must match original code exactly (whitespace, indentation, everything)
+2. Make only minimal changes needed to address the request
+3. Preserve existing code style and formatting conventions
+4. Create separate blocks for each distinct change location
+5. After all blocks, explain what changed and why
+
+{{ ctx.output_format }}
   "#
 }
-  
+
 test CoderSimpleChange {
   functions [Coder]
   args {

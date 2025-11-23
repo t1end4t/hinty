@@ -1,85 +1,9 @@
 import base64
 import mimetypes
-import re
 from pathlib import Path
-from typing import List, Tuple
 
 from loguru import logger
 from pypdf import PdfReader
-
-
-def parse_search_replace_blocks(content: str) -> List[Tuple[str, str, str]]:
-    """Parse search/replace blocks from content.
-
-    Expects format: file_path\n```language\n<<<<<<< SEARCH\nold\n=======\nnew\n>>>>>>> REPLACE\n```
-
-    Returns list of (filepath, search, replace) tuples.
-    """
-    logger.debug("Parsing search/replace blocks")
-    blocks = []
-    # Regex to match the block structure
-    pattern = r"^([^\n]+)\n```[^\n]*\n<<<<<<< SEARCH\n(.*?)\n=======\n(.*?)\n>>>>>>> REPLACE\n```"
-    matches = re.findall(pattern, content, re.DOTALL | re.MULTILINE)
-    for filepath, search, replace in matches:
-        blocks.append((filepath.strip(), search.strip(), replace.strip()))
-    logger.info(f"Parsed {len(blocks)} search/replace block(s)")
-    return blocks
-
-
-def apply_search_replace_to_file(
-    filepath: Path, search: str, replace: str
-) -> bool:
-    """Apply a single search/replace to a file.
-
-    Returns True if successful, False otherwise.
-    """
-    logger.info(f"Applying search/replace to {filepath}")
-    try:
-        if filepath.exists():
-            content = filepath.read_text()
-        else:
-            logger.warning(f"File {filepath} does not exist, creating new")
-            content = ""
-        # Perform the replacement (only first match)
-        new_content = content.replace(search, replace, 1)
-        if new_content == content:
-            logger.warning(f"No match found for search in {filepath}")
-            return False
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        filepath.write_text(new_content)
-        logger.info(f"Successfully applied search/replace to {filepath}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to apply search/replace to {filepath}: {e}")
-        return False
-
-
-def tool_apply_search_replace(
-    blocks_content: str, base_path: Path = Path.cwd()
-) -> bool:
-    """Apply search/replace blocks to files.
-
-    Args:
-        blocks_content: String containing search/replace blocks
-        base_path: Base directory for resolving file paths
-
-    Returns:
-        True if all replacements applied successfully
-    """
-    logger.info("Starting search/replace application")
-    file_changes = parse_search_replace_blocks(blocks_content)
-    if not file_changes:
-        logger.warning("No search/replace blocks found")
-        return False
-    success = True
-    for filepath_str, search, replace in file_changes:
-        filepath = base_path / filepath_str
-        if not apply_search_replace_to_file(filepath, search, replace):
-            success = False
-    logger.info(
-        f"Search/replace application {'successful' if success else 'failed'}"
-    )
-    return success
 
 
 def tool_read_file(filepath: Path) -> str:
