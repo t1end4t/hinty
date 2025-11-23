@@ -107,7 +107,7 @@ def apply_diff_to_file(filepath: Path, diff_lines: List[str]) -> bool:
         return False
 
 
-def apply_diff(diff_content: str, base_path: Path = Path.cwd()) -> bool:
+def tool_apply_diff(diff_content: str, base_path: Path = Path.cwd()) -> bool:
     """Apply unified diff to files.
 
     Args:
