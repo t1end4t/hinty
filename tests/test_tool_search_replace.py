@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 
 from hinty.tools.file_operations import tool_apply_search_replace
