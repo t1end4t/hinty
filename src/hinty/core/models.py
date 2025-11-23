@@ -15,8 +15,8 @@ class AgentResponse:
 
 
 class Mode(Enum):
-    ROUTER = "smart"
-    GENERAL = "chatgpt"
+    SMART = "smart"
+    CHATGPT = "chatgpt"
     CODER = "code"
     RESEARCHER = "research"
     WRITER = "write"
