@@ -52,14 +52,26 @@ def display_stream_response(
                     if partial.actions:
                         console.print("Actions: " + ", ".join(partial.actions))
                     if partial.response:
-                        full_response = partial.response
-                        live.update(
-                            Panel(
-                                Markdown(full_response),
-                                title="LLM",
-                                border_style=llm_response_style,
+                        if isinstance(partial.response, str):
+                            full_response = partial.response
+                            live.update(
+                                Panel(
+                                    Markdown(full_response),
+                                    title="LLM",
+                                    border_style=llm_response_style,
+                                )
                             )
-                        )
+                        else:
+                            # Assume it's a generator/stream of strings
+                            for chunk in partial.response:
+                                full_response += chunk
+                                live.update(
+                                    Panel(
+                                        Markdown(full_response),
+                                        title="LLM",
+                                        border_style=llm_response_style,
+                                    )
+                                )
             console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
