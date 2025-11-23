@@ -1,5 +1,3 @@
-from typing import List
-
 from baml_py import BamlSyncStream
 from rich.console import Console
 from rich.live import Live
@@ -7,7 +5,6 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 from prompt_toolkit import PromptSession
 
-from ..baml_client.types import ConversationMessage
 from ..cli.theme import llm_response_style, context_style
 from ..core.context_manager import ContextManager
 
