@@ -1,3 +1,5 @@
+from typing import Generator
+
 from baml_py import BamlSyncStream
 from rich.console import Console
 from rich.live import Live
@@ -7,6 +9,7 @@ from prompt_toolkit import PromptSession
 
 from ..cli.theme import llm_response_style, context_style
 from ..core.context_manager import ContextManager
+from ..core.models import AgentResponse
 
 console = Console()
 
@@ -29,7 +32,7 @@ def print_welcome():
 
 
 def display_stream_response(
-    stream: BamlSyncStream[str, str] | str, console: Console
+    stream: Generator[AgentResponse, None, None] | str, console: Console
 ) -> str:
     """Display streaming response and return full response."""
     full_response = ""
@@ -46,7 +49,7 @@ def display_stream_response(
         else:
             with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
                 for partial in stream:
-                    current = str(partial)
+                    current = partial.response
                     full_response = current
                     live.update(
                         Panel(

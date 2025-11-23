@@ -64,13 +64,13 @@ def process_user_message(
         logger.debug("Calling external API for router")
 
         # NOTE: for now just show response
-        stream = get_agent_response(
+        responses = get_agent_response(
             user_input,
             conversation_history,
             context_manager,
             controller,
         )
-        full_response = display_stream_response(stream.response, console)
+        full_response = display_stream_response(responses, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
