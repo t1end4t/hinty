@@ -32,8 +32,8 @@ class ContextManager:
         self._current_mode = value
 
     def get_all_files(self) -> List[Path]:
-        """Get a specific attached file by index."""
-        return self._files
+        """Get all attached files."""
+        return [f.relative_to(self._pwd_path) for f in self._files]
 
     def add_file(self, path: Path):
         """Add a file to the list."""
