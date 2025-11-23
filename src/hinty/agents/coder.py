@@ -28,12 +28,12 @@ def call_coder(
     return resp
 
 
-# def handle_coder_mode(
-#     user_message: str,
-#     conversation_history: List[ConversationMessage],
-#     context_manager: ContextManager,
-#     controller: AbortController,
-# ) -> AgentResponse:
-#     stream = call_coder(user_message, conversation_history, controller)
+def handle_coder_mode(
+    user_message: str,
+    conversation_history: List[ConversationMessage],
+    context_manager: ContextManager,
+    controller: AbortController,
+) -> AgentResponse:
+    stream = call_coder(user_message, conversation_history, controller)
 
-#     return AgentResponse(response=stream)
+    return AgentResponse(response=stream)
