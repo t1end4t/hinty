@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import List, Tuple
 from loguru import logger
-from unidiff import PatchSet
+from unidiff import PatchSet, Hunk
 
 
-def parse_unified_diff(diff_content: str) -> List[Tuple[str, List]]:
+def parse_unified_diff(diff_content: str) -> List[Tuple[str, List[Hunk]]]:
     """Parse unified diff format into file changes using unidiff.
 
     Returns list of (filepath, hunks) tuples, where hunks are unidiff.Hunk objects.
@@ -24,7 +24,7 @@ def parse_unified_diff(diff_content: str) -> List[Tuple[str, List]]:
     return files
 
 
-def apply_hunk(original_lines: List[str], hunk) -> List[str]:
+def apply_hunk(original_lines: List[str], hunk: Hunk) -> List[str]:
     """Apply a single diff hunk to original content using unidiff.Hunk."""
     result = []
     orig_idx = 0
@@ -55,7 +55,7 @@ def apply_hunk(original_lines: List[str], hunk) -> List[str]:
     return result
 
 
-def apply_diff_to_file(filepath: Path, hunks: List) -> bool:
+def apply_diff_to_file(filepath: Path, hunks: List[Hunk]) -> bool:
     """Apply diff to a single file.
 
     Returns True if successful, False otherwise.
