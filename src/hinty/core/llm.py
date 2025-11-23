@@ -15,7 +15,7 @@ def get_agent_response(
     controller: AbortController,
 ) -> AgentResponse:
     """Get a response from the LLM"""
-    if context_manager.current_mode == Mode.ROUTER:
+    if context_manager.current_mode == Mode.SMART:
         return handle_router_mode(
             user_message, conversation_history, context_manager, controller
         )

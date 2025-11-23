@@ -9,7 +9,7 @@ class ContextManager:
 
     def __init__(
         self,
-        current_mode: Mode = Mode.ROUTER,
+        current_mode: Mode = Mode.SMART,
         pwd_path: Path = Path.cwd(),
     ):
         """Initialize project context."""

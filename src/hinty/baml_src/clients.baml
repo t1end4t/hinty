@@ -19,7 +19,7 @@ client<llm> GroqRouter {
   }
 }
 
-client<llm> Coder {
+client<llm> GrokCoder {
   provider "openai-generic"
   retry_policy Exponential
   options {
@@ -29,7 +29,7 @@ client<llm> Coder {
   }
 }
 
-client<llm> Writer {
+client<llm> ClaudeWriter {
   provider "openai-generic"
   retry_policy Exponential
   options {
