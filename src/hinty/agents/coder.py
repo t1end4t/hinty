@@ -45,8 +45,7 @@ def handle_coder_mode(
     files = [
         f
         for f in all_files
-        if mimetypes.guess_type(str(f))[0]
-        and mimetypes.guess_type(str(f))[0].startswith("text")
+        if (mime_type := mimetypes.guess_type(str(f))[0]) and mime_type.startswith("text")
     ]
     if not files:
         raise ValueError("No text files in context for coder mode")
