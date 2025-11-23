@@ -7,9 +7,11 @@ from hinty.core.models import AgentResponse
 from ..baml_client import b
 from ..baml_client.stream_types import CoderOutput
 from ..baml_client.types import (
+    CoderOutput as FinalCoderOutput,
+)
+from ..baml_client.types import (
     ConversationMessage,
     FileInfo,
-    CoderOutput as FinalCoderOutput,
 )
 from ..core.context_manager import ContextManager
 from ..tools.file_operations import tool_read_file
