@@ -49,15 +49,17 @@ def display_stream_response(
         else:
             with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
                 for partial in stream:
-                    current = partial.response
-                    full_response = current
-                    live.update(
-                        Panel(
-                            Markdown(full_response),
-                            title="LLM",
-                            border_style=llm_response_style,
+                    if partial.actions:
+                        console.print("Actions: " + ", ".join(partial.actions))
+                    if partial.response:
+                        full_response = partial.response
+                        live.update(
+                            Panel(
+                                Markdown(full_response),
+                                title="LLM",
+                                border_style=llm_response_style,
+                            )
                         )
-                    )
             console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
