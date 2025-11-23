@@ -139,13 +139,14 @@ def tool_read_file(filepath: Path) -> str:
     mime_type, _ = mimetypes.guess_type(str(filepath))
 
     try:
-        if mime_type and mime_type.startswith('text'):
+        if mime_type and mime_type.startswith("text"):
             # Handle text files like code
             return filepath.read_text()
-        elif mime_type == 'application/pdf':
+        elif mime_type == "application/pdf":
             # Handle PDF files by extracting text
             try:
                 from pypdf import PdfReader
+
                 reader = PdfReader(filepath)
                 text = ""
                 for page in reader.pages:
@@ -154,11 +155,11 @@ def tool_read_file(filepath: Path) -> str:
             except ImportError:
                 logger.error("pypdf library not available for PDF reading")
                 return ""
-        elif mime_type and mime_type.startswith('image'):
+        elif mime_type and mime_type.startswith("image"):
             # Handle images by base64 encoding
-            with open(filepath, 'rb') as f:
+            with open(filepath, "rb") as f:
                 data = f.read()
-            encoded = base64.b64encode(data).decode('utf-8')
+            encoded = base64.b64encode(data).decode("utf-8")
             return f"data:{mime_type};base64,{encoded}"
         else:
             # Attempt to read as text for other types
@@ -166,7 +167,7 @@ def tool_read_file(filepath: Path) -> str:
                 return filepath.read_text()
             except UnicodeDecodeError:
                 # Fall back to reading as bytes and representing as string
-                with open(filepath, 'rb') as f:
+                with open(filepath, "rb") as f:
                     data = f.read()
                 return f"<binary data: {len(data)} bytes>"
     except Exception as e:
