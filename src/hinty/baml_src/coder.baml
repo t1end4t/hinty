@@ -46,3 +46,16 @@ function Coder(
     Provide a clear explanation of the changes made.
   "#
 }
+
+test CoderSimpleChange {
+  functions [Coder]
+  args {
+    user_message "Change the greeting to say 'Hi there!'"
+    file_content #"
+def hello():
+    print("Hello, World!")
+"#
+    file_path "example.py"
+    conversation_history []
+  }
+}
