@@ -55,4 +55,10 @@ def handle_coder_mode(
         user_message, files_info, conversation_history, controller
     )
 
-    yield AgentResponse(response="hello")
+    final = stream.get_final_response()
+    response_text = (
+        f"Agent will make the requested changes.\n\n"
+        f"{final.diff_content}\n\n"
+        f"Short explanation: {final.response}"
+    )
+    yield AgentResponse(response=response_text)
