@@ -1,22 +1,15 @@
-class FileDiff {
-  file_path string
-  original_content string
-  modified_content string
-  explanation string
-}
-
 function Coder(
   user_message: string,
   file_content: string,
   file_path: string,
   conversation_history: ConversationMessage[]
-) -> FileDiff {
+) -> string {
   client GroqRouter
   
   prompt #"
     You are an expert code editor assistant.
     
-    Your task is to modify code based on the user's request and generate a diff.
+    Your task is to modify code based on the user's request and generate a unified diff.
     
     IMPORTANT RULES:
     - Follow the coding principles in CLAUDE.md (readability, simplicity, functional programming)
@@ -42,8 +35,9 @@ function Coder(
     USER REQUEST:
     {{ user_message }}
     
-    Generate the modified version of the file that addresses the user's request.
-    Provide a clear explanation of the changes made.
+    Generate a unified diff (in standard diff -u format) that shows the changes needed to address the user's request.
+    The diff should include the file path and be directly applicable by tools like patch.
+    Do not include any extra text outside the diff format.
 
     {{ ctx.output_format }}
   "#
