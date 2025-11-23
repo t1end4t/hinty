@@ -51,8 +51,8 @@ def handle_coder_mode(
 
     yield AgentResponse(actions=actions)
 
-    # stream = call_coder(
-    #     user_message, files_info, conversation_history, controller
-    # )
+    stream = call_coder(
+        user_message, files_info, conversation_history, controller
+    )
 
-    yield AgentResponse(response="hello", actions=actions)
+    yield AgentResponse(response="hello")
