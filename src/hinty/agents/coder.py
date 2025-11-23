@@ -34,6 +34,14 @@ def handle_coder_mode(
     context_manager: ContextManager,
     controller: AbortController,
 ) -> AgentResponse:
-    stream = call_coder(user_message, conversation_history, controller)
+    files = context_manager.get_all_files()
+    if not files:
+        raise ValueError("No files in context for coder mode")
+    file_path_obj = files[0]
+    file_content = file_path_obj.read_text()
+    file_path = str(file_path_obj)
+    stream = call_coder(
+        user_message, file_content, file_path, conversation_history, controller
+    )
 
     return AgentResponse(response=stream)
