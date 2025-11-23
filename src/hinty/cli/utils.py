@@ -1,4 +1,3 @@
-
 from typing import List
 
 from baml_py import BamlSyncStream
@@ -62,6 +61,7 @@ def display_stream_response(
             console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
+
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
@@ -93,6 +93,7 @@ def get_user_input(
 ) -> str:
     """Prompt for and return user input."""
     from ..cli.theme import catppuccin_mocha_style
+
     prompt_text = f"{context_manager.current_mode.value} >> "
     return session.prompt(
         prompt_text,

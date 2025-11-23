@@ -49,8 +49,6 @@ def initialize_conversation() -> tuple[
     return conversation_history, context_manager, controller
 
 
-
-
 def process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
@@ -81,10 +79,6 @@ def process_user_message(
     except Exception as e:
         logger.error(f"Error processing user message: {e}")
         raise
-
-
-
-
 
 
 def process_input(
