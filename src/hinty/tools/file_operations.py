@@ -1,122 +1,78 @@
 import base64
 import mimetypes
+import re
 from pathlib import Path
 from typing import List, Tuple
 
 from loguru import logger
 from pypdf import PdfReader
-from unidiff import Hunk, PatchSet
 
 
-def parse_unified_diff(diff_content: str) -> List[Tuple[str, List[Hunk]]]:
-    """Parse unified diff format into file changes using unidiff.
+def parse_search_replace_blocks(content: str) -> List[Tuple[str, str, str]]:
+    """Parse search/replace blocks from content.
 
-    Returns list of (filepath, hunks) tuples, where hunks are unidiff.Hunk objects.
+    Expects format: file_path\n```language\n<<<<<<< SEARCH\nold\n=======\nnew\n>>>>>>> REPLACE\n```
+
+    Returns list of (filepath, search, replace) tuples.
     """
-    logger.debug("Parsing unified diff content with unidiff")
-
-    patch_set = PatchSet.from_string(diff_content)
-    files = []
-
-    for patch in patch_set:
-        filepath = patch.target_file
-        if filepath.startswith("b/"):
-            filepath = filepath[2:]
-        hunks = list(patch)
-        files.append((filepath, hunks))
-
-    logger.info(f"Parsed {len(files)} file(s) from diff")
-    return files
+    logger.debug("Parsing search/replace blocks")
+    blocks = []
+    # Regex to match the block structure
+    pattern = r'^([^\n]+)\n```[^\n]*\n<<<<<<< SEARCH\n(.*?)\n=======\n(.*?)\n>>>>>>> REPLACE\n```'
+    matches = re.findall(pattern, content, re.DOTALL | re.MULTILINE)
+    for filepath, search, replace in matches:
+        blocks.append((filepath.strip(), search.strip(), replace.strip()))
+    logger.info(f"Parsed {len(blocks)} search/replace block(s)")
+    return blocks
 
 
-def apply_hunk(original_lines: List[str], hunk: Hunk) -> List[str]:
-    """Apply a single diff hunk to original content using unidiff.Hunk."""
-    result = []
-    orig_idx = 0
-
-    # Add lines before this hunk
-    while orig_idx < hunk.source_start:
-        result.append(original_lines[orig_idx])
-        orig_idx += 1
-
-    for line in hunk:
-        if line.is_removed:
-            # Line removed - skip in original
-            orig_idx += 1
-        elif line.is_added:
-            # Line added - add to result
-            result.append(line.value)
-        elif line.is_context:
-            # Context line - verify and add
-            if orig_idx < len(original_lines):
-                result.append(original_lines[orig_idx])
-                orig_idx += 1
-
-    # Add remaining lines
-    while orig_idx < len(original_lines):
-        result.append(original_lines[orig_idx])
-        orig_idx += 1
-
-    return result
-
-
-def apply_diff_to_file(filepath: Path, hunks: List[Hunk]) -> bool:
-    """Apply diff to a single file.
+def apply_search_replace_to_file(filepath: Path, search: str, replace: str) -> bool:
+    """Apply a single search/replace to a file.
 
     Returns True if successful, False otherwise.
     """
-    logger.info(f"Applying diff to {filepath}")
-
+    logger.info(f"Applying search/replace to {filepath}")
     try:
         if filepath.exists():
-            original_content = filepath.read_text()
-            original_lines = original_content.split("\n")
+            content = filepath.read_text()
         else:
             logger.warning(f"File {filepath} does not exist, creating new")
-            original_lines = []
-
-        # Apply all hunks sequentially
-        for hunk in hunks:
-            original_lines = apply_hunk(original_lines, hunk)
-
-        modified_content = "\n".join(original_lines)
-
+            content = ""
+        # Perform the replacement (only first match)
+        new_content = content.replace(search, replace, 1)
+        if new_content == content:
+            logger.warning(f"No match found for search in {filepath}")
+            return False
         filepath.parent.mkdir(parents=True, exist_ok=True)
-        filepath.write_text(modified_content)
-
-        logger.info(f"Successfully applied diff to {filepath}")
+        filepath.write_text(new_content)
+        logger.info(f"Successfully applied search/replace to {filepath}")
         return True
-
     except Exception as e:
-        logger.error(f"Failed to apply diff to {filepath}: {e}")
+        logger.error(f"Failed to apply search/replace to {filepath}: {e}")
         return False
 
 
-def tool_apply_diff(diff_content: str, base_path: Path = Path.cwd()) -> bool:
-    """Apply unified diff to files.
+def tool_apply_search_replace(blocks_content: str, base_path: Path = Path.cwd()) -> bool:
+    """Apply search/replace blocks to files.
 
     Args:
-        diff_content: Unified diff format string
+        blocks_content: String containing search/replace blocks
         base_path: Base directory for resolving file paths
 
     Returns:
-        True if all diffs applied successfully
+        True if all replacements applied successfully
     """
-    logger.info("Starting diff application")
-
-    file_changes = parse_unified_diff(diff_content)
-
+    logger.info("Starting search/replace application")
+    file_changes = parse_search_replace_blocks(blocks_content)
     if not file_changes:
-        logger.warning("No file changes found in diff")
+        logger.warning("No search/replace blocks found")
         return False
-
     success = True
-    for filepath_str, hunks in file_changes:
+    for filepath_str, search, replace in file_changes:
         filepath = base_path / filepath_str
-        if not apply_diff_to_file(filepath, hunks):
+        if not apply_search_replace_to_file(filepath, search, replace):
             success = False
-
-    logger.info(f"Diff application {'successful' if success else 'failed'}")
+    logger.info(f"Search/replace application {'successful' if success else 'failed'}")
     return success
 
 
