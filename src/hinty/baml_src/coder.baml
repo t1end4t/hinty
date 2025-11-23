@@ -12,7 +12,6 @@ function Coder(
     Your task is to modify code based on the user's request and generate a unified diff.
     
     IMPORTANT RULES:
-    - Follow the coding principles in CLAUDE.md (readability, simplicity, functional programming)
     - Make minimal, focused changes that address the user's request
     - Preserve existing code style and formatting
     - Do not add unnecessary changes
