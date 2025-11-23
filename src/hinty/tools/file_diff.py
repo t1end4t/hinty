@@ -18,7 +18,8 @@ def parse_unified_diff(diff_content: str) -> List[Tuple[str, List[Hunk]]]:
         filepath = patch.target_file
         if filepath.startswith("b/"):
             filepath = filepath[2:]
-        files.append((filepath, patch.hunks))
+        hunks = list(patch)
+        files.append((filepath, hunks))
 
     logger.info(f"Parsed {len(files)} file(s) from diff")
     return files
