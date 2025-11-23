@@ -18,7 +18,7 @@ def parse_search_replace_blocks(content: str) -> List[Tuple[str, str, str]]:
     logger.debug("Parsing search/replace blocks")
     blocks = []
     # Regex to match the block structure
-    pattern = r'^([^\n]+)\n```[^\n]*\n<<<<<<< SEARCH\n(.*?)\n=======\n(.*?)\n>>>>>>> REPLACE\n```'
+    pattern = r"^([^\n]+)\n```[^\n]*\n<<<<<<< SEARCH\n(.*?)\n=======\n(.*?)\n>>>>>>> REPLACE\n```"
     matches = re.findall(pattern, content, re.DOTALL | re.MULTILINE)
     for filepath, search, replace in matches:
         blocks.append((filepath.strip(), search.strip(), replace.strip()))
@@ -26,7 +26,9 @@ def parse_search_replace_blocks(content: str) -> List[Tuple[str, str, str]]:
     return blocks
 
 
-def apply_search_replace_to_file(filepath: Path, search: str, replace: str) -> bool:
+def apply_search_replace_to_file(
+    filepath: Path, search: str, replace: str
+) -> bool:
     """Apply a single search/replace to a file.
 
     Returns True if successful, False otherwise.
@@ -52,7 +54,9 @@ def apply_search_replace_to_file(filepath: Path, search: str, replace: str) -> b
         return False
 
 
-def tool_apply_search_replace(blocks_content: str, base_path: Path = Path.cwd()) -> bool:
+def tool_apply_search_replace(
+    blocks_content: str, base_path: Path = Path.cwd()
+) -> bool:
     """Apply search/replace blocks to files.
 
     Args:
@@ -72,7 +76,9 @@ def tool_apply_search_replace(blocks_content: str, base_path: Path = Path.cwd())
         filepath = base_path / filepath_str
         if not apply_search_replace_to_file(filepath, search, replace):
             success = False
-    logger.info(f"Search/replace application {'successful' if success else 'failed'}")
+    logger.info(
+        f"Search/replace application {'successful' if success else 'failed'}"
+    )
     return success
 
 
