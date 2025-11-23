@@ -47,7 +47,7 @@ def handle_coder_mode(
         files_info.append(
             FileInfo(file_path=str(file_path), file_content=file_content)
         )
-        actions.append(f"read_file: {file_path}")
+        actions.append(f"Read_file: {file_path}")
 
     stream = call_coder(
         user_message, files_info, conversation_history, controller
