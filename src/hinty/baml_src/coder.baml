@@ -11,7 +11,7 @@ function Coder(
   file_path: string,
   conversation_history: ConversationMessage[]
 ) -> FileDiff {
-  client GPT4o
+  client GrokCoder
   
   prompt #"
     You are an expert code editor assistant.
