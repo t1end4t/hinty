@@ -1,8 +1,4 @@
-import sys
 from pathlib import Path
-
-# Add the src directory to the path so we can import hinty modules
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from hinty.tools.file_operations import tool_apply_search_replace
 
