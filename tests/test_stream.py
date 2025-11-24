@@ -21,7 +21,8 @@ def main():
 
     if stream.response:
         for partial in stream.response:
-            print(partial)
+            full_response += partial
+            print(full_response)
 
 
 if __name__ == "__main__":
