@@ -1,32 +1,4 @@
-import re
-from collections import defaultdict
-from pathlib import Path
-from ..core.models import ToolResult
-
-from loguru import logger
-
-BLOCK_REGEX = re.compile(
-    r"^\s*(?P<file_path>[^\n]+)\s*\n"
-    r"```[a-zA-Z0-9]*\n"
-    r"<<<<<<< SEARCH\n"
-    r"(?P<search>.*?)"
-    r"\n=======\n"
-    r"(?P<replace>.*?)"
-    r"\n>>>>>>> REPLACE\n"
-    r"```",
-    re.DOTALL | re.MULTILINE,
-)
-
-
-def tool_apply_search_replace(diff_content: str, base_path: Path):
-    """
-    Applies search and replace operations based on a diff content format.
-
-    The diff content should be structured as follows for each change:
-    file_path
-    ```language
-    <<<<<<< SEARCH
-    [code to be replaced]
+    [new code]
     =======
     [new code]
     >>>>>>> REPLACE
