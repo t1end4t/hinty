@@ -6,7 +6,12 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 from prompt_toolkit import PromptSession
 
-from ..cli.theme import llm_response_style, context_style
+from ..cli.theme import (
+    agent_response_style,
+    context_style,
+    agent_thinking_style,
+    agent_action_style,
+)
 from ..core.context_manager import ContextManager
 from ..core.models import AgentResponse
 
@@ -37,7 +42,7 @@ def display_actions(actions: list[str], console: Console):
             Panel(
                 ", ".join(actions),
                 title="Actions",
-                border_style=action_style,
+                border_style=agent_action_style,
             )
         )
 
@@ -49,7 +54,7 @@ def display_thinking(thinking: str, console: Console):
             Panel(
                 Markdown(thinking),
                 title="Thinking",
-                border_style=thinking_style,
+                border_style=agent_thinking_style,
             )
         )
 
@@ -65,7 +70,7 @@ def display_response(
             Panel(
                 Markdown(full_response),
                 title="LLM",
-                border_style=llm_response_style,
+                border_style=agent_response_style,
             )
         )
     else:
@@ -76,7 +81,7 @@ def display_response(
                     Panel(
                         Markdown(full_response),
                         title="LLM",
-                        border_style=llm_response_style,
+                        border_style=agent_response_style,
                     )
                 )
         console.print()  # Newline for separation
@@ -93,10 +98,11 @@ def display_stream_response(
             full_response = display_response(stream, console)
         else:
             for partial in stream:
-                display_actions(partial.actions, console)
-                display_thinking(getattr(partial, "thinking", ""), console)
+                # display_actions(partial.actions, console)
+                # display_thinking(getattr(partial, "thinking", ""), console)
                 if partial.response:
-                    full_response = display_response(partial.response, console)
+                    for chunk in partial.response:
+                        full_response = display_response(chunk, console)
     except Exception as e:
         from loguru import logger
 
