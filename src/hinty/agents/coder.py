@@ -19,6 +19,20 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
+def process_coder_response(final: FinalCoderOutput) -> str:
+    """Process the final coder output into a response string."""
+    response_text = "Agent will make the requested changes.\n\n"
+    for file_change in final.files_to_change:
+        response_text += f"{file_change.file_path}\n"
+        for block in file_change.blocks:
+            response_text += (
+                f"```{block.language}\nSEARCH\n{block.search}\n```\n\n"
+                f"```{block.language}\nREPLACE\n{block.replace}\n```\n\n"
+            )
+    response_text += f"Summary: {final.summary}"
+    return response_text
+
+
 def call_coder(
     user_message: str,
     files: List[FileInfo],
@@ -67,15 +81,7 @@ def handle_coder_mode(
     )
 
     final = stream.get_final_response()
-    response_text = "Agent will make the requested changes.\n\n"
-    for file_change in final.files_to_change:
-        response_text += f"{file_change.file_path}\n"
-        for block in file_change.blocks:
-            response_text += (
-                f"```{block.language}\nSEARCH\n{block.search}\n```\n\n"
-                f"```{block.language}\nREPLACE\n{block.replace}\n```\n\n"
-            )
-    response_text += f"Summary: {final.summary}"
+    response_text = process_coder_response(final)
     yield AgentResponse(response=response_text)
 
     # success = tool_apply_search_replace(
