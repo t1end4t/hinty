@@ -74,7 +74,7 @@ def handle_coder_mode(
     )
     yield AgentResponse(response=response_text)
 
-    success = tool_apply_search_replace(
-        final.diff_content, context_manager.pwd_path
-    )
+    # success = tool_apply_search_replace(
+    #     final.diff_content, context_manager.pwd_path
+    # )
     yield AgentResponse(actions=[f"Changes applied successfully: {success}"])
