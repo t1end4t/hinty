@@ -30,6 +30,57 @@ def print_welcome():
     )
 
 
+def display_actions(actions: list[str], console: Console):
+    """Display actions with a specific theme."""
+    if actions:
+        console.print(
+            Panel(
+                ", ".join(actions),
+                title="Actions",
+                border_style=action_style,
+            )
+        )
+
+
+def display_thinking(thinking: str, console: Console):
+    """Display thinking with a specific theme."""
+    if thinking:
+        console.print(
+            Panel(
+                Markdown(thinking),
+                title="Thinking",
+                border_style=thinking_style,
+            )
+        )
+
+
+def display_response(response: str | Generator[str, None, None], console: Console) -> str:
+    """Display response with live updating and return full response."""
+    full_response = ""
+    if isinstance(response, str):
+        full_response = response
+        console.print(
+            Panel(
+                Markdown(full_response),
+                title="LLM",
+                border_style=llm_response_style,
+            )
+        )
+    else:
+        with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
+            for chunk in response:
+                full_response = chunk
+                live.update(
+                    Panel(
+                        Markdown(full_response),
+                        title="LLM",
+                        border_style=llm_response_style,
+                    )
+                )
+        console.print()  # Newline for separation
+    return full_response
+
+
 def display_stream_response(
     stream: Generator[AgentResponse, None, None] | str, console: Console
 ) -> str:
@@ -37,41 +88,13 @@ def display_stream_response(
     full_response = ""
     try:
         if isinstance(stream, str):
-            full_response = stream
-            console.print(
-                Panel(
-                    Markdown(full_response),
-                    title="LLM",
-                    border_style=llm_response_style,
-                )
-            )
+            full_response = display_response(stream, console)
         else:
-            with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
-                for partial in stream:
-                    if partial.actions:
-                        console.print("Actions: " + ", ".join(partial.actions))
-                    if partial.response:
-                        if isinstance(partial.response, str):
-                            full_response = partial.response
-                            live.update(
-                                Panel(
-                                    Markdown(full_response),
-                                    title="LLM",
-                                    border_style=llm_response_style,
-                                )
-                            )
-                        else:
-                            # Assume it's a generator/stream of strings
-                            for chunk in partial.response:
-                                full_response = chunk
-                                live.update(
-                                    Panel(
-                                        Markdown(full_response),
-                                        title="LLM",
-                                        border_style=llm_response_style,
-                                    )
-                                )
-            console.print()  # Newline for separation
+            for partial in stream:
+                display_actions(partial.actions, console)
+                display_thinking(getattr(partial, 'thinking', ''), console)
+                if partial.response:
+                    full_response = display_response(partial.response, console)
     except Exception as e:
         from loguru import logger
 
