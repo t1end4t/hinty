@@ -14,6 +14,15 @@ class AgentResponse:
     thinking: str | None = None
 
 
+@dataclass
+class ToolResult:
+    """Result of a tool function call."""
+
+    success: bool
+    output: Any | None = None
+    error: str | None = None
+
+
 class Mode(Enum):
     SMART = "smart"
     CHATGPT = "chatgpt"
