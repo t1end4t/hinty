@@ -50,7 +50,9 @@ def handle_coder_mode(
             file_content = result.output
             relative_path = file_path.relative_to(context_manager.pwd_path)
             files_info.append(
-                FileInfo(file_path=str(relative_path), file_content=file_content)
+                FileInfo(
+                    file_path=str(relative_path), file_content=file_content
+                )
             )
             logger.info(f"Add file: {file_path}")
             actions.append(f"Read_file: {file_path}")
