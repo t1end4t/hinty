@@ -86,6 +86,10 @@ def handle_coder_mode(
 
     result = tool_apply_search_replace(final, context_manager.pwd_path)
     if result.success:
-        yield AgentResponse(actions=[f"Changes applied successfully: {result.output}"])
+        yield AgentResponse(
+            actions=[f"Changes applied successfully: {result.output}"]
+        )
     else:
-        yield AgentResponse(actions=[f"Failed to apply changes: {result.error}"])
+        yield AgentResponse(
+            actions=[f"Failed to apply changes: {result.error}"]
+        )
