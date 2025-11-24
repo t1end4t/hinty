@@ -23,10 +23,12 @@ def tool_read_file(filepath: Path) -> ToolResult:
     """
     if not filepath.exists():
         logger.error(f"File {filepath} does not exist")
-        return ToolResult(success=False, error=f"File {filepath} does not exist")
-    
+        return ToolResult(
+            success=False, error=f"File {filepath} does not exist"
+        )
+
     mime_type, _ = mimetypes.guess_type(str(filepath))
-    
+
     try:
         if mime_type and mime_type.startswith("text"):
             # Handle text files like code
@@ -42,13 +44,18 @@ def tool_read_file(filepath: Path) -> ToolResult:
                 return ToolResult(success=True, output=text.strip())
             except ImportError:
                 logger.error("pypdf library not available for PDF reading")
-                return ToolResult(success=False, error="pypdf library not available for PDF reading")
+                return ToolResult(
+                    success=False,
+                    error="pypdf library not available for PDF reading",
+                )
         elif mime_type and mime_type.startswith("image"):
             # Handle images by base64 encoding
             with open(filepath, "rb") as f:
                 data = f.read()
             encoded = base64.b64encode(data).decode("utf-8")
-            return ToolResult(success=True, output=f"data:{mime_type};base64,{encoded}")
+            return ToolResult(
+                success=True, output=f"data:{mime_type};base64,{encoded}"
+            )
         else:
             # Attempt to read as text for other types
             try:
@@ -58,7 +65,11 @@ def tool_read_file(filepath: Path) -> ToolResult:
                 # Fall back to reading as bytes and representing as string
                 with open(filepath, "rb") as f:
                     data = f.read()
-                return ToolResult(success=True, output=f"<binary data: {len(data)} bytes>")
+                return ToolResult(
+                    success=True, output=f"<binary data: {len(data)} bytes>"
+                )
     except Exception as e:
         logger.error(f"Error reading file {filepath}: {e}")
-        return ToolResult(success=False, error=f"Error reading file {filepath}: {e}")
+        return ToolResult(
+            success=False, error=f"Error reading file {filepath}: {e}"
+        )
