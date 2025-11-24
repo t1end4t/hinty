@@ -1,8 +1,15 @@
-    [new code]
-    =======
-    [new code]
-    >>>>>>> REPLACE
-    ```
+import re
+from collections import defaultdict
+from pathlib import Path
+
+from loguru import logger
+
+from ..core.models import ToolResult
+
+
+def tool_apply_search_replace(diff_content: str, base_path: Path) -> ToolResult:
+    """
+    Applies search and replace operations based on a diff content format.
 
     Args:
         diff_content: A string containing one or more search/replace blocks.
