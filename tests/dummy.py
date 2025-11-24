@@ -1,10 +1,12 @@
-# this is test file
+def factorial(n):
+    """Return the factorial of a non‑negative integer n.
 
-def hello_world():
-    """Return a greeting string."""
-    return "Hello, World!"
-
-
-def greet(name):
-    """Return a personalized greeting."""
-    return f"Hello, {name}!"
+    Raises:
+        ValueError: If ``n`` is negative.
+    """
+    if n < 0:
+        raise ValueError("factorial() not defined for negative values")
+    result = 1
+    for i in range(2, n + 1):
+        result *= i
+    return result

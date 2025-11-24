@@ -99,11 +99,18 @@ def display_stream_response(
         else:
             with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
                 for partial in stream:
-                    display_actions(partial.actions, console)
-                    display_thinking(getattr(partial, "thinking", ""), console)
+                    # show thinking
+                    # if partial.thinking:
+                    #     display_thinking(partial.thinking, console)
+
+                    # # show actions
+                    # if partial.actions:
+                    #     display_actions(partial.actions, console)
+
+                    # show response
                     if partial.response:
                         for chunk in partial.response:
-                            full_response += chunk
+                            full_response = chunk
                             live.update(
                                 Panel(
                                     Markdown(full_response),

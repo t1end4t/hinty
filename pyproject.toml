@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
   "baml-py>=0.213.0",
   "click>=8.3.1",
+  "dotenv>=0.9.9",
   "loguru>=0.7.3",
   "platformdirs>=4.0.0",
   "prompt-toolkit>=3.0.52",

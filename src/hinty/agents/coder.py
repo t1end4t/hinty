@@ -6,9 +6,9 @@ from baml_py import AbortController, BamlSyncStream
 from hinty.core.models import AgentResponse
 
 from ..baml_client import b
-from ..baml_client.stream_types import CoderOutput
+from ..baml_client.stream_types import CoderOutput as StreamCoderOutput
 from ..baml_client.types import (
-    CoderOutput as FinalCoderOutput,
+    CoderOutput,
 )
 from ..baml_client.types import (
     ConversationMessage,
@@ -19,36 +19,12 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
-def process_coder_response(final: FinalCoderOutput) -> str:
-    """Process the final coder output into a response string."""
-    logger.debug("Starting to process coder response")
-    response_text = "Agent will make the requested changes.\n\n"
-    for file_change in final.files_to_change:
-        logger.debug(f"Processing file change for: {file_change.file_path}")
-        response_text += f"File: {file_change.file_path}\n"
-        response_text += f"Explanation: {file_change.explanation}\n\n"
-        for block in file_change.blocks:
-            # Skip blocks for unhandled languages like commit or token
-            if block.language.lower() in ["commit", "token"]:
-                logger.debug(
-                    f"Skipping unhandled block with language: {block.language}"
-                )
-                continue
-            response_text += (
-                f"```{block.language}\nSEARCH\n{block.search}\n```\n\n"
-                f"```{block.language}\nREPLACE\n{block.replace}\n```\n\n"
-            )
-    response_text += f"\nSummary: {final.summary}"
-    logger.debug("Finished processing coder response")
-    return response_text
-
-
 def call_coder(
     user_message: str,
     files: List[FileInfo],
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlSyncStream[CoderOutput, FinalCoderOutput]:
+) -> BamlSyncStream[StreamCoderOutput, CoderOutput]:
     """Call the coder agent with a user message, files, and conversation history"""
     resp = b.stream.Coder(
         user_message,
@@ -91,16 +67,18 @@ def handle_coder_mode(
     )
 
     # BUG: should stream, not get final
-    final = stream.get_final_response()
-    response_text = process_coder_response(final)
-    yield AgentResponse(response=response_text)
+    # final = stream.get_final_response()
+    # response_text = process_coder_response(final)
+    for chunk in stream:
+        pass
+    yield AgentResponse(response=stream)
 
-    result = tool_apply_search_replace(final, context_manager.pwd_path)
-    if result.success:
-        yield AgentResponse(
-            actions=[f"Changes applied successfully: {result.output}"]
-        )
-    else:
-        yield AgentResponse(
-            actions=[f"Failed to apply changes: {result.error}"]
-        )
+    # result = tool_apply_search_replace(final, context_manager.pwd_path)
+    # if result.success:
+    #     yield AgentResponse(
+    #         actions=[f"Changes applied successfully: {result.output}"]
+    #     )
+    # else:
+    #     yield AgentResponse(
+    #         actions=[f"Failed to apply changes: {result.error}"]
+    #     )

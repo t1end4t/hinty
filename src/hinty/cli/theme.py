@@ -34,6 +34,6 @@ catppuccin_mocha_style = Style.from_dict(
 
 # Rich Panel border style for Catppuccin Mocha theme
 context_style = GREEN
-llm_response_style = BLUE
-action_style = YELLOW
-thinking_style = SUBTEXT1
+agent_response_style = BLUE
+agent_action_style = YELLOW
+agent_thinking_style = SUBTEXT1
