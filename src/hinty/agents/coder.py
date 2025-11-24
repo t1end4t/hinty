@@ -67,9 +67,12 @@ def handle_coder_mode(
     )
 
     final = stream.get_final_response()
-    response_text = (
-        f"Agent will make the requested changes.\n\nSummary: {final.summary}"
-    )
+    response_text = "Agent will make the requested changes.\n\n"
+    for file_change in final.files_to_change:
+        response_text += f"{file_change.file_path}\n"
+        for block in file_change.blocks:
+            response_text += f"SEARCH\n{block.search}\nREPLACE\n{block.replace}\n"
+    response_text += f"\nSummary: {final.summary}"
     yield AgentResponse(response=response_text)
 
     # success = tool_apply_search_replace(
