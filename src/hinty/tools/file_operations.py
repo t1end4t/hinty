@@ -4,6 +4,7 @@ from pathlib import Path
 
 from loguru import logger
 from pypdf import PdfReader
+from ..core.models import ToolResult
 
 
 def tool_read_file(filepath: Path) -> str:
