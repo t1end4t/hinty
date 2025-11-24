@@ -10,14 +10,14 @@ def main():
     message = "what you can do"
     ctx = ContextManager()
     controller = AbortController()
-    
+
     stream = handle_smart_mode(
         user_message=message,
         conversation_history=[],
         context_manager=ctx,
         controller=controller,
     )
-    
+
     if stream.response:
         for partial in stream.response:
             print(partial, end="", flush=True)
