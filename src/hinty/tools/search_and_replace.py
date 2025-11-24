@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 from pathlib import Path
+from ..core.models import ToolResult
 
 from loguru import logger
 
@@ -17,7 +18,7 @@ BLOCK_REGEX = re.compile(
 )
 
 
-def tool_apply_search_replace(diff_content: str, base_path: Path) -> None:
+def tool_apply_search_replace(diff_content: str, base_path: Path):
     """
     Applies search and replace operations based on a diff content format.
 
