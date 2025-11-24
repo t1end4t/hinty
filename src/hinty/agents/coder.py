@@ -30,7 +30,9 @@ def process_coder_response(final: FinalCoderOutput) -> str:
         for block in file_change.blocks:
             # Skip blocks for unhandled languages like commit or token
             if block.language.lower() in ["commit", "token"]:
-                logger.debug(f"Skipping unhandled block with language: {block.language}")
+                logger.debug(
+                    f"Skipping unhandled block with language: {block.language}"
+                )
                 continue
             response_text += (
                 f"```{block.language}\nSEARCH\n{block.search}\n```\n\n"
