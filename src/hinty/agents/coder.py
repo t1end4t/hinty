@@ -45,13 +45,18 @@ def handle_coder_mode(
     files_info = []
     actions = []
     for file_path in context_manager.get_all_files():
-        file_content = tool_read_file(file_path)
-        relative_path = file_path.relative_to(context_manager.pwd_path)
-        files_info.append(
-            FileInfo(file_path=str(relative_path), file_content=file_content)
-        )
-        logger.info(f"Add file: {file_path}")
-        actions.append(f"Read_file: {file_path}")
+        result = tool_read_file(file_path)
+        if result.success:
+            file_content = result.output
+            relative_path = file_path.relative_to(context_manager.pwd_path)
+            files_info.append(
+                FileInfo(file_path=str(relative_path), file_content=file_content)
+            )
+            logger.info(f"Add file: {file_path}")
+            actions.append(f"Read_file: {file_path}")
+        else:
+            logger.error(f"Failed to read file {file_path}: {result.error}")
+            actions.append(f"Failed to read file: {file_path}")
 
     yield AgentResponse(actions=actions)
 
