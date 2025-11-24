@@ -46,8 +46,9 @@ def handle_coder_mode(
     actions = []
     for file_path in context_manager.get_all_files():
         file_content = tool_read_file(file_path)
+        relative_path = file_path.relative_to(context_manager.pwd_path)
         files_info.append(
-            FileInfo(file_path=str(file_path), file_content=file_content)
+            FileInfo(file_path=str(relative_path), file_content=file_content)
         )
         logger.info(f"Add file: {file_path}")
         actions.append(f"Read_file: {file_path}")
