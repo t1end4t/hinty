@@ -54,7 +54,9 @@ def display_thinking(thinking: str, console: Console):
         )
 
 
-def display_response(response: str | Generator[str, None, None], console: Console) -> str:
+def display_response(
+    response: str | Generator[str, None, None], console: Console
+) -> str:
     """Display response with live updating and return full response."""
     full_response = ""
     if isinstance(response, str):
@@ -92,7 +94,7 @@ def display_stream_response(
         else:
             for partial in stream:
                 display_actions(partial.actions, console)
-                display_thinking(getattr(partial, 'thinking', ''), console)
+                display_thinking(getattr(partial, "thinking", ""), console)
                 if partial.response:
                     full_response = display_response(partial.response, console)
     except Exception as e:
