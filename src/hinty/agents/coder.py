@@ -23,13 +23,14 @@ def process_coder_response(final: FinalCoderOutput) -> str:
     """Process the final coder output into a response string."""
     response_text = "Agent will make the requested changes.\n\n"
     for file_change in final.files_to_change:
-        response_text += f"{file_change.file_path}\n"
+        response_text += f"File: {file_change.file_path}\n"
+        response_text += f"Explanation: {file_change.explanation}\n\n"
         for block in file_change.blocks:
             response_text += (
                 f"```{block.language}\nSEARCH\n{block.search}\n```\n\n"
                 f"```{block.language}\nREPLACE\n{block.replace}\n```\n\n"
             )
-    response_text += f"Summary: {final.summary}"
+    response_text += f"\nSummary: {final.summary}"
     return response_text
 
 
