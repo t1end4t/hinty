@@ -72,9 +72,10 @@ def handle_coder_mode(
         response_text += f"{file_change.file_path}\n"
         for block in file_change.blocks:
             response_text += (
-                f"SEARCH\n{block.search}\nREPLACE\n{block.replace}\n"
+                f"```{block.language}\nSEARCH\n{block.search}\n```\n\n"
+                f"```{block.language}\nREPLACE\n{block.replace}\n```\n\n"
             )
-    response_text += f"\nSummary: {final.summary}"
+    response_text += f"Summary: {final.summary}"
     yield AgentResponse(response=response_text)
 
     # success = tool_apply_search_replace(
