@@ -17,7 +17,7 @@ BLOCK_REGEX = re.compile(
 )
 
 
-def tool_apply_search_replace(diff_content: str) -> None:
+def tool_apply_search_replace(diff_content: str, base_path: Path) -> None:
     """
     Applies search and replace operations based on a diff content format.
 
@@ -47,10 +47,8 @@ def tool_apply_search_replace(diff_content: str) -> None:
 
     for file_path_str, changes in changes_by_file.items():
         file_path = Path(file_path_str)
-        if not file_path.exists() and not file_path.is_absolute():
-            potential_path = Path(f"/{file_path_str}")
-            if potential_path.exists():
-                file_path = potential_path
+        if not file_path.is_absolute():
+            file_path = base_path / file_path
 
         if not file_path.exists():
             logger.error(f"File not found: {file_path_str}. Cannot apply changes.")
