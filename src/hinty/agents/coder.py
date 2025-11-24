@@ -1,5 +1,5 @@
 from loguru import logger
-from typing import Generator, List
+from typing import Generator, List, cast
 
 from baml_py import AbortController, BamlSyncStream
 
@@ -47,7 +47,7 @@ def handle_coder_mode(
     for file_path in context_manager.get_all_files():
         result = tool_read_file(file_path)
         if result.success:
-            file_content = result.output
+            file_content = cast(str, result.output)
             relative_path = file_path.relative_to(context_manager.pwd_path)
             files_info.append(
                 FileInfo(
