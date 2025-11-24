@@ -1,21 +1,4 @@
-import re
-from collections import defaultdict
-from pathlib import Path
-
-from loguru import logger
-
-from ..core.models import ToolResult
-
-
-def tool_apply_search_replace(diff_content: str, base_path: Path) -> ToolResult:
-    """
-    Applies search and replace operations based on a diff content format.
-
-    The diff content should be structured as follows for each change:
-    file_path
-    ```language
-    <<<<<<< SEARCH
-    [code to be replaced]
+    [new code]
     =======
     [new code]
     >>>>>>> REPLACE
