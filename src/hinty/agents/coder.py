@@ -80,6 +80,7 @@ def handle_coder_mode(
         user_message, files_info, conversation_history, controller
     )
 
+    # BUG: should stream, not get final
     final = stream.get_final_response()
     response_text = process_coder_response(final)
     yield AgentResponse(response=response_text)
