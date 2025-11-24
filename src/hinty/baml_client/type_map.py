@@ -22,8 +22,14 @@ type_map = {
     "types.ConversationMessage": types.ConversationMessage,
     "stream_types.ConversationMessage": stream_types.ConversationMessage,
 
+    "types.FileChange": types.FileChange,
+    "stream_types.FileChange": stream_types.FileChange,
+
     "types.FileInfo": types.FileInfo,
     "stream_types.FileInfo": stream_types.FileInfo,
+
+    "types.SearchReplaceBlock": types.SearchReplaceBlock,
+    "stream_types.SearchReplaceBlock": stream_types.SearchReplaceBlock,
 
 
 }

@@ -41,20 +41,30 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 # #########################################################################
 
 # #########################################################################
-# Generated classes (3)
+# Generated classes (5)
 # #########################################################################
 
 class CoderOutput(BaseModel):
-    diff_content: str
-    response: str
+    files_to_change: typing.List["FileChange"]
+    summary: str
 
 class ConversationMessage(BaseModel):
     role: typing.Union[typing_extensions.Literal['user'], typing_extensions.Literal['assistant']]
     content: str
 
+class FileChange(BaseModel):
+    file_path: str
+    blocks: typing.List["SearchReplaceBlock"]
+    explanation: str
+
 class FileInfo(BaseModel):
     file_path: str
     file_content: str
+
+class SearchReplaceBlock(BaseModel):
+    search: str
+    replace: str
+    language: str
 
 # #########################################################################
 # Generated type aliases (0)

@@ -20,7 +20,7 @@ from .globals import DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIM
 class TypeBuilder(type_builder.TypeBuilder):
     def __init__(self):
         super().__init__(classes=set(
-          ["CoderOutput","ConversationMessage","FileInfo",]
+          ["CoderOutput","ConversationMessage","FileChange","FileInfo","SearchReplaceBlock",]
         ), enums=set(
           []
         ), runtime=DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME)
@@ -31,7 +31,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
     # #########################################################################
-    # Generated classes 3
+    # Generated classes 5
     # #########################################################################
 
     @property
@@ -43,8 +43,16 @@ class TypeBuilder(type_builder.TypeBuilder):
         return ConversationMessageViewer(self)
 
     @property
+    def FileChange(self) -> "FileChangeViewer":
+        return FileChangeViewer(self)
+
+    @property
     def FileInfo(self) -> "FileInfoViewer":
         return FileInfoViewer(self)
+
+    @property
+    def SearchReplaceBlock(self) -> "SearchReplaceBlockViewer":
+        return SearchReplaceBlockViewer(self)
 
 
 
@@ -54,14 +62,14 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
 # #########################################################################
-# Generated classes 3
+# Generated classes 5
 # #########################################################################
 
 class CoderOutputAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
         self._bldr = _tb.class_("CoderOutput")
-        self._properties: typing.Set[str] = set([  "diff_content",  "response",  ])
+        self._properties: typing.Set[str] = set([  "files_to_change",  "summary",  ])
         self._props = CoderOutputProperties(self._bldr, self._properties)
 
     def type(self) -> baml_py.FieldType:
@@ -90,12 +98,12 @@ class CoderOutputProperties:
     
     
     @property
-    def diff_content(self) -> type_builder.ClassPropertyViewer:
-        return type_builder.ClassPropertyViewer(self.__bldr.property("diff_content"))
+    def files_to_change(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("files_to_change"))
     
     @property
-    def response(self) -> type_builder.ClassPropertyViewer:
-        return type_builder.ClassPropertyViewer(self.__bldr.property("response"))
+    def summary(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("summary"))
     
     
 
@@ -143,6 +151,53 @@ class ConversationMessageProperties:
     
 
 
+class FileChangeAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("FileChange")
+        self._properties: typing.Set[str] = set([  "file_path",  "blocks",  "explanation",  ])
+        self._props = FileChangeProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "FileChangeProperties":
+        return self._props
+
+
+class FileChangeViewer(FileChangeAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class FileChangeProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def file_path(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("file_path"))
+    
+    @property
+    def blocks(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("blocks"))
+    
+    @property
+    def explanation(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("explanation"))
+    
+    
+
+
 class FileInfoAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -182,6 +237,53 @@ class FileInfoProperties:
     @property
     def file_content(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("file_content"))
+    
+    
+
+
+class SearchReplaceBlockAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("SearchReplaceBlock")
+        self._properties: typing.Set[str] = set([  "search",  "replace",  "language",  ])
+        self._props = SearchReplaceBlockProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "SearchReplaceBlockProperties":
+        return self._props
+
+
+class SearchReplaceBlockViewer(SearchReplaceBlockAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class SearchReplaceBlockProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def search(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("search"))
+    
+    @property
+    def replace(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("replace"))
+    
+    @property
+    def language(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("language"))
     
     
 
