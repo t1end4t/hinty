@@ -28,6 +28,10 @@ def process_coder_response(final: FinalCoderOutput) -> str:
         response_text += f"File: {file_change.file_path}\n"
         response_text += f"Explanation: {file_change.explanation}\n\n"
         for block in file_change.blocks:
+            # Skip blocks for unhandled languages like commit or token
+            if block.language.lower() in ["commit", "token"]:
+                logger.debug(f"Skipping unhandled block with language: {block.language}")
+                continue
             response_text += (
                 f"```{block.language}\nSEARCH\n{block.search}\n```\n\n"
                 f"```{block.language}\nREPLACE\n{block.replace}\n```\n\n"
