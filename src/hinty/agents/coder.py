@@ -75,4 +75,4 @@ def handle_coder_mode(
     # success = tool_apply_search_replace(
     #     final.files_to_change, context_manager.pwd_path
     # )
-    yield AgentResponse(actions=[f"Changes applied successfully: {success}"])
+    # yield AgentResponse(actions=[f"Changes applied successfully: {success}"])
