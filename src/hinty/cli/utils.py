@@ -76,7 +76,7 @@ def display_response(
     else:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for chunk in response:
-                full_response = chunk
+                full_response += chunk
                 live.update(
                     Panel(
                         Markdown(full_response),
@@ -97,12 +97,21 @@ def display_stream_response(
         if isinstance(stream, str):
             full_response = display_response(stream, console)
         else:
-            for partial in stream:
-                # display_actions(partial.actions, console)
-                # display_thinking(getattr(partial, "thinking", ""), console)
-                if partial.response:
-                    for chunk in partial.response:
-                        full_response = display_response(chunk, console)
+            with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
+                for partial in stream:
+                    display_actions(partial.actions, console)
+                    display_thinking(getattr(partial, "thinking", ""), console)
+                    if partial.response:
+                        for chunk in partial.response:
+                            full_response += chunk
+                            live.update(
+                                Panel(
+                                    Markdown(full_response),
+                                    title="LLM",
+                                    border_style=agent_response_style,
+                                )
+                            )
+            console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
 
