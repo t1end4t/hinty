@@ -7,22 +7,20 @@ load_dotenv()
 
 
 def main():
-    full_response = ""
     message = "what you can do"
     ctx = ContextManager()
     controller = AbortController()
-
+    
     stream = handle_smart_mode(
         user_message=message,
         conversation_history=[],
         context_manager=ctx,
         controller=controller,
     )
-
+    
     if stream.response:
         for partial in stream.response:
-            full_response += partial
-            print(full_response)
+            print(partial, end="", flush=True)
 
 
 if __name__ == "__main__":
