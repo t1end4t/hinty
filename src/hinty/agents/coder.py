@@ -1,3 +1,4 @@
+from loguru import logger
 from typing import Generator, List
 
 from baml_py import AbortController, BamlSyncStream
@@ -48,6 +49,7 @@ def handle_coder_mode(
         files_info.append(
             FileInfo(file_path=str(file_path), file_content=file_content)
         )
+        logger.info(f"Add file: {file_path}")
         actions.append(f"Read_file: {file_path}")
 
     yield AgentResponse(actions=actions)
@@ -64,7 +66,5 @@ def handle_coder_mode(
     )
     yield AgentResponse(response=response_text)
 
-    success = tool_apply_search_replace(
-        final.diff_content, base_path=context_manager.pwd_path
-    )
-    yield AgentResponse(actions=[f"Changes applied successfully: {success}"])
+    # success = tool_apply_search_replace(final.diff_content)
+    # yield AgentResponse(actions=[f"Changes applied successfully: {success}"])
