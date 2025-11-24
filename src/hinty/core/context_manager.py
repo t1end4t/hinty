@@ -33,7 +33,7 @@ class ContextManager:
 
     def get_all_files(self) -> List[Path]:
         """Get all attached files."""
-        return [f.relative_to(self._pwd_path) for f in self._files]
+        return self._files
 
     def add_file(self, path: Path):
         """Add a file to the list."""

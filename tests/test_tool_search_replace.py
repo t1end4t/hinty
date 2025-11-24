@@ -32,8 +32,8 @@ new line
     print(old_content)
 
     # Apply the search/replace blocks
-    success = tool_apply_search_replace(blocks_content, base_path=Path.cwd())
-    print(f"Search/replace application {'succeeded' if success else 'failed'}")
+    result = tool_apply_search_replace(blocks_content, base_path=Path.cwd())
+    print(f"Search/replace application {'succeeded' if result.success else 'failed'}")
 
     # Read and print new content
     with open(sample_path, "r") as f:
