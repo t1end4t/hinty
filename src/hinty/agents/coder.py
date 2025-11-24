@@ -69,12 +69,11 @@ def handle_coder_mode(
     final = stream.get_final_response()
     response_text = (
         f"Agent will make the requested changes.\n\n"
-        f"{final.diff_content}\n\n"
-        f"Short explanation: {final.response}"
+        f"Summary: {final.summary}"
     )
     yield AgentResponse(response=response_text)
 
     # success = tool_apply_search_replace(
-    #     final.diff_content, context_manager.pwd_path
+    #     final.files_to_change, context_manager.pwd_path
     # )
     yield AgentResponse(actions=[f"Changes applied successfully: {success}"])
