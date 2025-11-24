@@ -6,18 +6,6 @@ from loguru import logger
 
 from ..core.models import ToolResult
 
-BLOCK_REGEX = re.compile(
-    r"^\s*(?P<file_path>[^\n]+)\s*\n"
-    r"```[a-zA-Z0-9]*\n"
-    r"<<<<<<< SEARCH\n"
-    r"(?P<search>.*?)"
-    r"\n=======\n"
-    r"(?P<replace>.*?)"
-    r"\n>>>>>>> REPLACE\n"
-    r"```",
-    re.DOTALL | re.MULTILINE,
-)
-
 
 def tool_apply_search_replace(diff_content: str, base_path: Path) -> ToolResult:
     """
