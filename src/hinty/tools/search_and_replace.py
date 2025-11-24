@@ -1,35 +1,34 @@
-import re
 from collections import defaultdict
 from pathlib import Path
 
 from loguru import logger
 
+from ..baml_client.types import CoderOutput
 from ..core.models import ToolResult
 
 
-def tool_apply_search_replace(diff_content: str, base_path: Path) -> ToolResult:
+def tool_apply_search_replace(coder_output: CoderOutput, base_path: Path) -> ToolResult:
     """
-    Applies search and replace operations based on a diff content format.
+    Applies search and replace operations based on structured coder output.
 
     Args:
-        diff_content: A string containing one or more search/replace blocks.
+        coder_output: Structured output containing files to change and their blocks.
         base_path: The base path for relative file paths.
 
     Returns:
         ToolResult: Result containing success status, applied changes, and any errors.
     """
     changes_by_file = defaultdict(list)
-    for match in BLOCK_REGEX.finditer(diff_content):
-        file_path = match.group("file_path").strip()
-        search_block = match.group("search")
-        replace_block = match.group("replace")
-        changes_by_file[file_path].append((search_block, replace_block))
+    for file_change in coder_output.files_to_change:
+        file_path = file_change.file_path
+        for block in file_change.blocks:
+            changes_by_file[file_path].append((block.search, block.replace))
 
     if not changes_by_file:
-        logger.warning("No search/replace blocks found in the diff content.")
+        logger.warning("No search/replace blocks found in the coder output.")
         return ToolResult(
             success=False,
-            error="No search/replace blocks found in the diff content.",
+            error="No search/replace blocks found in the coder output.",
         )
 
     results = []
@@ -106,6 +105,7 @@ def tool_apply_search_replace(diff_content: str, base_path: Path) -> ToolResult:
         "successful_files": len(
             [r for r in results if "Successfully applied" in r]
         ),
+        "summary": coder_output.summary,
     }
 
     if errors:
