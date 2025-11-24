@@ -68,8 +68,7 @@ def handle_coder_mode(
 
     final = stream.get_final_response()
     response_text = (
-        f"Agent will make the requested changes.\n\n"
-        f"Summary: {final.summary}"
+        f"Agent will make the requested changes.\n\nSummary: {final.summary}"
     )
     yield AgentResponse(response=response_text)
 
