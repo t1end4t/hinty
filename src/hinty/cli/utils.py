@@ -1,6 +1,5 @@
 from typing import Generator
 
-from baml_py import BamlSyncStream
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -14,7 +13,7 @@ from ..core.models import AgentResponse
 console = Console()
 
 # Constants for readability
-REFRESH_RATE = 4
+REFRESH_RATE = 10
 WELCOME_MESSAGE = (
     "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
 )
@@ -64,7 +63,7 @@ def display_stream_response(
                         else:
                             # Assume it's a generator/stream of strings
                             for chunk in partial.response:
-                                full_response += chunk
+                                full_response = chunk
                                 live.update(
                                     Panel(
                                         Markdown(full_response),
