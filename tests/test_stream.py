@@ -24,7 +24,7 @@ def main():
         text = Text()
         with Live(text, refresh_per_second=4) as live:
             for partial in stream.response:
-                text.append(partial)
+                text.plain = partial
                 live.update(text)
 
 
