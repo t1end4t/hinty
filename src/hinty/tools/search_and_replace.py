@@ -51,7 +51,9 @@ def tool_apply_search_replace(diff_content: str, base_path: Path) -> None:
             file_path = base_path / file_path
 
         if not file_path.exists():
-            logger.error(f"File not found: {file_path_str}. Cannot apply changes.")
+            logger.error(
+                f"File not found: {file_path_str}. Cannot apply changes."
+            )
             continue
 
         try:
