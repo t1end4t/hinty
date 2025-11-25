@@ -42,4 +42,3 @@ async def handle_smart_mode(
         yield AgentResponse(response=final)
     except KeyboardInterrupt:
         controller.abort()
-        raise
