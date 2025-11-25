@@ -154,6 +154,9 @@ async def handle_coder_mode(
         user_message, files_info, conversation_history, controller
     )
     if stream:
-        final = yield from handle_streaming_response(stream)
+        async for response in handle_streaming_response(stream):
+            yield response
 
-    # yield from apply_changes(final, context_manager)
+        final = await stream.get_final_response()
+        for response in apply_changes(final, context_manager):
+            yield response
