@@ -1,6 +1,6 @@
 from typing import List, AsyncGenerator
 
-from baml_py import AbortController, BamlAsyncStream
+from baml_py import AbortController, BamlStream
 
 from hinty.core.models import AgentResponse
 
@@ -13,9 +13,9 @@ async def call_router(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlAsyncStream[str, str]:
+) -> BamlStream[str, str]:
     """Call the orchestrator agent with a user message and conversation history"""
-    resp = await b.stream.Router(
+    resp = b.stream.Router(
         user_message,
         conversation_history,
         baml_options={"abort_controller": controller},

@@ -113,7 +113,7 @@ async def display_stream_response(
                         live.update(Group(*group_items))
                     else:
                         # Handle stream case by consuming chunks
-                        for chunk in partial.response:
+                        async for chunk in partial.response:
                             current_response = chunk
                             full_response = current_response
                             group_items = [

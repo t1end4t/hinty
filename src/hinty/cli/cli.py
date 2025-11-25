@@ -160,5 +160,12 @@ async def chat():
 def create_cli():
     """Create and run the CLI."""
     logger.debug("Creating CLI")
-    asyncio.run(chat())
+    # Use get_event_loop if already in async context
+    try:
+        loop = asyncio.get_running_loop()
+        # We're already in an event loop, so just await
+        loop.create_task(chat())
+    except RuntimeError:
+        # No running loop, safe to use asyncio.run()
+        asyncio.run(chat())
     logger.debug("CLI created")
