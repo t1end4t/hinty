@@ -121,4 +121,6 @@ def handle_coder_mode(
             for r in result.output["results"]
             if "Successfully applied" in r
         ]
-        yield AgentResponse(actions=[f"Applied changes: {', '.join(files_changed)}"])
+        yield AgentResponse(
+            actions=[f"Applied changes: {', '.join(files_changed)}"]
+        )
