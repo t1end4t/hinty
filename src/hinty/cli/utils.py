@@ -94,39 +94,33 @@ def display_stream_response(
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
-                thinking_md = ""
-                actions_md = ""
-                # accumulate thinking
-                if partial.thinking:
-                    thinking_md = f"**Thinking:**\n{partial.thinking}\n\n"
+                # show thinking
+                # if partial.thinking:
+                #     display_thinking(partial.thinking, console)
 
-                # accumulate actions
+                # show actions
                 if partial.actions:
-                    actions_md = (
-                        f"**Actions:** {', '.join(partial.actions)}\n\n"
-                    )
+                    # display_actions(partial.actions, console)
+                    current_actions = f"[bold {agent_action_style}]{', '.join(partial.actions)}[/]"
 
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
-                        full_md = partial.response + thinking_md + actions_md
                         live.update(
                             Panel(
-                                Markdown(full_md),
+                                Markdown(full_response),
                                 title="LLM",
                                 border_style=agent_response_style,
                             )
                         )
                     else:
                         # Handle stream case by consuming chunks
-                        full_md = thinking_md + actions_md
                         for chunk in partial.response:
-                            full_response += chunk
-                            full_md += chunk
+                            full_response = chunk
                             live.update(
                                 Panel(
-                                    Markdown(full_md),
+                                    Markdown(full_response),
                                     title="LLM",
                                     border_style=agent_response_style,
                                 )
