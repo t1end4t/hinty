@@ -1,14 +1,14 @@
 from typing import Generator, List
-
+  
 from baml_py import AbortController
-
+  
 from ..agents.router import handle_smart_mode
 from ..agents.coder import handle_coder_mode
 from ..baml_client.types import ConversationMessage
 from ..core.context_manager import ContextManager
 from ..core.models import AgentResponse, Mode
-
-
+  
+  
 def get_agent_response(
     user_message: str,
     conversation_history: List[ConversationMessage],
@@ -26,5 +26,6 @@ def get_agent_response(
         )
     else:
         yield AgentResponse(
-            response=f"Mode {context_manager.current_mode} not yet implemented"
+            response=None,
+            thinking=f"Mode {context_manager.current_mode} not yet implemented",
         )
