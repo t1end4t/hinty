@@ -36,7 +36,9 @@ def format_explanation(explanation: Optional[str]) -> List[str]:
 
 def format_block(block) -> List[str]:
     """Format a search-replace block into a list of lines."""
-    code_block_start = f"```{block.language}" if block.language is not None else "```"
+    code_block_start = (
+        f"```{block.language}" if block.language is not None else "```"
+    )
     search = block.search if block.search is not None else ""
     replace = block.replace if block.replace is not None else ""
     return [
@@ -46,7 +48,7 @@ def format_block(block) -> List[str]:
         "=======",
         replace,
         ">>>>>>> REPLACE",
-        "```"
+        "```",
     ]
 
 
@@ -58,16 +60,16 @@ def process_coder_chunk(
     if chunk is None:
         logger.info("Chunk is None, returning empty string")
         return ""
-    
+
     summary_lines = format_summary(chunk.summary)
     file_lines = [
         line
         for file_change in (chunk.files_to_change or [])
         if file_change is not None
         for line in (
-            format_file_path(file_change.file_path) +
-            format_explanation(file_change.explanation) +
-            [
+            format_file_path(file_change.file_path)
+            + format_explanation(file_change.explanation)
+            + [
                 line
                 for block in (file_change.blocks or [])
                 if block is not None
