@@ -40,9 +40,7 @@ def print_welcome():
 def display_actions(actions: list[str], console: Console):
     """Display actions with a specific theme."""
     if actions:
-        console.print(
-            f"[bold {agent_action_style}]{', '.join(actions)}[/]"
-        )
+        console.print(f"[bold {agent_action_style}]{', '.join(actions)}[/]")
 
 
 def display_thinking(thinking: str, console: Console):
