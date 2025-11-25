@@ -1,11 +1,11 @@
 from typing import Generator
-  
+
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
 from prompt_toolkit import PromptSession
-  
+
 from ..cli.theme import (
     agent_response_style,
     context_style,
@@ -14,16 +14,16 @@ from ..cli.theme import (
 )
 from ..core.context_manager import ContextManager
 from ..core.models import AgentResponse
-  
+
 console = Console()
-  
+
 # Constants for readability
 REFRESH_RATE = 10
 WELCOME_MESSAGE = (
     "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
 )
-  
-  
+
+
 def print_welcome():
     """Print the welcome panel."""
     console.print(
@@ -33,8 +33,8 @@ def print_welcome():
             border_style="blue",
         )
     )
-  
-  
+
+
 def display_actions(actions: list[str], console: Console):
     """Display actions with a specific theme."""
     if actions:
@@ -45,8 +45,8 @@ def display_actions(actions: list[str], console: Console):
                 border_style=agent_action_style,
             )
         )
-  
-  
+
+
 def display_thinking(thinking: str, console: Console):
     """Display thinking with a specific theme."""
     if thinking:
@@ -57,8 +57,8 @@ def display_thinking(thinking: str, console: Console):
                 border_style=agent_thinking_style,
             )
         )
-  
-  
+
+
 def _display_with_live(
     generator: Generator[str, None, None], console: Console
 ) -> str:
@@ -76,8 +76,8 @@ def _display_with_live(
             )
     console.print()  # Newline for separation
     return full_response
-  
-  
+
+
 def display_response(
     response: str | Generator[str, None, None], console: Console
 ) -> str:
@@ -93,8 +93,8 @@ def display_response(
         return response
     else:
         return _display_with_live(response, console)
-  
-  
+
+
 def display_stream_response(
     stream: Generator[AgentResponse, None, None] | str, console: Console
 ) -> str:
@@ -108,22 +108,24 @@ def display_stream_response(
                 # show thinking
                 if partial.thinking:
                     display_thinking(partial.thinking, console)
-  
+
                 # show actions
                 if partial.actions:
                     display_actions(partial.actions, console)
-  
+
                 # show response
                 if partial.response:
-                    full_response = _display_with_live(partial.response, console)
+                    full_response = _display_with_live(
+                        partial.response, console
+                    )
     except Exception as e:
         from loguru import logger
-  
+
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
-  
-  
+
+
 def display_files(context_manager: ContextManager):
     """Display files panel if the file list is not empty."""
     files_str = (
@@ -143,14 +145,14 @@ def display_files(context_manager: ContextManager):
                 border_style=context_style,
             )
         )
-  
-  
+
+
 def get_user_input(
     session: PromptSession, context_manager: ContextManager
 ) -> str:
     """Prompt for and return user input."""
     from ..cli.theme import catppuccin_mocha_style
-  
+
     prompt_text = f"{context_manager.current_mode.value} >> "
     return session.prompt(
         prompt_text,
