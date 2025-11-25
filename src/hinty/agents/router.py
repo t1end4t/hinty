@@ -14,7 +14,7 @@ async def call_router(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlStream[str, str]:
+) -> BamlStream[str, str] | None:
     """Call the orchestrator agent with a user message and conversation history"""
     try:
         resp = b.stream.Router(
@@ -36,9 +36,9 @@ async def handle_smart_mode(
     stream = await call_router(
         user_message, conversation_history, controller=controller
     )
-
     yield AgentResponse(response=stream)
 
     # get final response
-    final = await stream.get_final_response()
-    yield AgentResponse(response=final)
+    if stream:
+        final = await stream.get_final_response()
+        yield AgentResponse(response=final)
