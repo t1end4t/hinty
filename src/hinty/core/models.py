@@ -8,7 +8,7 @@ from baml_py import BamlSyncStream
 class AgentResponse:
     """Unified response structure for all agents."""
 
-    response: str | BamlSyncStream[str, str] | None = None
+    response: BamlSyncStream[str, str] | str | None = None
     metadata: Dict[str, Any] | None = None
     actions: List[str] | None = None
     thinking: str | None = None

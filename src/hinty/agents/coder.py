@@ -1,5 +1,5 @@
 from loguru import logger
-from typing import Final, Generator, List
+from typing import Generator, List
 
 from baml_py import AbortController, BamlSyncStream
 
@@ -19,27 +19,14 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
-def process_coder_chunk(
-    chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
-) -> BamlSyncStream[str, str]:
-    """Process a CoderOutput stream into a formatted string stream, handling None values."""
-    # Collect the final output from the stream
-    final_output = None
-    for item in chunk:
-        if isinstance(item, CoderOutput):
-            final_output = item
-        # Assuming the stream yields partial updates, take the last complete one
-
-    if final_output is None:
-        yield ""
-        return
-
+def coder_output_to_string(coder_output: StreamCoderOutput) -> str:
+    """Convert a CoderOutput object to a formatted string, handling None values."""
     lines = []
-    if final_output.summary is not None:
-        lines.append(final_output.summary)
+    if coder_output.summary is not None:
+        lines.append(coder_output.summary)
 
-    if final_output.files_to_change is not None:
-        for file_change in final_output.files_to_change:
+    if coder_output.files_to_change is not None:
+        for file_change in coder_output.files_to_change:
             if file_change is None:
                 continue
             if file_change.file_path is not None:
@@ -65,7 +52,56 @@ def process_coder_chunk(
                     lines.append(">>>>>>> REPLACE")
                     lines.append("```")
 
-    yield "\n".join(lines)
+    return "\n".join(lines)
+
+
+# def process_coder_chunk(
+#     chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
+# ) -> BamlSyncStream[str, str]:
+#     """Process a CoderOutput chunk into a formatted string, handling None values."""
+#     for parital in chunk:
+#         yield coder_output_to_string(parital)
+
+
+# def process_coder_chunk(
+#     chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
+# ) -> BamlSyncStream[str, str]:
+#     """Process a CoderOutput chunk into a formatted string, handling None values."""
+#     if chunk is None:
+#         return ""
+
+#     lines = []
+#     if chunk.summary is not None:
+#         lines.append(chunk.summary)
+
+#     if chunk.files_to_change is not None:
+#         for file_change in chunk.files_to_change:
+#             if file_change is None:
+#                 continue
+#             if file_change.file_path is not None:
+#                 lines.append(f"File: {file_change.file_path}")
+#             if file_change.explanation is not None:
+#                 lines.append(f"Explanation: {file_change.explanation}")
+#             if file_change.blocks is not None:
+#                 for block in file_change.blocks:
+#                     if block is None:
+#                         continue
+#                     code_block_start = (
+#                         f"```{block.language}"
+#                         if block.language is not None
+#                         else "```"
+#                     )
+#                     lines.append(code_block_start)
+#                     lines.append("<<<<<<< SEARCH")
+#                     if block.search is not None:
+#                         lines.append(block.search)
+#                     lines.append("=======")
+#                     if block.replace is not None:
+#                         lines.append(block.replace)
+#                     lines.append(">>>>>>> REPLACE")
+#                     lines.append("```")
+
+#     return "\n".join(lines)
 
 
 def call_coder(
@@ -113,4 +149,4 @@ def handle_coder_mode(
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
-    yield AgentResponse(response=process_coder_chunk(stream))
+    # yield AgentResponse(response=process_coder_chunk(stream))

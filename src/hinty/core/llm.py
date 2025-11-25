@@ -17,7 +17,7 @@ def get_agent_response(
 ) -> Generator[AgentResponse, None, None]:
     """Get a response from the LLM"""
     if context_manager.current_mode == Mode.SMART:
-        yield handle_smart_mode(
+        yield from handle_smart_mode(
             user_message, conversation_history, context_manager, controller
         )
     elif context_manager.current_mode == Mode.CODER:

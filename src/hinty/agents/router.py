@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Generator
 
 from baml_py import AbortController, BamlSyncStream
 
@@ -29,9 +29,12 @@ def handle_smart_mode(
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
     controller: AbortController,
-) -> AgentResponse:
+) -> Generator[AgentResponse, None, None]:
     stream = call_router(
         user_message, conversation_history, controller=controller
     )
+    yield AgentResponse(response=stream)
 
-    return AgentResponse(response=stream)
+    #
+    final = stream.get_final_response()
+    yield AgentResponse(response=final)

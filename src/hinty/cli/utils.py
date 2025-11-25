@@ -1,17 +1,18 @@
 from typing import Generator
 
 from baml_py import BamlSyncStream
+from prompt_toolkit import PromptSession
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
-from prompt_toolkit import PromptSession
 
 from ..cli.theme import (
-    agent_response_style,
-    context_style,
-    agent_thinking_style,
     agent_action_style,
+    agent_response_style,
+    agent_thinking_style,
+    catppuccin_mocha_style,
+    context_style,
 )
 from ..core.context_manager import ContextManager
 from ..core.models import AgentResponse
@@ -98,12 +99,12 @@ def display_stream_response(
         else:
             for partial in stream:
                 # show thinking
-                # if partial.thinking:
-                #     display_thinking(partial.thinking, console)
+                if partial.thinking:
+                    display_thinking(partial.thinking, console)
 
-                # # show actions
-                # if partial.actions:
-                #     display_actions(partial.actions, console)
+                # show actions
+                if partial.actions:
+                    display_actions(partial.actions, console)
 
                 # show response
                 if partial.response:
@@ -136,7 +137,6 @@ def get_user_input(
     session: PromptSession, context_manager: ContextManager
 ) -> str:
     """Prompt for and return user input."""
-    from ..cli.theme import catppuccin_mocha_style
 
     prompt_text = f"{context_manager.current_mode.value} >> "
     return session.prompt(
