@@ -82,7 +82,7 @@ async def display_stream_response(
     current_actions = ""
     current_thinking = None
     full_response = ""
-    
+
     live = Live(console=console, refresh_per_second=REFRESH_RATE)
     try:
         live.start()
@@ -148,10 +148,12 @@ async def display_stream_response(
                 live.update(Group(*group_items))
     except KeyboardInterrupt:
         from loguru import logger
+
         logger.warning("Stream display interrupted by user")
         raise
     except Exception as e:
         from loguru import logger
+
         logger.error(f"Error during streaming: {e}")
         raise
     finally:

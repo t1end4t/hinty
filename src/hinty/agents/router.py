@@ -33,10 +33,10 @@ async def handle_smart_mode(
     stream = await call_router(
         user_message, conversation_history, controller=controller
     )
-    
+
     try:
         yield AgentResponse(response=stream)
-        
+
         # get final response
         final = await stream.get_final_response()
         yield AgentResponse(response=final)
