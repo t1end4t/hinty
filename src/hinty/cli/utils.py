@@ -94,6 +94,7 @@ def display_stream_response(
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
+                print(partial)
                 # show thinking
                 if partial.thinking:
                     display_thinking(partial.thinking, console)
