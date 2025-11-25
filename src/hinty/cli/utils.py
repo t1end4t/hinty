@@ -90,12 +90,12 @@ def display_stream_response(
     stream: Generator[AgentResponse, None, None], console: Console
 ) -> str:
     """Display streaming response and return full response."""
-    full_response = ""
     current_response = ""
+    current_actions = ""
+    full_response = ""
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
-                current_actions = ""
                 # show thinking
                 # if partial.thinking:
                 #     display_thinking(partial.thinking, console)
@@ -108,7 +108,7 @@ def display_stream_response(
                 if partial.response:
                     if isinstance(partial.response, str):
                         current_response = partial.response
-                        full_response = partial.response
+                        full_response = current_response
                         live.update(
                             Group(
                                 Panel(
@@ -123,7 +123,7 @@ def display_stream_response(
                         # Handle stream case by consuming chunks
                         for chunk in partial.response:
                             current_response = chunk
-                            full_response = chunk
+                            full_response = current_response
                             live.update(
                                 Group(
                                     Panel(
@@ -152,6 +152,7 @@ def display_stream_response(
 
         logger.error(f"Error during streaming: {e}")
         raise
+
     return full_response
 
 
