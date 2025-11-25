@@ -91,25 +91,26 @@ def display_stream_response(
 ) -> str:
     """Display streaming response and return full response."""
     full_response = ""
+    full_md = ""
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
-                print(partial)
-                # show thinking
+                # accumulate thinking
                 if partial.thinking:
-                    display_thinking(partial.thinking, console)
-
-                # show actions
+                    full_md += f"**Thinking:**\n{partial.thinking}\n\n"
+                
+                # accumulate actions
                 if partial.actions:
-                    display_actions(partial.actions, console)
-
+                    full_md += f"**Actions:** {', '.join(partial.actions)}\n\n"
+                
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
+                        full_md += partial.response
                         live.update(
                             Panel(
-                                Markdown(full_response),
+                                Markdown(full_md),
                                 title="LLM",
                                 border_style=agent_response_style,
                             )
@@ -117,10 +118,11 @@ def display_stream_response(
                     else:
                         # Handle stream case by consuming chunks
                         for chunk in partial.response:
-                            full_response = chunk
+                            full_response += chunk
+                            full_md += chunk
                             live.update(
                                 Panel(
-                                    Markdown(full_response),
+                                    Markdown(full_md),
                                     title="LLM",
                                     border_style=agent_response_style,
                                 )
@@ -129,6 +131,7 @@ def display_stream_response(
     except Exception as e:
         from loguru import logger
 
+        
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
