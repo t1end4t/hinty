@@ -29,15 +29,15 @@ def process_coder_chunk(
         if isinstance(item, CoderOutput):
             final_output = item
         # Assuming the stream yields partial updates, take the last complete one
-    
+
     if final_output is None:
         yield ""
         return
-    
+
     lines = []
     if final_output.summary is not None:
         lines.append(final_output.summary)
-    
+
     if final_output.files_to_change is not None:
         for file_change in final_output.files_to_change:
             if file_change is None:
@@ -64,7 +64,7 @@ def process_coder_chunk(
                         lines.append(block.replace)
                     lines.append(">>>>>>> REPLACE")
                     lines.append("```")
-    
+
     yield "\n".join(lines)
 
 
