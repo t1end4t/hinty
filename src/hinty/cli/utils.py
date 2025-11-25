@@ -91,23 +91,26 @@ def display_stream_response(
 ) -> str:
     """Display streaming response and return full response."""
     full_response = ""
-    full_md = ""
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
                 # accumulate thinking
                 if partial.thinking:
-                    full_md += f"**Thinking:**\n{partial.thinking}\n\n"
+                    thinking_md = f"**Thinking:**\n{partial.thinking}\n\n"
 
                 # accumulate actions
                 if partial.actions:
-                    full_md += f"**Actions:** {', '.join(partial.actions)}\n\n"
+                    actions_md = (
+                        f"**Actions:** {', '.join(partial.actions)}\n\n"
+                    )
 
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
                         full_md = partial.response
+                        full_md += thinking_md
+                        full_md += actions_md
                         live.update(
                             Panel(
                                 Markdown(full_md),
@@ -118,8 +121,9 @@ def display_stream_response(
                     else:
                         # Handle stream case by consuming chunks
                         for chunk in partial.response:
-                            full_response = chunk
-                            full_md = chunk
+                            full_response += chunk
+                            full_md += thinking_md
+                            full_md += actions_md
                             live.update(
                                 Panel(
                                     Markdown(full_md),
