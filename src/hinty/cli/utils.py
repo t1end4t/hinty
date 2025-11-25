@@ -94,23 +94,23 @@ def display_stream_response(
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
+                thinking_md = ""
+                actions_md = ""
                 # accumulate thinking
                 if partial.thinking:
                     thinking_md = f"**Thinking:**\n{partial.thinking}\n\n"
-
+    
                 # accumulate actions
                 if partial.actions:
                     actions_md = (
                         f"**Actions:** {', '.join(partial.actions)}\n\n"
                     )
-
+    
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
-                        full_md = partial.response
-                        full_md += thinking_md
-                        full_md += actions_md
+                        full_md = partial.response + thinking_md + actions_md
                         live.update(
                             Panel(
                                 Markdown(full_md),
@@ -120,10 +120,10 @@ def display_stream_response(
                         )
                     else:
                         # Handle stream case by consuming chunks
+                        full_md = thinking_md + actions_md
                         for chunk in partial.response:
                             full_response += chunk
-                            full_md += thinking_md
-                            full_md += actions_md
+                            full_md += chunk
                             live.update(
                                 Panel(
                                     Markdown(full_md),
@@ -134,7 +134,7 @@ def display_stream_response(
         console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
-
+    
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
