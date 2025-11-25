@@ -73,7 +73,7 @@ def display_response(
         return _display_with_live(response, console)
 
 
-def display_stream_response(
+async def display_stream_response(
     stream: AsyncGenerator[AgentResponse, None], console: Console
 ) -> str:
     """Display streaming response and return full response."""
@@ -83,7 +83,7 @@ def display_stream_response(
     full_response = ""
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
-            for partial in stream:
+            async for partial in stream:
                 # show thinking
                 if partial.thinking:
                     current_thinking = Group(
