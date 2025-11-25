@@ -103,6 +103,7 @@ def display_stream_response(
 
             # show response
             if partial.response:
+                print("hello")
                 full_response = display_response(partial.response, console)
     except Exception as e:
         from loguru import logger
