@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import AsyncGenerator
 
 from baml_py import BamlSyncStream
 from prompt_toolkit import PromptSession
@@ -74,7 +74,7 @@ def display_response(
 
 
 def display_stream_response(
-    stream: Generator[AgentResponse, None, None], console: Console
+    stream: AsyncGenerator[AgentResponse, None], console: Console
 ) -> str:
     """Display streaming response and return full response."""
     current_response = ""
