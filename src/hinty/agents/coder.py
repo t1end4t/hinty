@@ -102,20 +102,3 @@ def handle_coder_mode(
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
-
-    # BUG: should stream, not get final
-    # final = stream.get_final_response()
-    # response_text = process_coder_response(final)
-    for chunk in stream:
-        current_resp = process_coder_chunk(chunk)
-        yield AgentResponse(response=current_resp)
-
-    # result = tool_apply_search_replace(final, context_manager.pwd_path)
-    # if result.success:
-    #     yield AgentResponse(
-    #         actions=[f"Changes applied successfully: {result.output}"]
-    #     )
-    # else:
-    #     yield AgentResponse(
-    #         actions=[f"Failed to apply changes: {result.error}"]
-    #     )
