@@ -76,7 +76,7 @@ def display_response(
     else:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for chunk in response:
-                full_response += chunk
+                full_response = chunk
                 live.update(
                     Panel(
                         Markdown(full_response),
