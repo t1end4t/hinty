@@ -14,3 +14,7 @@ def factorial(n):
 def hello_world():
     """Return a greeting string."""
     return "Hello, World!"
+
+def hello_world_again():
+    """Return a greeting string."""
+    return "Hello, World!"

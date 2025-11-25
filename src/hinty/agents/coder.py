@@ -1,8 +1,8 @@
-from loguru import logger
 from pathlib import Path
 from typing import Generator, List
 
 from baml_py import AbortController, BamlSyncStream
+from loguru import logger
 
 from hinty.core.models import AgentResponse
 
@@ -10,8 +10,6 @@ from ..baml_client import b
 from ..baml_client.stream_types import CoderOutput as StreamCoderOutput
 from ..baml_client.types import (
     CoderOutput,
-)
-from ..baml_client.types import (
     ConversationMessage,
     FileInfo,
 )
@@ -57,7 +55,7 @@ def process_coder_chunk(
                     lines.append("```")
 
             if file_change.explanation is not None:
-                lines.append(f"Explanation: {file_change.explanation}\n")
+                lines.append(f"**Explanation**: {file_change.explanation}\n")
 
     return "\n".join(lines)
 
