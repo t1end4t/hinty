@@ -123,7 +123,7 @@ def display_files(context_manager: ContextManager):
         else ""
     )
     if files_str:
-        console.print(f"[bold {context_style}]Files:[/] {files_str}")
+        console.print(f"[bold {context_style}]Files: {files_str}[/]")
 
 
 def get_user_input(
