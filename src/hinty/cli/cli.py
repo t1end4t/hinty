@@ -125,7 +125,7 @@ async def handle_input_loop(
                 context_manager,
                 controller,
             )
-    
+
             logger.debug(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
             running = False
