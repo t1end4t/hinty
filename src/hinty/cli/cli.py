@@ -114,7 +114,7 @@ async def handle_input_loop(
     while True:
         try:
             display_files(context_manager)
-            user_input = get_user_input(session, context_manager)
+            user_input = await get_user_input(session, context_manager)
             if not user_input:
                 break
             await process_input(

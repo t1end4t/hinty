@@ -1,3 +1,4 @@
+import asyncio
 from typing import AsyncGenerator
 
 from baml_py import BamlSyncStream
@@ -164,13 +165,14 @@ def display_files(context_manager: ContextManager):
         console.print(f"[{context_style}]Files: {files_str}[/]")
 
 
-def get_user_input(
+async def get_user_input(
     session: PromptSession, context_manager: ContextManager
 ) -> str:
     """Prompt for and return user input."""
 
     prompt_text = f"{context_manager.current_mode.value} >> "
-    return session.prompt(
+    return await asyncio.to_thread(
+        session.prompt,
         prompt_text,
         style=catppuccin_mocha_style,
     )
