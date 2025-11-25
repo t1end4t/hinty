@@ -102,6 +102,7 @@ def handle_coder_mode(
             actions.append(f"Failed to read file: {file_path}")
     yield AgentResponse(actions=actions)
 
+    # streaming
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
@@ -112,22 +113,4 @@ def handle_coder_mode(
     final = stream.get_final_response()
     yield AgentResponse(response=process_coder_chunk(final))
 
-    # Apply the search replace blocks
-    if final.files_to_change:
-        actions = []
-        for file_change in final.files_to_change:
-            if file_change.file_path and file_change.blocks:
-                result = tool_apply_search_replace(
-                    Path(context_manager.pwd_path) / file_change.file_path,
-                    file_change.blocks,
-                )
-                if result.success:
-                    actions.append(
-                        f"Applied changes to {file_change.file_path}"
-                    )
-                else:
-                    actions.append(
-                        f"Failed to apply changes to {file_change.file_path}: {result.error}"
-                    )
-        if actions:
-            yield AgentResponse(actions=actions)
+    # Apply the search replace blocks AI!
