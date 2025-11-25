@@ -1,3 +1,4 @@
+import asyncio
 import sys
 
 from loguru import logger
@@ -10,9 +11,9 @@ logger.remove()
 logger.add(sys.stdout, level=LOG_LEVEL)
 
 
-def cli():
-    create_cli()
+async def cli():
+    await create_cli()
 
 
 if __name__ == "__main__":
-    cli()
+    asyncio.run(cli())
