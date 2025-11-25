@@ -159,7 +159,4 @@ async def chat():
 @click.command()
 def create_cli():
     """Create and run the CLI."""
-    try:
-        asyncio.run(chat())
-    except Exception as e:
-        console.print(f"\n[yellow]Error: {e}[/yellow]")
+    asyncio.run(chat())
