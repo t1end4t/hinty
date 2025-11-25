@@ -92,19 +92,32 @@ def display_stream_response(
     """Display streaming response and return full response."""
     full_response = ""
     try:
-        for partial in stream:
-            # show thinking
-            if partial.thinking:
-                display_thinking(partial.thinking, console)
-
-            # show actions
-            if partial.actions:
-                display_actions(partial.actions, console)
-
-            # show response
-            if partial.response:
-                print("hello")
-                full_response = display_response(partial.response, console)
+        with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
+            for partial in stream:
+                # show thinking
+                if partial.thinking:
+                    display_thinking(partial.thinking, console)
+    
+                # show actions
+                if partial.actions:
+                    display_actions(partial.actions, console)
+    
+                # accumulate and show response
+                if partial.response:
+                    if isinstance(partial.response, str):
+                        full_response += partial.response
+                    else:
+                        # Handle stream case by consuming chunks
+                        for chunk in partial.response:
+                            full_response += chunk
+                    live.update(
+                        Panel(
+                            Markdown(full_response),
+                            title="LLM",
+                            border_style=agent_response_style,
+                        )
+                    )
+        console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
 
