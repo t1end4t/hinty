@@ -19,7 +19,7 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
-def process_coder_chunk(chunk: CoderOutput) -> str:
+def process_coder_chunk(chunk: StreamCoderOutput) -> str:
     """Process a CoderOutput chunk into a formatted string."""
     lines = []
     lines.append(chunk.summary)
@@ -88,7 +88,8 @@ def handle_coder_mode(
     # final = stream.get_final_response()
     # response_text = process_coder_response(final)
     for chunk in stream:
-        yield AgentResponse(response=chunk)
+        current_resp = process_coder_chunk(chunk)
+        yield AgentResponse(response=current_resp)
 
     # result = tool_apply_search_replace(final, context_manager.pwd_path)
     # if result.success:
