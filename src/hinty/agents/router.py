@@ -16,13 +16,16 @@ async def call_router(
     controller: AbortController,
 ) -> BamlStream[str, str]:
     """Call the orchestrator agent with a user message and conversation history"""
-    resp = b.stream.Router(
-        user_message,
-        conversation_history,
-        baml_options={"abort_controller": controller},
-    )
+    try:
+        resp = b.stream.Router(
+            user_message,
+            conversation_history,
+            baml_options={"abort_controller": controller},
+        )
 
-    return resp
+        return resp
+    except BamlAbortError:
+        print("Operation was cancelled")
 
 
 async def handle_smart_mode(
@@ -35,13 +38,8 @@ async def handle_smart_mode(
         user_message, conversation_history, controller=controller
     )
 
-    try:
-        yield AgentResponse(response=stream)
+    yield AgentResponse(response=stream)
 
-        # get final response
-        final = await stream.get_final_response()
-        yield AgentResponse(response=final)
-    except KeyboardInterrupt:
-        controller.abort()
-    except BamlAbortError:
-        yield AgentResponse(response="Operation was cancelled")
+    # get final response
+    final = await stream.get_final_response()
+    yield AgentResponse(response=final)
