@@ -19,14 +19,19 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
-def coder_output_to_string(coder_output: StreamCoderOutput) -> str:
-    """Convert a CoderOutput object to a formatted string, handling None values."""
-    lines = []
-    if coder_output.summary is not None:
-        lines.append(coder_output.summary)
+def process_coder_chunk(
+    chunk: StreamCoderOutput | CoderOutput | None,
+) -> str:
+    """Process a CoderOutput chunk into a formatted string, handling None values."""
+    if chunk is None:
+        return ""
 
-    if coder_output.files_to_change is not None:
-        for file_change in coder_output.files_to_change:
+    lines = []
+    if chunk.summary is not None:
+        lines.append(chunk.summary)
+
+    if chunk.files_to_change is not None:
+        for file_change in chunk.files_to_change:
             if file_change is None:
                 continue
             if file_change.file_path is not None:
@@ -53,55 +58,6 @@ def coder_output_to_string(coder_output: StreamCoderOutput) -> str:
                     lines.append("```")
 
     return "\n".join(lines)
-
-
-# def process_coder_chunk(
-#     chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
-# ) -> BamlSyncStream[str, str]:
-#     """Process a CoderOutput chunk into a formatted string, handling None values."""
-#     for parital in chunk:
-#         yield coder_output_to_string(parital)
-
-
-# def process_coder_chunk(
-#     chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
-# ) -> BamlSyncStream[str, str]:
-#     """Process a CoderOutput chunk into a formatted string, handling None values."""
-#     if chunk is None:
-#         return ""
-
-#     lines = []
-#     if chunk.summary is not None:
-#         lines.append(chunk.summary)
-
-#     if chunk.files_to_change is not None:
-#         for file_change in chunk.files_to_change:
-#             if file_change is None:
-#                 continue
-#             if file_change.file_path is not None:
-#                 lines.append(f"File: {file_change.file_path}")
-#             if file_change.explanation is not None:
-#                 lines.append(f"Explanation: {file_change.explanation}")
-#             if file_change.blocks is not None:
-#                 for block in file_change.blocks:
-#                     if block is None:
-#                         continue
-#                     code_block_start = (
-#                         f"```{block.language}"
-#                         if block.language is not None
-#                         else "```"
-#                     )
-#                     lines.append(code_block_start)
-#                     lines.append("<<<<<<< SEARCH")
-#                     if block.search is not None:
-#                         lines.append(block.search)
-#                     lines.append("=======")
-#                     if block.replace is not None:
-#                         lines.append(block.replace)
-#                     lines.append(">>>>>>> REPLACE")
-#                     lines.append("```")
-
-#     return "\n".join(lines)
 
 
 def call_coder(
@@ -149,4 +105,9 @@ def handle_coder_mode(
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
-    # yield AgentResponse(response=process_coder_chunk(stream))
+    for chunk in stream:
+        yield AgentResponse(response=process_coder_chunk(chunk))
+
+    # get final response
+    final = stream.get_final_response()
+    yield AgentResponse(response=process_coder_chunk(final))

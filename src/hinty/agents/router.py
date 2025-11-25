@@ -35,6 +35,6 @@ def handle_smart_mode(
     )
     yield AgentResponse(response=stream)
 
-    #
+    # get final response
     final = stream.get_final_response()
     yield AgentResponse(response=final)

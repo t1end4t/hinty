@@ -53,7 +53,7 @@ def display_thinking(thinking: str, console: Console):
 
 
 def _display_with_live(
-    generator: BamlSyncStream[str, str] | str, console: Console
+    generator: BamlSyncStream[str, str], console: Console
 ) -> str:
     """Helper to display a generator of strings with live updates."""
     full_response = ""
@@ -89,28 +89,23 @@ def display_response(
 
 
 def display_stream_response(
-    stream: Generator[AgentResponse, None, None] | str, console: Console
+    stream: Generator[AgentResponse, None, None], console: Console
 ) -> str:
     """Display streaming response and return full response."""
     full_response = ""
     try:
-        if isinstance(stream, str):
-            full_response = display_response(stream, console)
-        else:
-            for partial in stream:
-                # show thinking
-                if partial.thinking:
-                    display_thinking(partial.thinking, console)
+        for partial in stream:
+            # show thinking
+            if partial.thinking:
+                display_thinking(partial.thinking, console)
 
-                # show actions
-                if partial.actions:
-                    display_actions(partial.actions, console)
+            # show actions
+            if partial.actions:
+                display_actions(partial.actions, console)
 
-                # show response
-                if partial.response:
-                    full_response = _display_with_live(
-                        partial.response, console
-                    )
+            # show response
+            if partial.response:
+                full_response = display_response(partial.response, console)
     except Exception as e:
         from loguru import logger
 
