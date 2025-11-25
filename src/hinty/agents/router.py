@@ -1,6 +1,6 @@
 from typing import List, AsyncGenerator
 
-from baml_py import AbortController, BamlStream
+from baml_py import AbortController, BamlStream, BamlAbortError
 
 from hinty.core.models import AgentResponse
 
@@ -42,3 +42,5 @@ async def handle_smart_mode(
         yield AgentResponse(response=final)
     except KeyboardInterrupt:
         controller.abort()
+    except BamlAbortError:
+        yield AgentResponse(response="Operation was cancelled")
