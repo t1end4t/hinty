@@ -78,12 +78,10 @@ def call_coder(
     return resp
 
 
-def handle_coder_mode(
-    user_message: str,
-    conversation_history: List[ConversationMessage],
+def prepare_files_info(
     context_manager: ContextManager,
-    controller: AbortController,
-) -> Generator[AgentResponse, None, None]:
+) -> tuple[List[FileInfo], List[str]]:
+    """Prepare file information and actions for the coder mode."""
     files_info = []
     actions = []
     for file_path in context_manager.get_all_files():
@@ -101,20 +99,24 @@ def handle_coder_mode(
         else:
             logger.error(f"Failed to read file {file_path}: {result.error}")
             actions.append(f"Failed to read file: {relative_path}")
-    yield AgentResponse(actions=actions)
+    return files_info, actions
 
-    # streaming
-    stream = call_coder(
-        user_message, files_info, conversation_history, controller
-    )
+
+def handle_streaming_response(
+    stream: BamlSyncStream[StreamCoderOutput, CoderOutput],
+) -> Generator[AgentResponse, None, CoderOutput]:
+    """Handle streaming the coder response."""
     for chunk in stream:
         yield AgentResponse(response=process_coder_chunk(chunk))
-
-    # get final response
     final = stream.get_final_response()
     yield AgentResponse(response=process_coder_chunk(final))
+    return final
 
-    # Apply the search replace blocks
+
+def apply_changes(
+    final: CoderOutput, context_manager: ContextManager
+) -> Generator[AgentResponse, None, None]:
+    """Apply search replace blocks and yield the result."""
     if final.files_to_change:
         result = tool_apply_search_replace(final, context_manager.pwd_path)
         if result.output is not None:
@@ -136,3 +138,20 @@ def handle_coder_mode(
                     f"Failed to apply changes: {result.error or 'Unknown error'}"
                 ]
             )
+
+
+def handle_coder_mode(
+    user_message: str,
+    conversation_history: List[ConversationMessage],
+    context_manager: ContextManager,
+    controller: AbortController,
+) -> Generator[AgentResponse, None, None]:
+    files_info, actions = prepare_files_info(context_manager)
+    yield AgentResponse(actions=actions)
+
+    stream = call_coder(
+        user_message, files_info, conversation_history, controller
+    )
+    final = yield from handle_streaming_response(stream)
+
+    yield from apply_changes(final, context_manager)
