@@ -22,16 +22,24 @@ from ..tools.search_and_replace import tool_apply_search_replace
 def process_coder_chunk(
     chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
 ) -> BamlSyncStream[str, str]:
-    """Process a CoderOutput chunk into a formatted string, handling None values."""
-    if chunk is None:
-        return ""
-
+    """Process a CoderOutput stream into a formatted string stream, handling None values."""
+    # Collect the final output from the stream
+    final_output = None
+    for item in chunk:
+        if isinstance(item, CoderOutput):
+            final_output = item
+        # Assuming the stream yields partial updates, take the last complete one
+    
+    if final_output is None:
+        yield ""
+        return
+    
     lines = []
-    if chunk.summary is not None:
-        lines.append(chunk.summary)
-
-    if chunk.files_to_change is not None:
-        for file_change in chunk.files_to_change:
+    if final_output.summary is not None:
+        lines.append(final_output.summary)
+    
+    if final_output.files_to_change is not None:
+        for file_change in final_output.files_to_change:
             if file_change is None:
                 continue
             if file_change.file_path is not None:
@@ -56,8 +64,8 @@ def process_coder_chunk(
                         lines.append(block.replace)
                     lines.append(">>>>>>> REPLACE")
                     lines.append("```")
-
-    return "\n".join(lines)
+    
+    yield "\n".join(lines)
 
 
 def call_coder(
