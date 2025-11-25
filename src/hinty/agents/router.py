@@ -2,6 +2,7 @@ from typing import AsyncGenerator, List
 
 from baml_py import AbortController, BamlStream
 from baml_py.errors import BamlAbortError
+from loguru import logger
 
 from hinty.core.models import AgentResponse
 
@@ -24,7 +25,7 @@ async def call_router(
         )
         return resp
     except BamlAbortError:
-        print("Operation was cancelled")
+        logger.info("Operation was cancelled")
 
 
 async def handle_smart_mode(
