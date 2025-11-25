@@ -19,6 +19,24 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
+def process_coder_chunk(chunk: CoderOutput) -> str:
+    """Process a CoderOutput chunk into a formatted string."""
+    lines = []
+    lines.append(chunk.summary)
+    for file_change in chunk.files_to_change:
+        lines.append(f"File: {file_change.file_path}")
+        lines.append(f"Explanation: {file_change.explanation}")
+        for block in file_change.blocks:
+            lines.append(f"```{block.language}")
+            lines.append("<<<<<<< SEARCH")
+            lines.append(block.search)
+            lines.append("=======")
+            lines.append(block.replace)
+            lines.append(">>>>>>> REPLACE")
+            lines.append("```")
+    return "\n".join(lines)
+
+
 def call_coder(
     user_message: str,
     files: List[FileInfo],
