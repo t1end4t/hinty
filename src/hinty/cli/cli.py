@@ -113,7 +113,7 @@ async def handle_input_loop(
     logger.debug("Starting input loop")
     while True:
         try:
-            # display_files(context_manager)
+            display_files(context_manager)
             user_input = get_user_input(session, context_manager)
             if not user_input:
                 break
@@ -150,7 +150,6 @@ async def chat():
         initialize_conversation()
     )
     session = setup_session(context_manager)
-    # BUG: should change it
     await handle_input_loop(
         session, conversation_history, context_manager, controller
     )
@@ -163,4 +162,4 @@ def create_cli():
     try:
         asyncio.run(chat())
     except Exception as e:
-        console.print(f"\n[red]Error: {e}[/yellow]")
+        console.print(f"\n[yellow]Error: {e}[/yellow]")
