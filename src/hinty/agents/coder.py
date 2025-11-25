@@ -70,8 +70,7 @@ def handle_coder_mode(
     # final = stream.get_final_response()
     # response_text = process_coder_response(final)
     for chunk in stream:
-        pass
-    yield AgentResponse(response=stream)
+        yield AgentResponse(response=chunk)
 
     # result = tool_apply_search_replace(final, context_manager.pwd_path)
     # if result.success:
