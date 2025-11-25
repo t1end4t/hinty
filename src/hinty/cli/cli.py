@@ -63,7 +63,6 @@ async def process_user_message(
     try:
         logger.debug("Calling external API for router")
 
-        # NOTE: for now just show response
         responses = get_agent_response(
             user_input,
             conversation_history,
