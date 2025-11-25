@@ -100,12 +100,9 @@ def handle_coder_mode(
         else:
             logger.error(f"Failed to read file {file_path}: {result.error}")
             actions.append(f"Failed to read file: {file_path}")
-
     yield AgentResponse(actions=actions)
 
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
-
-    a = process_coder_chunk(stream)
-    yield AgentResponse(response=a)
+    yield AgentResponse(response=process_coder_chunk(stream))
