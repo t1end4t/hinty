@@ -4,12 +4,12 @@ from baml_py import AbortController, BamlSyncStream
 
 from hinty.core.models import AgentResponse
 
-from ..baml_client import b
+from ..baml_client.async_client import b
 from ..baml_client.types import ConversationMessage
 from ..core.context_manager import ContextManager
 
 
-def call_router(
+async def call_router(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
