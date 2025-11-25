@@ -86,10 +86,10 @@ def handle_coder_mode(
     files_info = []
     actions = []
     for file_path in context_manager.get_all_files():
+        relative_path = file_path.relative_to(context_manager.pwd_path)
         result = tool_read_file(file_path)
         if result.success and isinstance(result.output, str):
             file_content = result.output
-            relative_path = file_path.relative_to(context_manager.pwd_path)
             files_info.append(
                 FileInfo(
                     file_path=str(relative_path), file_content=file_content
