@@ -34,10 +34,10 @@ async def main():
     stream = b.stream.TestThinking(
         "Write a story about AI", baml_options={"on_tick": extract_thinking}
     )
-    
+
     async for msg in stream:
         pass
-    
+
     result = await stream.get_final_response()
     print(result)
 
