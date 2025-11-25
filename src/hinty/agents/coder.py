@@ -1,5 +1,5 @@
 from loguru import logger
-from typing import Final, Generator, List
+from typing import Final, Generator, List, Optional
 
 from baml_py import AbortController, BamlSyncStream
 
@@ -19,45 +19,66 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
+def format_summary(summary: Optional[str]) -> List[str]:
+    """Format the summary into a list of lines."""
+    return [summary] if summary is not None else []
+
+
+def format_file_path(file_path: Optional[str]) -> List[str]:
+    """Format the file path into a list of lines."""
+    return [f"File: {file_path}"] if file_path is not None else []
+
+
+def format_explanation(explanation: Optional[str]) -> List[str]:
+    """Format the explanation into a list of lines."""
+    return [f"Explanation: {explanation}"] if explanation is not None else []
+
+
+def format_block(block) -> List[str]:
+    """Format a search-replace block into a list of lines."""
+    code_block_start = f"```{block.language}" if block.language is not None else "```"
+    search = block.search if block.search is not None else ""
+    replace = block.replace if block.replace is not None else ""
+    return [
+        code_block_start,
+        "<<<<<<< SEARCH",
+        search,
+        "=======",
+        replace,
+        ">>>>>>> REPLACE",
+        "```"
+    ]
+
+
 def process_coder_chunk(
     chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
 ) -> BamlSyncStream[str, str]:
     """Process a CoderOutput chunk into a formatted string, handling None values."""
+    logger.info("Processing coder chunk")
     if chunk is None:
+        logger.info("Chunk is None, returning empty string")
         return ""
-
-    lines = []
-    if chunk.summary is not None:
-        lines.append(chunk.summary)
-
-    if chunk.files_to_change is not None:
-        for file_change in chunk.files_to_change:
-            if file_change is None:
-                continue
-            if file_change.file_path is not None:
-                lines.append(f"File: {file_change.file_path}")
-            if file_change.explanation is not None:
-                lines.append(f"Explanation: {file_change.explanation}")
-            if file_change.blocks is not None:
-                for block in file_change.blocks:
-                    if block is None:
-                        continue
-                    code_block_start = (
-                        f"```{block.language}"
-                        if block.language is not None
-                        else "```"
-                    )
-                    lines.append(code_block_start)
-                    lines.append("<<<<<<< SEARCH")
-                    if block.search is not None:
-                        lines.append(block.search)
-                    lines.append("=======")
-                    if block.replace is not None:
-                        lines.append(block.replace)
-                    lines.append(">>>>>>> REPLACE")
-                    lines.append("```")
-
-    return "\n".join(lines)
+    
+    summary_lines = format_summary(chunk.summary)
+    file_lines = [
+        line
+        for file_change in (chunk.files_to_change or [])
+        if file_change is not None
+        for line in (
+            format_file_path(file_change.file_path) +
+            format_explanation(file_change.explanation) +
+            [
+                line
+                for block in (file_change.blocks or [])
+                if block is not None
+                for line in format_block(block)
+            ]
+        )
+    ]
+    lines = summary_lines + file_lines
+    result = "\n".join(lines)
+    logger.info("Processed coder chunk")
+    return result
 
 
 def call_coder(
