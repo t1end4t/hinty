@@ -99,13 +99,13 @@ def display_stream_response(
                 # accumulate thinking
                 if partial.thinking:
                     thinking_md = f"**Thinking:**\n{partial.thinking}\n\n"
-    
+
                 # accumulate actions
                 if partial.actions:
                     actions_md = (
                         f"**Actions:** {', '.join(partial.actions)}\n\n"
                     )
-    
+
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
@@ -134,7 +134,7 @@ def display_stream_response(
         console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
-    
+
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
