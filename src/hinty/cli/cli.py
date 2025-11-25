@@ -3,7 +3,6 @@ from typing import List
 
 import click
 from baml_py import AbortController
-from baml_py.errors import BamlAbortError
 from loguru import logger
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -138,10 +137,12 @@ async def handle_input_loop(
             continue
         except EOFError:
             logger.info("Input loop ended due to EOF")
+            controller.abort()
             break
         except Exception as e:
             logger.error(f"Unexpected error in input loop: {e}")
             console.print(f"[red]Error: {e}[/red]")
+            controller.abort()
             continue
     logger.debug("Input loop ended")
 

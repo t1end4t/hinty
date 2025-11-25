@@ -25,7 +25,7 @@ async def call_router(
         )
         return resp
     except BamlAbortError:
-        logger.info("Operation was cancelled")
+        logger.error("Operation was cancelled")
 
 
 async def handle_smart_mode(
