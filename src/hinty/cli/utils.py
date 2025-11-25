@@ -97,17 +97,23 @@ def display_stream_response(
             for partial in stream:
                 # Accumulate thinking
                 if partial.thinking:
-                    cumulative_content += f"**Thinking:**\n{partial.thinking}\n\n"
-                
+                    cumulative_content += (
+                        f"**Thinking:**\n{partial.thinking}\n\n"
+                    )
+
                 # Accumulate actions
                 if partial.actions:
-                    cumulative_content += f"**Actions:** {', '.join(partial.actions)}\n\n"
-                
+                    cumulative_content += (
+                        f"**Actions:** {', '.join(partial.actions)}\n\n"
+                    )
+
                 # Accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
-                        cumulative_content += f"**Response:**\n{full_response}\n"
+                        cumulative_content += (
+                            f"**Response:**\n{full_response}\n"
+                        )
                         live.update(
                             Panel(
                                 Markdown(cumulative_content),
@@ -120,9 +126,9 @@ def display_stream_response(
                         for chunk in partial.response:
                             full_response = chunk
                             # Update the last line with the chunk
-                            lines = cumulative_content.split('\n')
+                            lines = cumulative_content.split("\n")
                             lines[-1] = full_response
-                            cumulative_content = '\n'.join(lines)
+                            cumulative_content = "\n".join(lines)
                             live.update(
                                 Panel(
                                     Markdown(cumulative_content),
@@ -133,6 +139,7 @@ def display_stream_response(
         console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
+
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
