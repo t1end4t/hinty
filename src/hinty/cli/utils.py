@@ -37,19 +37,6 @@ def print_welcome():
     )
 
 
-def display_actions(actions: list[str], console: Console):
-    """Display actions with a specific theme."""
-    if actions:
-        console.print(f"[bold {agent_action_style}]{', '.join(actions)}[/]")
-
-
-def display_thinking(thinking: str, console: Console):
-    """Display thinking with a specific theme."""
-    if thinking:
-        console.print(f"[bold {agent_thinking_style}]Thinking:[/]")
-        console.print(Markdown(thinking))
-
-
 def _display_with_live(
     generator: BamlSyncStream[str, str], console: Console
 ) -> str:
