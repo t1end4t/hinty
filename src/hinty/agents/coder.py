@@ -1,12 +1,13 @@
 from pathlib import Path
-from typing import Generator, List
+from typing import AsyncGenerator, List
 
-from baml_py import AbortController, BamlSyncStream
+from baml_py import AbortController, BamlAsyncStream
+from baml_py.errors import BamlAbortError
 from loguru import logger
 
 from hinty.core.models import AgentResponse
 
-from ..baml_client import b
+from ..baml_client.async_client import b
 from ..baml_client.stream_types import CoderOutput as StreamCoderOutput
 from ..baml_client.types import (
     CoderOutput,
@@ -60,21 +61,23 @@ def process_coder_chunk(
     return "\n".join(lines)
 
 
-def call_coder(
+async def call_coder(
     user_message: str,
     files: List[FileInfo],
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlSyncStream[StreamCoderOutput, CoderOutput]:
+) -> BamlAsyncStream[StreamCoderOutput, CoderOutput] | None:
     """Call the coder agent with a user message, files, and conversation history"""
-    resp = b.stream.Coder(
-        user_message,
-        files,
-        conversation_history,
-        baml_options={"abort_controller": controller},
-    )
-
-    return resp
+    try:
+        resp = b.stream.Coder(
+            user_message,
+            files,
+            conversation_history,
+            baml_options={"abort_controller": controller},
+        )
+        return resp
+    except BamlAbortError:
+        logger.error("Operation was cancelled")
 
 
 def prepare_files_info(
@@ -101,13 +104,15 @@ def prepare_files_info(
     return files_info, actions
 
 
-def handle_streaming_response(
-    stream: BamlSyncStream[StreamCoderOutput, CoderOutput],
-) -> Generator[AgentResponse, None, CoderOutput]:
+async def handle_streaming_response(
+    stream: BamlAsyncStream[StreamCoderOutput, CoderOutput] | None,
+) -> AsyncGenerator[AgentResponse, None, CoderOutput]:
     """Handle streaming the coder response."""
-    for chunk in stream:
+    if stream is None:
+        return None
+    async for chunk in stream:
         yield AgentResponse(response=process_coder_chunk(chunk))
-    final = stream.get_final_response()
+    final = await stream.get_final_response()
     yield AgentResponse(response=process_coder_chunk(final))
     return final
 
@@ -139,16 +144,16 @@ def apply_changes(
             )
 
 
-def handle_coder_mode(
+async def handle_coder_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
     controller: AbortController,
-) -> Generator[AgentResponse, None, None]:
+) -> AsyncGenerator[AgentResponse, None, None]:
     files_info, actions = prepare_files_info(context_manager)
     yield AgentResponse(actions=actions)
 
-    stream = call_coder(
+    stream = await call_coder(
         user_message, files_info, conversation_history, controller
     )
     final = yield from handle_streaming_response(stream)
