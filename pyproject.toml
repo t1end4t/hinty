@@ -6,7 +6,6 @@ requires-python = ">=3.11"
 dependencies = [
   "baml-py>=0.213.0",
   "click>=8.3.1",
-  "dotenv>=0.9.9",
   "loguru>=0.7.3",
   "platformdirs>=4.0.0",
   "prompt-toolkit>=3.0.52",
@@ -21,6 +20,11 @@ dependencies = [
 [build-system]
 requires = ["uv_build>=0.9.0,<0.10.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "dotenv>=0.9.9",
+]
 
 [project.scripts]
 hinty = "hinty.main:cli"

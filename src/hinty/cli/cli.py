@@ -3,6 +3,7 @@ from typing import List
 
 import click
 from baml_py import AbortController
+from baml_py.errors import BamlAbortError
 from loguru import logger
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -79,10 +80,8 @@ async def process_user_message(
         logger.warning("User interrupted LLM response")
         controller.abort()
         console.print("\n[yellow]Response interrupted.[/yellow]")
-        raise
     except Exception as e:
         logger.error(f"Error processing user message: {e}")
-        raise
 
 
 async def process_input(

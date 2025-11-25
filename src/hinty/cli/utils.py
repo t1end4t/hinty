@@ -132,7 +132,7 @@ async def display_stream_response(
                                 group_items.insert(0, current_thinking)
                             live.update(Group(*group_items))
                     except KeyboardInterrupt:
-                        raise
+                        continue
             else:
                 # No response, but update for actions
                 group_items = [
@@ -150,12 +150,10 @@ async def display_stream_response(
         from loguru import logger
 
         logger.warning("Stream display interrupted by user")
-        raise
     except Exception as e:
         from loguru import logger
 
         logger.error(f"Error during streaming: {e}")
-        raise
     finally:
         live.stop()
         console.print()  # Newline for separation

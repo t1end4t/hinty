@@ -65,7 +65,6 @@ source = { editable = "." }
 dependencies = [
     { name = "baml-py" },
     { name = "click" },
-    { name = "dotenv" },
     { name = "loguru" },
     { name = "platformdirs" },
     { name = "prompt-toolkit" },
@@ -77,11 +76,15 @@ dependencies = [
     { name = "unidiff" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "dotenv" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "baml-py", specifier = ">=0.213.0" },
     { name = "click", specifier = ">=8.3.1" },
-    { name = "dotenv", specifier = ">=0.9.9" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "platformdirs", specifier = ">=4.0.0" },
     { name = "prompt-toolkit", specifier = ">=3.0.52" },
@@ -92,6 +95,9 @@ requires-dist = [
     { name = "typing-extensions", specifier = ">=4.15.0" },
     { name = "unidiff", specifier = ">=0.7.5" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "dotenv", specifier = ">=0.9.9" }]
 
 [[package]]
 name = "loguru"

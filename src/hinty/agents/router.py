@@ -1,6 +1,7 @@
-from typing import List, AsyncGenerator
+from typing import AsyncGenerator, List
 
-from baml_py import AbortController, BamlStream, BamlAbortError
+from baml_py import AbortController, BamlStream
+from baml_py.errors import BamlAbortError
 
 from hinty.core.models import AgentResponse
 
