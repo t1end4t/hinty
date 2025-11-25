@@ -1,5 +1,5 @@
 from loguru import logger
-from typing import Generator, List
+from typing import List
 
 from baml_py import AbortController, BamlSyncStream
 
@@ -78,7 +78,7 @@ def handle_coder_mode(
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
     controller: AbortController,
-) -> Generator[AgentResponse, None, None]:
+) -> AgentResponse:
     files_info = []
     actions = []
     for file_path in context_manager.get_all_files():
@@ -97,8 +97,11 @@ def handle_coder_mode(
             logger.error(f"Failed to read file {file_path}: {result.error}")
             actions.append(f"Failed to read file: {file_path}")
 
-    yield AgentResponse(actions=actions)
+    for action in actions:
+        logger.info(action)
 
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
+
+    return AgentResponse(response=stream)
