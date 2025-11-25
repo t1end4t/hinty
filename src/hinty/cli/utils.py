@@ -106,6 +106,13 @@ def display_stream_response(
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
+                        live.update(
+                            Panel(
+                                Markdown(full_response),
+                                title="LLM",
+                                border_style=agent_response_style,
+                            )
+                        )
                     else:
                         # Handle stream case by consuming chunks
                         for chunk in partial.response:
