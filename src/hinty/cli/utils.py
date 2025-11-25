@@ -106,10 +106,10 @@ def display_stream_response(
                                 title="LLM",
                                 border_style=agent_response_style,
                             ),
+                            current_actions,
                         ]
                         if current_thinking:
-                            group_items.append(current_thinking)
-                        group_items.append(current_actions)
+                            group_items.insert(0, current_thinking)
                         live.update(Group(*group_items))
                     else:
                         # Handle stream case by consuming chunks
@@ -122,10 +122,10 @@ def display_stream_response(
                                     title="LLM",
                                     border_style=agent_response_style,
                                 ),
+                                current_actions,
                             ]
                             if current_thinking:
-                                group_items.append(current_thinking)
-                            group_items.append(current_actions)
+                                group_items.insert(0, current_thinking)
                             live.update(Group(*group_items))
                 else:
                     # No response, but update for actions
@@ -135,10 +135,10 @@ def display_stream_response(
                             title="LLM",
                             border_style=agent_response_style,
                         ),
+                        current_actions,
                     ]
                     if current_thinking:
                         group_items.append(current_thinking)
-                    group_items.append(current_actions)
                     live.update(Group(*group_items))
         console.print()  # Newline for separation
     except Exception as e:
