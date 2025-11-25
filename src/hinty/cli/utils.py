@@ -97,11 +97,11 @@ def display_stream_response(
                 # show thinking
                 if partial.thinking:
                     display_thinking(partial.thinking, console)
-    
+
                 # show actions
                 if partial.actions:
                     display_actions(partial.actions, console)
-    
+
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
