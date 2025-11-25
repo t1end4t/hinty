@@ -105,18 +105,18 @@ def display_stream_response(
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
-                        full_response += partial.response
+                        full_response = partial.response
                     else:
                         # Handle stream case by consuming chunks
                         for chunk in partial.response:
-                            full_response += chunk
-                    live.update(
-                        Panel(
-                            Markdown(full_response),
-                            title="LLM",
-                            border_style=agent_response_style,
-                        )
-                    )
+                            full_response = chunk
+                            live.update(
+                                Panel(
+                                    Markdown(full_response),
+                                    title="LLM",
+                                    border_style=agent_response_style,
+                                )
+                            )
         console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
