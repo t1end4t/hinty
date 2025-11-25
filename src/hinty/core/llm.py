@@ -26,6 +26,5 @@ def get_agent_response(
         )
     else:
         yield AgentResponse(
-            response=None,
-            thinking=f"Mode {context_manager.current_mode} not yet implemented",
+            response=f"Mode {context_manager.current_mode} not yet implemented"
         )
