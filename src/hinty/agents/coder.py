@@ -109,6 +109,23 @@ def handle_coder_mode(
         yield AgentResponse(response=process_coder_chunk(chunk))
 
     # get final response
-    # final = stream.get_final_response()
-    # a = process_coder_chunk(final)
-    # yield AgentResponse(response=process_coder_chunk(final))
+    final = stream.get_final_response()
+    yield AgentResponse(response=process_coder_chunk(final))
+
+    # Apply the search replace blocks
+    if final.files_to_change:
+        actions = []
+        for file_change in final.files_to_change:
+            if file_change.file_path and file_change.blocks:
+                result = tool_apply_search_replace(
+                    Path(context_manager.pwd_path) / file_change.file_path,
+                    file_change.blocks,
+                )
+                if result.success:
+                    actions.append(f"Applied changes to {file_change.file_path}")
+                else:
+                    actions.append(
+                        f"Failed to apply changes to {file_change.file_path}: {result.error}"
+                    )
+        if actions:
+            yield AgentResponse(actions=actions)
