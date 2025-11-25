@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 import click
@@ -48,7 +49,7 @@ def initialize_conversation() -> tuple[
     return conversation_history, context_manager, controller
 
 
-def process_user_message(
+async def process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
@@ -69,7 +70,7 @@ def process_user_message(
             context_manager,
             controller,
         )
-        full_response = display_stream_response(responses, console)
+        full_response = await display_stream_response(responses, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
@@ -80,7 +81,7 @@ def process_user_message(
         raise
 
 
-def process_input(
+async def process_input(
     console: Console,
     user_input: str,
     conversation_history: List[ConversationMessage],
@@ -93,7 +94,7 @@ def process_input(
             user_input, console, conversation_history, context_manager
         )
     else:
-        process_user_message(
+        await process_user_message(
             user_input,
             conversation_history,
             context_manager,
@@ -102,7 +103,7 @@ def process_input(
         )
 
 
-def handle_input_loop(
+async def handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
@@ -116,7 +117,7 @@ def handle_input_loop(
             user_input = get_user_input(session, context_manager)
             if not user_input:
                 break
-            process_input(
+            await process_input(
                 console,
                 user_input,
                 conversation_history,
@@ -141,7 +142,7 @@ def handle_input_loop(
 
 
 # Minimal LLM chat interface
-def chat():
+async def chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
@@ -149,15 +150,15 @@ def chat():
         initialize_conversation()
     )
     session = setup_session(context_manager)
-    handle_input_loop(
+    await handle_input_loop(
         session, conversation_history, context_manager, controller
     )
     logger.debug("Chat ended")
 
 
 @click.command()
-def create_cli():
+async def create_cli():
     """Create and run the CLI."""
     logger.debug("Creating CLI")
-    chat()
+    await chat()
     logger.debug("CLI created")
