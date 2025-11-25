@@ -20,7 +20,7 @@ from ..tools.search_and_replace import tool_apply_search_replace
 
 
 def process_coder_chunk(
-    chunk: StreamCoderOutput | CoderOutput | None,
+    chunk: CoderOutput | StreamCoderOutput | None,
 ) -> str:
     """Process a CoderOutput chunk into a formatted string, handling None values."""
     if chunk is None:
@@ -34,10 +34,10 @@ def process_coder_chunk(
         for file_change in chunk.files_to_change:
             if file_change is None:
                 continue
-            if file_change.file_path is not None:
-                lines.append(f"File: {file_change.file_path}")
             if file_change.explanation is not None:
                 lines.append(f"Explanation: {file_change.explanation}")
+            if file_change.file_path is not None:
+                lines.append(f"File: {file_change.file_path}")
             if file_change.blocks is not None:
                 for block in file_change.blocks:
                     if block is None:
@@ -109,5 +109,6 @@ def handle_coder_mode(
         yield AgentResponse(response=process_coder_chunk(chunk))
 
     # get final response
-    final = stream.get_final_response()
-    yield AgentResponse(response=process_coder_chunk(final))
+    # final = stream.get_final_response()
+    # a = process_coder_chunk(final)
+    # yield AgentResponse(response=process_coder_chunk(final))
