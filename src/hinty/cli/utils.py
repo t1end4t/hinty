@@ -101,13 +101,13 @@ def display_stream_response(
                 if partial.thinking:
                     current_thinking = Group(
                         f"[bold {agent_thinking_style}]Thinking:[/]",
-                        Markdown(partial.thinking)
+                        Markdown(partial.thinking),
                     )
-    
+
                 # show actions
                 if partial.actions:
                     current_actions = f"[bold {agent_action_style}]{', '.join(partial.actions)}[/]"
-    
+
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
@@ -156,10 +156,10 @@ def display_stream_response(
         console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
-    
+
         logger.error(f"Error during streaming: {e}")
         raise
-    
+
     return full_response
 
 
