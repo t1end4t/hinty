@@ -94,7 +94,9 @@ async def display_stream_response(
 
         # show actions
         if partial.actions:
-            current_actions = f"[bold {agent_action_style}]{', '.join(partial.actions)}[/]"
+            current_actions = (
+                f"[bold {agent_action_style}]{', '.join(partial.actions)}[/]"
+            )
 
         # accumulate and show response
         if partial.response:
