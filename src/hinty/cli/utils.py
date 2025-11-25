@@ -91,47 +91,36 @@ def display_stream_response(
 ) -> str:
     """Display streaming response and return full response."""
     full_response = ""
-    cumulative_content = ""
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
-                # Accumulate thinking
+                print(partial)
+                # show thinking
                 if partial.thinking:
-                    cumulative_content += (
-                        f"**Thinking:**\n{partial.thinking}\n\n"
-                    )
+                    display_thinking(partial.thinking, console)
 
-                # Accumulate actions
+                # show actions
                 if partial.actions:
-                    cumulative_content += (
-                        f"**Actions:** {', '.join(partial.actions)}\n\n"
-                    )
+                    display_actions(partial.actions, console)
 
-                # Accumulate and show response
+                # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
-                        cumulative_content += (
-                            f"**Response:**\n{full_response}\n"
-                        )
                         live.update(
                             Panel(
-                                Markdown(cumulative_content),
+                                Markdown(full_response),
                                 title="LLM",
                                 border_style=agent_response_style,
                             )
                         )
                     else:
-                        cumulative_content += "**Response:**\n"
+                        # Handle stream case by consuming chunks
                         for chunk in partial.response:
                             full_response = chunk
-                            # Update the last line with the chunk
-                            lines = cumulative_content.split("\n")
-                            lines[-1] = full_response
-                            cumulative_content = "\n".join(lines)
                             live.update(
                                 Panel(
-                                    Markdown(cumulative_content),
+                                    Markdown(full_response),
                                     title="LLM",
                                     border_style=agent_response_style,
                                 )

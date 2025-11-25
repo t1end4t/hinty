@@ -29,16 +29,14 @@ def process_coder_chunk(
 
     lines = []
     if chunk.summary is not None:
-        lines.append(chunk.summary)
+        lines.append(f"{chunk.summary}\n")
 
     if chunk.files_to_change is not None:
         for file_change in chunk.files_to_change:
             if file_change is None:
                 continue
-            if file_change.explanation is not None:
-                lines.append(f"Explanation: {file_change.explanation}")
             if file_change.file_path is not None:
-                lines.append(f"### File: {file_change.file_path}")
+                lines.append(f"**File: {file_change.file_path}**\n")
             if file_change.blocks is not None:
                 for block in file_change.blocks:
                     if block is None:
@@ -57,6 +55,9 @@ def process_coder_chunk(
                         lines.append(block.replace)
                     lines.append(">>>>>>> REPLACE")
                     lines.append("```")
+
+            if file_change.explanation is not None:
+                lines.append(f"Explanation: {file_change.explanation}\n")
 
     return "\n".join(lines)
 
