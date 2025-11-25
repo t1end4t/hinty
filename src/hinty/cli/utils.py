@@ -53,7 +53,6 @@ def _display_with_live(
                     border_style=agent_response_style,
                 )
             )
-    console.print()  # Newline for separation
     return full_response
 
 
@@ -156,7 +155,6 @@ async def display_stream_response(
         logger.error(f"Error during streaming: {e}")
     finally:
         live.stop()
-        console.print()  # Newline for separation
 
     return full_response
 
