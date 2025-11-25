@@ -76,6 +76,11 @@ async def process_user_message(
         )
         conversation_history.append(assistant_message)
         logger.debug("User message processed")
+    except KeyboardInterrupt:
+        logger.warning("User interrupted LLM response")
+        controller.abort()
+        console.print("\n[yellow]Response interrupted.[/yellow]")
+        raise
     except Exception as e:
         logger.error(f"Error processing user message: {e}")
         raise
@@ -111,8 +116,7 @@ async def handle_input_loop(
 ):
     """Handle the main input loop."""
     logger.debug("Starting input loop")
-    running = True
-    while running:
+    while True:
         try:
             display_files(context_manager)
             user_input = await get_user_input(session, context_manager)
@@ -128,15 +132,18 @@ async def handle_input_loop(
 
             logger.debug(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
-            logger.info("Input loop interrupted by user, exiting")
-            controller.abort()  # Abort any ongoing request
+            logger.info("Input loop interrupted by user")
+            controller.abort()
+            console.print(
+                "\n[yellow]Interrupted. Type your next message or press Enter to quit.[/yellow]"
+            )
             continue
         except EOFError:
             logger.info("Input loop ended due to EOF")
-            controller.abort()  # Abort any ongoing request
-            continue
+            break
         except Exception as e:
             logger.error(f"Unexpected error in input loop: {e}")
+            console.print(f"[red]Error: {e}[/red]")
             continue
     logger.debug("Input loop ended")
 
