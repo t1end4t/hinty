@@ -119,7 +119,11 @@ def handle_coder_mode(
         result = tool_apply_search_replace(final, context_manager.pwd_path)
         if result.output is not None:
             files_changed = [
-                str(Path(r.split(" to ")[1]).relative_to(context_manager.pwd_path))
+                str(
+                    Path(r.split(" to ")[1]).relative_to(
+                        context_manager.pwd_path
+                    )
+                )
                 for r in result.output["results"]
                 if "Successfully applied" in r
             ]
