@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 import click
@@ -156,8 +157,8 @@ async def chat():
 
 
 @click.command()
-async def create_cli():
+def create_cli():
     """Create and run the CLI."""
     logger.debug("Creating CLI")
-    await chat()
+    asyncio.run(chat())
     logger.debug("CLI created")
