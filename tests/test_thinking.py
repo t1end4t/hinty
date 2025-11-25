@@ -1,3 +1,4 @@
+import asyncio
 import json
 from hinty.baml_client import b
 from baml_py import baml_py
@@ -28,13 +29,18 @@ def extract_thinking(reason: str, log: baml_py.FunctionLog):
         print(f"Thinking content: {thinking_content}")
 
 
-# Use with streaming function
-stream = b.stream.TestThinking(
-    "Write a story about AI", baml_options={"on_tick": extract_thinking}
-)
+async def main():
+    # Use with streaming function
+    stream = b.stream.TestThinking(
+        "Write a story about AI", baml_options={"on_tick": extract_thinking}
+    )
+    
+    async for msg in stream:
+        pass
+    
+    result = await stream.get_final_response()
+    print(result)
 
-async for msg in stream:
-    pass
 
-result = await stream.get_final_response()
-print(result)
+if __name__ == "__main__":
+    asyncio.run(main())
