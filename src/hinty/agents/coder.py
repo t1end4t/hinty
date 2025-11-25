@@ -95,7 +95,7 @@ def prepare_files_info(
                 )
             )
             logger.info(f"Add file: {file_path}")
-            actions.append(f"Read_file: {relative_path}")
+            actions.append(f"Read file: {relative_path}")
         else:
             logger.error(f"Failed to read file {file_path}: {result.error}")
             actions.append(f"Failed to read file: {relative_path}")
