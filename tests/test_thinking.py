@@ -1,10 +1,24 @@
 import asyncio
 import json
-from hinty.baml_client.async_client import BamlAsyncClient
+from hinty.baml_client.async_client import b
 from baml_py import baml_py
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def on_tick(reason: str, log: baml_py.FunctionLog):
+    print(f"Tick received: {reason}")
+    print(f"Function calls: {len(log.calls) if log else 0}")
+
+
+# async def main():
+#     # Use with async function
+#     result = await b.TestThinking(
+#         "Hello world", baml_options={"on_tick": on_tick}
+#     )
+
+#     print(result)
 
 
 def extract_thinking(reason: str, log: baml_py.FunctionLog):
@@ -20,6 +34,7 @@ def extract_thinking(reason: str, log: baml_py.FunctionLog):
                 for response in sse_responses:
                     try:
                         data = json.loads(response.text)
+                        print(data)
                         if "delta" in data and "thinking" in data["delta"]:
                             thinking_content += data["delta"]["thinking"]
                     except (json.JSONDecodeError, AttributeError):
@@ -30,10 +45,9 @@ def extract_thinking(reason: str, log: baml_py.FunctionLog):
 
 
 async def main():
-    b = BamlAsyncClient()
     # Use with streaming function
     stream = b.stream.TestThinking(
-        "Write a story about AI", baml_options={"on_tick": extract_thinking}
+        "who are you", baml_options={"on_tick": extract_thinking}
     )
 
     async for msg in stream:
