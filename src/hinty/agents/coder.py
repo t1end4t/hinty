@@ -148,6 +148,7 @@ async def handle_coder_mode(
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
     files_info, actions = prepare_files_info(context_manager)
+
     yield AgentResponse(actions=actions)
 
     stream = await call_coder(
@@ -156,7 +157,6 @@ async def handle_coder_mode(
     if stream:
         async for response in handle_streaming_response(stream):
             yield response
-
         final = await stream.get_final_response()
         for response in apply_changes(final, context_manager):
             yield response

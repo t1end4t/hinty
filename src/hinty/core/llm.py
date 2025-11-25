@@ -21,10 +21,11 @@ async def get_agent_response(
             user_message, conversation_history, context_manager, controller
         ):
             yield response
-    # elif context_manager.current_mode == Mode.CODER:
-    #     yield from handle_coder_mode(
-    #         user_message, conversation_history, context_manager, controller
-    #     )
+    elif context_manager.current_mode == Mode.CODER:
+        async for response in handle_coder_mode(
+            user_message, conversation_history, context_manager, controller
+        ):
+            yield response
     else:
         yield AgentResponse(
             response=f"Mode {context_manager.current_mode} not yet implemented"

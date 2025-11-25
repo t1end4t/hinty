@@ -1,10 +1,8 @@
 // Learn more about clients at https://docs.boundaryml.com/docs/snippets/clients/overview
-client<llm> GeminiRouter {
-  provider "openai-generic"
+client<llm> GeminiGeneral {
+  provider google-ai
   retry_policy Exponential
   options {
-    base_url "https://openrouter.ai/api/v1"
-    api_key env.GOOGLE_API_KEY
     model "gemini-flash-latest"
   }
 }
@@ -18,6 +16,7 @@ client<llm> GroqRouter {
     model "openai/gpt-oss-120b"
   }
 }
+
 
 client<llm> GrokCoder {
   provider "openai-generic"
