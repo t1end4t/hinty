@@ -107,7 +107,7 @@ def display_stream_response(
                 if partial.response:
                     if isinstance(partial.response, str):
                         full_response = partial.response
-                        full_md += partial.response
+                        full_md = partial.response
                         live.update(
                             Panel(
                                 Markdown(full_md),
@@ -118,8 +118,8 @@ def display_stream_response(
                     else:
                         # Handle stream case by consuming chunks
                         for chunk in partial.response:
-                            full_response += chunk
-                            full_md += chunk
+                            full_response = chunk
+                            full_md = chunk
                             live.update(
                                 Panel(
                                     Markdown(full_md),
