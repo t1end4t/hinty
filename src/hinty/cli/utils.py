@@ -41,7 +41,7 @@ def display_actions(actions: list[str], console: Console):
     """Display actions with a specific theme."""
     if actions:
         console.print(
-            f"[bold {agent_action_style}]Actions:[/] {', '.join(actions)}"
+            f"[bold {agent_action_style}]{', '.join(actions)}[/]"
         )
 
 
