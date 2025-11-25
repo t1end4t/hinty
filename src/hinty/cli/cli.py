@@ -111,7 +111,8 @@ async def handle_input_loop(
 ):
     """Handle the main input loop."""
     logger.debug("Starting input loop")
-    while True:
+    running = True
+    while running:
         try:
             display_files(context_manager)
             user_input = await get_user_input(session, context_manager)
@@ -124,12 +125,11 @@ async def handle_input_loop(
                 context_manager,
                 controller,
             )
-
+    
             logger.debug(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
-            logger.info(
-                "Input loop interrupted by user (first time), aborting request"
-            )
+            running = False
+            logger.info("Input loop interrupted by user, exiting")
             controller.abort()  # Abort any ongoing request
         except EOFError:
             logger.info("Input loop ended due to EOF")
