@@ -1,5 +1,6 @@
 from typing import Generator
 
+from baml_py import BamlSyncStream
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -60,7 +61,7 @@ def display_thinking(thinking: str, console: Console):
 
 
 def _display_with_live(
-    generator: Generator[str, None, None], console: Console
+    generator: BamlSyncStream[str, str] | str, console: Console
 ) -> str:
     """Helper to display a generator of strings with live updates."""
     full_response = ""
@@ -79,7 +80,7 @@ def _display_with_live(
 
 
 def display_response(
-    response: str | Generator[str, None, None], console: Console
+    response: str | BamlSyncStream[str, str], console: Console
 ) -> str:
     """Display response with live updating and return full response."""
     if isinstance(response, str):
@@ -106,12 +107,12 @@ def display_stream_response(
         else:
             for partial in stream:
                 # show thinking
-                if partial.thinking:
-                    display_thinking(partial.thinking, console)
+                # if partial.thinking:
+                #     display_thinking(partial.thinking, console)
 
-                # show actions
-                if partial.actions:
-                    display_actions(partial.actions, console)
+                # # show actions
+                # if partial.actions:
+                #     display_actions(partial.actions, console)
 
                 # show response
                 if partial.response:
