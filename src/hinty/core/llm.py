@@ -20,10 +20,10 @@ def get_agent_response(
         yield from handle_smart_mode(
             user_message, conversation_history, context_manager, controller
         )
-    elif context_manager.current_mode == Mode.CODER:
-        yield from handle_coder_mode(
-            user_message, conversation_history, context_manager, controller
-        )
+    # elif context_manager.current_mode == Mode.CODER:
+    #     yield from handle_coder_mode(
+    #         user_message, conversation_history, context_manager, controller
+    #     )
     else:
         yield AgentResponse(
             response=f"Mode {context_manager.current_mode} not yet implemented"
