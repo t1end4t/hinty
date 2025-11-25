@@ -20,20 +20,39 @@ from ..tools.search_and_replace import tool_apply_search_replace
 
 
 def process_coder_chunk(chunk: StreamCoderOutput) -> str:
-    """Process a CoderOutput chunk into a formatted string."""
+    """Process a CoderOutput chunk into a formatted string, handling None values."""
+    if chunk is None:
+        return ""
+    
     lines = []
-    lines.append(chunk.summary)
-    for file_change in chunk.files_to_change:
-        lines.append(f"File: {file_change.file_path}")
-        lines.append(f"Explanation: {file_change.explanation}")
-        for block in file_change.blocks:
-            lines.append(f"```{block.language}")
-            lines.append("<<<<<<< SEARCH")
-            lines.append(block.search)
-            lines.append("=======")
-            lines.append(block.replace)
-            lines.append(">>>>>>> REPLACE")
-            lines.append("```")
+    if chunk.summary is not None:
+        lines.append(chunk.summary)
+    
+    if chunk.files_to_change is not None:
+        for file_change in chunk.files_to_change:
+            if file_change is None:
+                continue
+            if file_change.file_path is not None:
+                lines.append(f"File: {file_change.file_path}")
+            if file_change.explanation is not None:
+                lines.append(f"Explanation: {file_change.explanation}")
+            if file_change.blocks is not None:
+                for block in file_change.blocks:
+                    if block is None:
+                        continue
+                    if block.language is not None:
+                        lines.append(f"```{block.language}")
+                    else:
+                        lines.append("```")
+                    lines.append("<<<<<<< SEARCH")
+                    if block.search is not None:
+                        lines.append(block.search)
+                    lines.append("=======")
+                    if block.replace is not None:
+                        lines.append(block.replace)
+                    lines.append(">>>>>>> REPLACE")
+                    lines.append("```")
+    
     return "\n".join(lines)
 
 
