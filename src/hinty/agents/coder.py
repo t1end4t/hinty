@@ -1,4 +1,5 @@
 from loguru import logger
+from pathlib import Path
 from typing import Generator, List
 
 from baml_py import AbortController, BamlSyncStream
@@ -118,7 +119,7 @@ def handle_coder_mode(
         result = tool_apply_search_replace(final, context_manager.pwd_path)
         if result.output is not None:
             files_changed = [
-                r.split(" to ")[1]
+                str(Path(r.split(" to ")[1]).relative_to(context_manager.pwd_path))
                 for r in result.output["results"]
                 if "Successfully applied" in r
             ]
