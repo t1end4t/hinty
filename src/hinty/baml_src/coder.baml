@@ -25,7 +25,7 @@ function Coder(
   files: FileInfo[],
   conversation_history: ConversationMessage[]
 ) -> CoderOutput {
-  client GroqRouter
+  client GrokCoder
   prompt #"
 You are an expert code editor assistant. Analyze the provided files and generate precise search/replace blocks to implement the requested changes.
 
