@@ -25,11 +25,11 @@ def process_coder_chunk(
     """Process a CoderOutput chunk into a formatted string, handling None values."""
     if chunk is None:
         return ""
-
+    
     lines = []
     if chunk.summary is not None:
         lines.append(chunk.summary)
-
+    
     if chunk.files_to_change is not None:
         for file_change in chunk.files_to_change:
             if file_change is None:
@@ -42,10 +42,8 @@ def process_coder_chunk(
                 for block in file_change.blocks:
                     if block is None:
                         continue
-                    if block.language is not None:
-                        lines.append(f"```{block.language}")
-                    else:
-                        lines.append("```")
+                    code_block_start = f"```{block.language}" if block.language is not None else "```"
+                    lines.append(code_block_start)
                     lines.append("<<<<<<< SEARCH")
                     if block.search is not None:
                         lines.append(block.search)
@@ -54,7 +52,7 @@ def process_coder_chunk(
                         lines.append(block.replace)
                     lines.append(">>>>>>> REPLACE")
                     lines.append("```")
-
+    
     return "\n".join(lines)
 
 
