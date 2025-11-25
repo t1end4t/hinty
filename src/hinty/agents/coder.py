@@ -116,4 +116,9 @@ def handle_coder_mode(
     # Apply the search replace blocks
     if final.files_to_change:
         result = tool_apply_search_replace(final, context_manager.pwd_path)
-        yield AgentResponse(actions=[f"Applied changes: {result.output}"])
+        files_changed = [
+            r.split(" to ")[1]
+            for r in result.output["results"]
+            if "Successfully applied" in r
+        ]
+        yield AgentResponse(actions=[f"Applied changes: {', '.join(files_changed)}"])
