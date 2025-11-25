@@ -122,7 +122,9 @@ def handle_coder_mode(
                     file_change.blocks,
                 )
                 if result.success:
-                    actions.append(f"Applied changes to {file_change.file_path}")
+                    actions.append(
+                        f"Applied changes to {file_change.file_path}"
+                    )
                 else:
                     actions.append(
                         f"Failed to apply changes to {file_change.file_path}: {result.error}"
