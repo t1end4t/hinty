@@ -1,7 +1,7 @@
 from pathlib import Path
-from typing import AsyncGenerator, List
+from typing import AsyncGenerator, Generator, List
 
-from baml_py import AbortController, BamlAsyncStream
+from baml_py import AbortController, BamlStream
 from baml_py.errors import BamlAbortError
 from loguru import logger
 
@@ -66,7 +66,7 @@ async def call_coder(
     files: List[FileInfo],
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlAsyncStream[StreamCoderOutput, CoderOutput] | None:
+) -> BamlStream[StreamCoderOutput, CoderOutput] | None:
     """Call the coder agent with a user message, files, and conversation history"""
     try:
         resp = b.stream.Coder(
@@ -105,16 +105,13 @@ def prepare_files_info(
 
 
 async def handle_streaming_response(
-    stream: BamlAsyncStream[StreamCoderOutput, CoderOutput] | None,
-) -> AsyncGenerator[AgentResponse, None, CoderOutput]:
+    stream: BamlStream[StreamCoderOutput, CoderOutput],
+) -> AsyncGenerator[AgentResponse, None]:
     """Handle streaming the coder response."""
-    if stream is None:
-        return None
     async for chunk in stream:
         yield AgentResponse(response=process_coder_chunk(chunk))
     final = await stream.get_final_response()
     yield AgentResponse(response=process_coder_chunk(final))
-    return final
 
 
 def apply_changes(
@@ -149,13 +146,14 @@ async def handle_coder_mode(
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
     controller: AbortController,
-) -> AsyncGenerator[AgentResponse, None, None]:
+) -> AsyncGenerator[AgentResponse, None]:
     files_info, actions = prepare_files_info(context_manager)
     yield AgentResponse(actions=actions)
 
     stream = await call_coder(
         user_message, files_info, conversation_history, controller
     )
-    final = yield from handle_streaming_response(stream)
+    if stream:
+        final = yield from handle_streaming_response(stream)
 
-    yield from apply_changes(final, context_manager)
+    # yield from apply_changes(final, context_manager)
