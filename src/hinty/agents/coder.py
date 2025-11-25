@@ -23,11 +23,11 @@ def process_coder_chunk(chunk: StreamCoderOutput) -> str:
     """Process a CoderOutput chunk into a formatted string, handling None values."""
     if chunk is None:
         return ""
-    
+
     lines = []
     if chunk.summary is not None:
         lines.append(chunk.summary)
-    
+
     if chunk.files_to_change is not None:
         for file_change in chunk.files_to_change:
             if file_change is None:
@@ -52,7 +52,7 @@ def process_coder_chunk(chunk: StreamCoderOutput) -> str:
                         lines.append(block.replace)
                     lines.append(">>>>>>> REPLACE")
                     lines.append("```")
-    
+
     return "\n".join(lines)
 
 
