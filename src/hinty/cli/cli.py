@@ -161,6 +161,6 @@ def create_cli():
     """Create and run the CLI."""
     try:
         asyncio.run(chat())
-    except Exception:
-        # change this code to print out error AI!
-        console.print("\n[yellow]Interrupted. Goodbye! 👋[/yellow]")
+    except Exception as e:
+        console.print(f"\n[yellow]Error: {e}[/yellow]")
+        console.print("\n[yellow]Goodbye! 👋[/yellow]")
