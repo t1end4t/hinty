@@ -128,16 +128,16 @@ async def handle_input_loop(
 
             logger.debug(f"Current mode: {context_manager.current_mode}")
         except KeyboardInterrupt:
-            running = False
             logger.info("Input loop interrupted by user, exiting")
             controller.abort()  # Abort any ongoing request
+            continue
         except EOFError:
             logger.info("Input loop ended due to EOF")
             controller.abort()  # Abort any ongoing request
-            break
+            continue
         except Exception as e:
             logger.error(f"Unexpected error in input loop: {e}")
-            break
+            continue
     logger.debug("Input loop ended")
 
 
