@@ -127,5 +127,7 @@ def handle_coder_mode(
             )
         else:
             yield AgentResponse(
-                actions=[f"Failed to apply changes: {result.error or 'Unknown error'}"]
+                actions=[
+                    f"Failed to apply changes: {result.error or 'Unknown error'}"
+                ]
             )
