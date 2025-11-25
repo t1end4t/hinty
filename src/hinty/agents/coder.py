@@ -1,5 +1,5 @@
 from loguru import logger
-from typing import List
+from typing import Final, Generator, List
 
 from baml_py import AbortController, BamlSyncStream
 
@@ -19,7 +19,9 @@ from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
 
-def process_coder_chunk(chunk: StreamCoderOutput) -> str:
+def process_coder_chunk(
+    chunk: BamlSyncStream[StreamCoderOutput, CoderOutput],
+) -> BamlSyncStream[str, str]:
     """Process a CoderOutput chunk into a formatted string, handling None values."""
     if chunk is None:
         return ""
@@ -78,7 +80,7 @@ def handle_coder_mode(
     conversation_history: List[ConversationMessage],
     context_manager: ContextManager,
     controller: AbortController,
-) -> AgentResponse:
+) -> Generator[AgentResponse, None, None]:
     files_info = []
     actions = []
     for file_path in context_manager.get_all_files():
@@ -97,11 +99,11 @@ def handle_coder_mode(
             logger.error(f"Failed to read file {file_path}: {result.error}")
             actions.append(f"Failed to read file: {file_path}")
 
-    for action in actions:
-        logger.info(action)
+    yield AgentResponse(actions=actions)
 
     stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
 
-    return AgentResponse(response=stream)
+    a = process_coder_chunk(stream)
+    yield AgentResponse(response=a)
