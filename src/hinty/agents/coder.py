@@ -38,7 +38,7 @@ def process_coder_chunk(
             if file_change.explanation is not None:
                 lines.append(f"Explanation: {file_change.explanation}")
             if file_change.file_path is not None:
-                lines.append(f"File: {file_change.file_path}")
+                lines.append(f"### File: {file_change.file_path}")
             if file_change.blocks is not None:
                 for block in file_change.blocks:
                     if block is None:
