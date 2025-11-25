@@ -2,7 +2,7 @@ from typing import Generator
 
 from baml_py import BamlSyncStream
 from prompt_toolkit import PromptSession
-from rich.console import Console
+from rich.console import Console, Group
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -94,6 +94,7 @@ def display_stream_response(
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
+                current_actions = ""
                 # show thinking
                 # if partial.thinking:
                 #     display_thinking(partial.thinking, console)
@@ -108,10 +109,13 @@ def display_stream_response(
                     if isinstance(partial.response, str):
                         full_response = partial.response
                         live.update(
-                            Panel(
-                                Markdown(full_response),
-                                title="LLM",
-                                border_style=agent_response_style,
+                            Group(
+                                Panel(
+                                    Markdown(full_response),
+                                    title="LLM",
+                                    border_style=agent_response_style,
+                                ),
+                                current_actions,
                             )
                         )
                     else:
@@ -119,10 +123,13 @@ def display_stream_response(
                         for chunk in partial.response:
                             full_response = chunk
                             live.update(
-                                Panel(
-                                    Markdown(full_response),
-                                    title="LLM",
-                                    border_style=agent_response_style,
+                                Group(
+                                    Panel(
+                                        Markdown(full_response),
+                                        title="LLM",
+                                        border_style=agent_response_style,
+                                    ),
+                                    current_actions,
                                 )
                             )
         console.print()  # Newline for separation
