@@ -102,20 +102,7 @@ async def process_user_input(user_input: str, context: ChatContext):
     context.add_message("assistant", response)
 
 
-async def chat_loop():
-    """Main chat loop."""
-    context = ChatContext()
-    session = PromptSession(history=InMemoryHistory())
-
-    # Welcome message
-    console.print(
-        Panel.fit(
-            "[bold cyan]Welcome to Async Chat![/bold cyan]\n"
-            "Type [bold]/help[/bold] for commands or start chatting!",
-            border_style="cyan",
-        )
-    )
-
+async def handle_input_loop(session, context):
     while context.running:
         try:
             # Get user input (this is synchronous but that's okay)
@@ -148,6 +135,23 @@ async def chat_loop():
         except Exception as e:
             console.print(f"[red]Error: {e}[/red]")
             continue
+
+
+async def chat_loop():
+    """Main chat loop."""
+    context = ChatContext()
+    session = PromptSession(history=InMemoryHistory())
+
+    # Welcome message
+    console.print(
+        Panel.fit(
+            "[bold cyan]Welcome to Async Chat![/bold cyan]\n"
+            "Type [bold]/help[/bold] for commands or start chatting!",
+            border_style="cyan",
+        )
+    )
+
+    await handle_input_loop(session, context)
 
 
 # Click command setup
