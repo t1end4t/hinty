@@ -91,6 +91,7 @@ def display_stream_response(
 ) -> str:
     """Display streaming response and return full response."""
     full_response = ""
+    current_response = ""
     try:
         with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
             for partial in stream:
@@ -98,20 +99,20 @@ def display_stream_response(
                 # show thinking
                 # if partial.thinking:
                 #     display_thinking(partial.thinking, console)
-
+    
                 # show actions
                 if partial.actions:
-                    # display_actions(partial.actions, console)
                     current_actions = f"[bold {agent_action_style}]{', '.join(partial.actions)}[/]"
-
+    
                 # accumulate and show response
                 if partial.response:
                     if isinstance(partial.response, str):
+                        current_response = partial.response
                         full_response = partial.response
                         live.update(
                             Group(
                                 Panel(
-                                    Markdown(full_response),
+                                    Markdown(current_response),
                                     title="LLM",
                                     border_style=agent_response_style,
                                 ),
@@ -121,21 +122,34 @@ def display_stream_response(
                     else:
                         # Handle stream case by consuming chunks
                         for chunk in partial.response:
+                            current_response = chunk
                             full_response = chunk
                             live.update(
                                 Group(
                                     Panel(
-                                        Markdown(full_response),
+                                        Markdown(current_response),
                                         title="LLM",
                                         border_style=agent_response_style,
                                     ),
                                     current_actions,
                                 )
                             )
+                else:
+                    # No response, but update for actions
+                    live.update(
+                        Group(
+                            Panel(
+                                Markdown(current_response),
+                                title="LLM",
+                                border_style=agent_response_style,
+                            ),
+                            current_actions,
+                        )
+                    )
         console.print()  # Newline for separation
     except Exception as e:
         from loguru import logger
-
+    
         logger.error(f"Error during streaming: {e}")
         raise
     return full_response
