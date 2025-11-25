@@ -27,3 +27,7 @@ async def run_with_timeout():
         print(result)
     except BamlAbortError:
         print("Operation was cancelled")
+
+
+if __name__ == "__main__":
+    asyncio.run(run_with_timeout())
