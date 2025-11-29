@@ -38,8 +38,9 @@ class ContextManager:
         """Get the path to the history file."""
         return self.hinty_metadata / "history"
 
+    # TODO: get better name
     @property
-    def available_files_cache_path(self) -> Path:
+    def hinty_available_files_path(self) -> Path:
         """Get the path to the available files cache."""
         return self.hinty_metadata / "available_files.json"
 

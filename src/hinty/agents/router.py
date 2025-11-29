@@ -8,7 +8,6 @@ from hinty.core.models import AgentResponse
 
 from ..baml_client.async_client import b
 from ..baml_client.types import ConversationMessage
-from ..core.context_manager import ContextManager
 
 
 async def call_router(
@@ -31,7 +30,6 @@ async def call_router(
 async def handle_smart_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
-    context_manager: ContextManager,
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
     stream = await call_router(

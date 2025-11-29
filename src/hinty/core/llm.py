@@ -18,7 +18,7 @@ async def get_agent_response(
     """Get a response from the LLM"""
     if context_manager.current_mode == Mode.SMART:
         async for response in handle_smart_mode(
-            user_message, conversation_history, context_manager, controller
+            user_message, conversation_history, controller
         ):
             yield response
     elif context_manager.current_mode == Mode.CODER:
