@@ -16,7 +16,7 @@ class ContextManager:
         self._current_mode = current_mode
         self._pwd_path = pwd_path
         self._files: List[Path] = []
-        self._metadata_path = pwd_path / ".hinty" / "metadata.json"
+        self._metadata_path = pwd_path / ".hinty"
 
     @property
     def current_mode(self) -> Mode:
@@ -29,8 +29,8 @@ class ContextManager:
         return self._pwd_path
 
     @property
-    def metadata_path(self) -> Path:
-        """Get the path to the metadata file containing intermediate data like history."""
+    def hinty_dir(self) -> Path:
+        """Get the path to the .hinty folder containing intermediate data like history."""
         return self._metadata_path
 
     def set_mode(self, value: Mode):
