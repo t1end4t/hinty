@@ -21,7 +21,9 @@ class ContextManager:
         self._pwd_path = pwd_path
         self._files: List[Path] = []
         self._metadata_path = pwd_path / ".hinty"
-        self._attached_files_cache_path = self._metadata_path / "attached_files.json"
+        self._attached_files_cache_path = (
+            self._metadata_path / "attached_files.json"
+        )
         self._metadata_path.mkdir(parents=True, exist_ok=True)
         self._load_attached_files()
         logger.debug("ContextManager initialized")
