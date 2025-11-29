@@ -30,7 +30,7 @@ def setup_session(context_manager: ContextManager) -> PromptSession:
     session = PromptSession(
         completer=completer,
         complete_while_typing=True,
-        history=FileHistory(str(context_manager.pwd_path / ".hinty_history")),
+        history=FileHistory(str(context_manager.hinty_metadata / ".hinty_history")),
         auto_suggest=AutoSuggestFromHistory(),
     )
     return session
