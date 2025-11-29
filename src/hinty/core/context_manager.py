@@ -16,7 +16,9 @@ class ContextManager:
         self._current_mode = current_mode
         self._pwd_path = pwd_path
         self._files: List[Path] = []
-        self._metadata_path = pwd_path / ".hinty" / "context_manager_metadata.json"
+        self._metadata_path = (
+            pwd_path / ".hinty" / "context_manager_metadata.json"
+        )
 
     @property
     def current_mode(self) -> Mode:
