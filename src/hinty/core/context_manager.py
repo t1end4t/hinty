@@ -6,8 +6,8 @@ from typing import List
 from .models import Mode
 
 
-class ContextManager:
-    """Unified project context for all modes."""
+class ProjectManager:
+    """Unified project manager for all modes."""
 
     def __init__(
         self,
