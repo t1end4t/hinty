@@ -36,12 +36,12 @@ class ContextManager:
         return self._metadata_path
 
     @property
-    def hinty_history_path(self) -> Path:
+    def hinty_history(self) -> Path:
         """Get the path to the history file."""
         return self.hinty_metadata / "history"
 
     @property
-    def available_files_cache_path(self) -> Path:
+    def hinty_available_files_cache(self) -> Path:
         """Get the path to the available files cache."""
         return self.hinty_metadata / "available_files.json"
 
@@ -67,11 +67,11 @@ class ContextManager:
         def _load():
             files = list(self.pwd_path.rglob("*"))
             files = [f for f in files if f.is_file()]
-            self.available_files_cache_path.parent.mkdir(
+            self.hinty_available_files_cache.parent.mkdir(
                 parents=True, exist_ok=True
             )
             data = {"files": [str(f.relative_to(self.pwd_path)) for f in files]}
-            with open(self.available_files_cache_path, "w") as f:
+            with open(self.hinty_available_files_cache, "w") as f:
                 json.dump(data, f)
 
         await asyncio.to_thread(_load)
