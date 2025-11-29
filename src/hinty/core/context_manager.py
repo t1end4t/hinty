@@ -67,9 +67,7 @@ class ContextManager:
         def _load():
             files = list(self.pwd_path.rglob("*"))
             files = [f for f in files if f.is_file()]
-            self.available_files_cache.parent.mkdir(
-                parents=True, exist_ok=True
-            )
+            self.available_files_cache.parent.mkdir(parents=True, exist_ok=True)
             data = {"files": [str(f.relative_to(self.pwd_path)) for f in files]}
             with open(self.available_files_cache, "w") as f:
                 json.dump(data, f)
