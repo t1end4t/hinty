@@ -62,7 +62,7 @@ class ContextManager:
         """Remove a file from the list by path."""
         self._files.remove(path)
 
-    async def load_all_files(self) -> None:
+    async def load_all_files(self):
         """Load all files in pwd recursively and save to cache."""
 
         def _load():
