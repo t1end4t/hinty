@@ -63,13 +63,14 @@ async def process_user_message(
     try:
         logger.debug("Calling external API for router")
 
-        responses = get_agent_response(
-            user_input,
-            conversation_history,
-            context_manager,
-            controller,
-        )
-        full_response = await display_stream_response(responses, console)
+        with console.status("Thinking..."):
+            responses = get_agent_response(
+                user_input,
+                conversation_history,
+                context_manager,
+                controller,
+            )
+            full_response = await display_stream_response(responses, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
