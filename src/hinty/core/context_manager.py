@@ -38,6 +38,11 @@ class ContextManager:
         """Get the path to the history file."""
         return self.hinty_metadata / "history"
 
+    @property
+    def available_files_cache_path(self) -> Path:
+        """Get the path to the available files cache."""
+        return self.hinty_metadata / "available_files.json"
+
     def set_mode(self, value: Mode):
         """Set the current mode."""
         self._current_mode = value
