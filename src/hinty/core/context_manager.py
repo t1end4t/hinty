@@ -33,6 +33,11 @@ class ContextManager:
         """Get the path to the .hinty folder containing intermediate data like history."""
         return self._metadata_path
 
+    @property
+    def history_path(self) -> Path:
+        """Get the path to the history file."""
+        return self.hinty_dir / "history.json"
+
     def set_mode(self, value: Mode):
         """Set the current mode."""
         self._current_mode = value
