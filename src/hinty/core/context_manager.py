@@ -1,3 +1,5 @@
+import asyncio
+import json
 from pathlib import Path
 from typing import List
 
@@ -59,3 +61,14 @@ class ContextManager:
     def remove_file(self, path: Path):
         """Remove a file from the list by path."""
         self._files.remove(path)
+
+    async def load_all_files(self) -> None:
+        """Load all files in pwd recursively and save to cache."""
+        def _load():
+            files = list(self.pwd_path.rglob('*'))
+            files = [f for f in files if f.is_file()]
+            self.hinty_available_files_path.parent.mkdir(parents=True, exist_ok=True)
+            data = {'files': [str(f.relative_to(self.pwd_path)) for f in files]}
+            with open(self.hinty_available_files_path, 'w') as f:
+                json.dump(data, f)
+        await asyncio.to_thread(_load)
