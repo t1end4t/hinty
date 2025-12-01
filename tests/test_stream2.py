@@ -47,11 +47,21 @@ async def main():
                 pass
             else:
                 async for subpartial in partial.response:
-                    new_content = subpartial[len(previous_content) :]
-                    accumulated_text = new_content
+                    # Find the last newline in previous content
+                    last_newline_pos = previous_content.rfind('\n')
+                    
+                    # Find the last newline in current content
+                    current_newline_pos = subpartial.rfind('\n')
+                    
+                    # If we have a new complete line
+                    if current_newline_pos > last_newline_pos:
+                        # Extract from after the last newline in previous to current newline
+                        start_pos = last_newline_pos + 1 if last_newline_pos >= 0 else 0
+                        line_content = subpartial[start_pos:current_newline_pos + 1]
+                        md = Markdown(line_content)
+                        console.print(md)
+                    
                     previous_content = subpartial
-                    md = Markdown(accumulated_text)
-                    console.print(md)
 
 
 if __name__ == "__main__":
