@@ -12,6 +12,8 @@ async def cache_available_files(
     def _load():
         files = list(project_root.rglob("*"))
         files = [f for f in files if f.is_file()]
+        # Exclude .git directory to avoid loading large or unwanted files
+        files = [f for f in files if ".git" not in f.parts]
 
         # Respect .gitignore to avoid loading large or unwanted files
         gitignore_path = project_root / ".gitignore"
