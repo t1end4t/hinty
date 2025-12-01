@@ -85,8 +85,11 @@ async def _initialize_conversation() -> tuple[
 
     console.print(f"Current directory: {project_manager.project_root}")
 
-    await cache_available_files(
-        project_manager.project_root, project_manager.available_files_cache
+    # Start caching in background without waiting
+    asyncio.create_task(
+        cache_available_files(
+            project_manager.project_root, project_manager.available_files_cache
+        )
     )
 
     return conversation_history, project_manager, controller
