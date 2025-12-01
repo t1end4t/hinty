@@ -4,7 +4,7 @@ from typing import List
 
 import pathspec
 
-from .tree_sitter import get_top_level_objects
+from .tree_sitter import get_all_objects
 
 
 async def cache_available_files(
@@ -39,11 +39,11 @@ async def cache_available_files(
 
 
 def cache_objects(files: List[Path], objects_cache: Path):
-    """Cache top-level objects for given files."""
+    """Cache all objects for given files."""
 
     all_objects = set()
     for file in files:
-        objs = get_top_level_objects(file)
+        objs = get_all_objects(file)
         all_objects.update(objs)
     objects_cache.parent.mkdir(parents=True, exist_ok=True)
     with open(objects_cache, "w") as f:
