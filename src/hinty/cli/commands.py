@@ -172,7 +172,7 @@ def add_command(
                 all_files = [line.strip() for line in f if line.strip()]
         else:
             # Fallback to os.walk if cache doesn't exist
-            for root, dirs, files in os.walk(project_manager.project_root):
+            for root, _, files in os.walk(project_manager.project_root):
                 for file in files:
                     all_files.append(
                         os.path.relpath(
