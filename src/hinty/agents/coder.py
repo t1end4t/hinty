@@ -1,3 +1,4 @@
+import difflib
 from pathlib import Path
 from typing import AsyncGenerator, Generator, List
 
@@ -17,6 +18,33 @@ from ..baml_client.types import (
 from ..core.project_manager import ProjectManager
 from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
+
+
+def format_diff_block(search: str, replace: str) -> List[str]:
+    """Format search/replace as a unified diff showing only changes."""
+    search_lines = search.splitlines()
+    replace_lines = replace.splitlines()
+
+    diff_lines = []
+    matcher = difflib.SequenceMatcher(None, search_lines, replace_lines)
+
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == "equal":
+            for line in search_lines[i1:i2]:
+                diff_lines.append(f"  {line}")
+        elif tag == "replace":
+            for line in search_lines[i1:i2]:
+                diff_lines.append(f"- {line}")
+            for line in replace_lines[j1:j2]:
+                diff_lines.append(f"+ {line}")
+        elif tag == "delete":
+            for line in search_lines[i1:i2]:
+                diff_lines.append(f"- {line}")
+        elif tag == "insert":
+            for line in replace_lines[j1:j2]:
+                diff_lines.append(f"+ {line}")
+
+    return diff_lines
 
 
 def process_coder_chunk(
@@ -47,12 +75,19 @@ def process_coder_chunk(
                     )
                     lines.append(code_block_start)
 
-                    if block.search is not None:
+                    if (
+                        block.search is not None
+                        and block.replace is not None
+                    ):
+                        diff_lines = format_diff_block(
+                            block.search, block.replace
+                        )
+                        lines.extend(diff_lines)
+                    elif block.search is not None:
                         search_lines = block.search.splitlines()
                         for line in search_lines:
                             lines.append(f"- {line}")
-
-                    if block.replace is not None:
+                    elif block.replace is not None:
                         replace_lines = block.replace.splitlines()
                         for line in replace_lines:
                             lines.append(f"+ {line}")
