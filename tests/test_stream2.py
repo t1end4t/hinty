@@ -51,7 +51,7 @@ async def main():
                 else:
                     async for subpartial in partial.response:
                         # Accumulate the streaming text
-                        accumulated_text = subpartial
+                        accumulated_text += subpartial
                         md = Markdown(accumulated_text)
                         live.update(md, refresh=True)
 
