@@ -6,6 +6,7 @@ import tree_sitter_python as tspython
 PY = Language(tspython.language())
 
 
+# TODO: support more, not only python
 def get_all_objects(file_path: Path) -> List[str]:
     """
     Extract all object names (functions, classes, variables, parameters, including inner ones)
