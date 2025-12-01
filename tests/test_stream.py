@@ -48,7 +48,9 @@ async def main():
     ) as live:
         async for partial in stream:
             current_time = time.time()
-            print(f"Chunk at {current_time:.2f}, delta {current_time - last_time:.2f}s")
+            print(
+                f"Chunk at {current_time:.2f}, delta {current_time - last_time:.2f}s"
+            )
             last_time = current_time
             if partial.response:
                 if isinstance(partial.response, str):
