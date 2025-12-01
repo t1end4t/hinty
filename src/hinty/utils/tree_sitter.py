@@ -11,10 +11,10 @@ def get_all_objects(file_path: Path) -> List[str]:
     """
     if file_path.suffix != ".py":
         return []
-    
+
     parser = Parser()
     parser.set_language(tspython.language())
-    
+
     try:
         with open(file_path, "rb") as f:
             content = f.read()
@@ -45,11 +45,11 @@ def collect_names(node) -> List[str]:
         left_node = node.child_by_field_name("left")
         if left_node:
             names.extend(collect_identifiers(left_node))
-    
+
     # Recurse on children
     for child in node.children:
         names.extend(collect_names(child))
-    
+
     return names
 
 
