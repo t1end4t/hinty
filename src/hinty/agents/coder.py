@@ -57,18 +57,20 @@ def process_coder_chunk(
                         if block.replace is not None
                         else []
                     )
-                    matcher = difflib.SequenceMatcher(None, search_lines, replace_lines)
+                    matcher = difflib.SequenceMatcher(
+                        None, search_lines, replace_lines
+                    )
                     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-                        if tag == 'equal':
+                        if tag == "equal":
                             for line in search_lines[i1:i2]:
-                                lines.append(line.rstrip('\n'))
-                        elif tag == 'delete':
+                                lines.append(line.rstrip("\n"))
+                        elif tag == "delete":
                             for line in search_lines[i1:i2]:
                                 lines.append(f"-{line.rstrip('\n')}")
-                        elif tag == 'insert':
+                        elif tag == "insert":
                             for line in replace_lines[j1:j2]:
                                 lines.append(f"+{line.rstrip('\n')}")
-                        elif tag == 'replace':
+                        elif tag == "replace":
                             for line in search_lines[i1:i2]:
                                 lines.append(f"-{line.rstrip('\n')}")
                             for line in replace_lines[j1:j2]:
