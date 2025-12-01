@@ -25,8 +25,9 @@
 # Fix bug
 
 1. [x] Should not show panel, just show thinking animation when response is slow
-2. [ ] If added file, can not add it anymore
-3. [ ] logging should in file
+2. [ ] Fully streaming
+3. [ ] If added file, can not add it anymore
+4. [ ] logging should in file
 
 # Add tools
 
