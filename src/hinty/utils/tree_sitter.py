@@ -10,11 +10,20 @@ def get_all_objects(file_path: Path) -> List[str]:
     """
     if file_path.suffix != ".py":
         return []
-
+    
     def collect_names(node: ast.AST) -> List[str]:
         names = []
         if isinstance(node, ast.FunctionDef):
             names.append(node.name)
+            # Collect parameter names
+            for arg in node.args.args:
+                names.append(arg.arg)
+            if node.args.vararg:
+                names.append(node.args.vararg.arg)
+            if node.args.kwarg:
+                names.append(node.args.kwarg.arg)
+            for kwonly in node.args.kwonlyargs:
+                names.append(kwonly.arg)
         elif isinstance(node, ast.ClassDef):
             names.append(node.name)
         elif isinstance(node, ast.Assign):
@@ -24,7 +33,7 @@ def get_all_objects(file_path: Path) -> List[str]:
         for child in ast.iter_child_nodes(node):
             names.extend(collect_names(child))
         return names
-
+    
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
