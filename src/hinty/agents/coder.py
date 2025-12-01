@@ -16,7 +16,7 @@ from ..baml_client.types import (
     FileInfo,
 )
 from ..core.project_manager import ProjectManager
-from ..core.utils import apply_search_replace, read_content_file
+from ..utils import apply_search_replace, read_content_file
 
 
 def format_diff_block(search: str, replace: str) -> List[str]:

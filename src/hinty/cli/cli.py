@@ -19,7 +19,7 @@ from ..cli.utils import (
 )
 from ..core.llm import get_agent_response
 from ..core.project_manager import ProjectManager
-from ..core.utils import cache_available_files
+from ..utils import cache_available_files
 
 console = Console()
 
