@@ -1,7 +1,7 @@
 import asyncio
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from .models import Mode
 
@@ -57,9 +57,12 @@ class ProjectManager:
         """Attach a file to the list."""
         self._attached_files.append(file_path)
 
-    def detach_file(self, file_path: Path):
-        """Detach a file from the list by path."""
-        self._attached_files.remove(file_path)
+    def detach_file(self, file_path: Optional[Path] = None, remove_all: bool = False):
+        """Detach a file from the list by path, or remove all files if specified."""
+        if remove_all:
+            self._attached_files.clear()
+        elif file_path is not None:
+            self._attached_files.remove(file_path)
 
     async def cache_available_files(self):
         """Load all files in project root recursively and save to cache."""
