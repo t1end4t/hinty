@@ -171,7 +171,8 @@ def add_command(
                 for file in files:
                     all_files.append(
                         os.path.relpath(
-                            os.path.join(root, file), project_manager.project_root
+                            os.path.join(root, file),
+                            project_manager.project_root,
                         )
                     )
         selected_files = fzf.prompt(
