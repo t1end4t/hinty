@@ -17,8 +17,9 @@ from ..cli.utils import (
     get_user_input,
     print_welcome,
 )
-from ..core.project_manager import ProjectManager
 from ..core.llm import get_agent_response
+from ..core.project_manager import ProjectManager
+from ..core.utils import cache_available_files
 
 console = Console()
 
