@@ -55,8 +55,7 @@ class ProjectManager:
 
     def attach_file(self, file_path: Path):
         """Attach a file to the list."""
-        if file_path not in self._attached_files:
-            self._attached_files.append(file_path)
+        self._attached_files.append(file_path)
 
     def detach_file(self, file_path: Path):
         """Detach a file from the list by path."""
