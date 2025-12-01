@@ -87,13 +87,9 @@ class CommandCompleter(Completer):
         if cache_path.exists():
             with open(cache_path, "r") as f:
                 objects = [line.strip() for line in f if line.strip()]
-        for obj in objects:
-            if obj.lower().startswith(text.lower()):
-                yield Completion(
-                    obj,
-                    start_position=-len(text),
-                    display=f"`{obj}`",
-                )
+        word_document = Document(text, len(text))
+        completer = FuzzyWordCompleter(objects)
+        yield from completer.get_completions(word_document, complete_event)
 
     def _get_command_completions(self, text: str):
         word = text
