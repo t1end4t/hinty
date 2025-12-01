@@ -41,7 +41,7 @@ async def main():
 
     async for partial in stream:
         if partial.response:
-            with Live(auto_refresh=False) as live:
+            with Live(auto_refresh=False, refresh_per_second=10) as live:
                 if isinstance(partial.response, str):
                     md = Markdown(partial.response)
                     live.update(md)
