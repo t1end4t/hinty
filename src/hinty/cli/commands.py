@@ -175,7 +175,9 @@ def add_command(
                 root_path = Path(root)
                 for file in files:
                     file_path = root_path / file
-                    rel_path = file_path.relative_to(project_manager.project_root)
+                    rel_path = file_path.relative_to(
+                        project_manager.project_root
+                    )
                     all_files.append(str(rel_path))
         selected_files = fzf.prompt(
             all_files, "--multi"
