@@ -57,16 +57,22 @@ def process_coder_chunk(
                         if block.replace is not None
                         else []
                     )
-                    diff = list(
-                        difflib.unified_diff(
-                            search_lines,
-                            replace_lines,
-                            fromfile="search",
-                            tofile="replace",
-                            lineterm="",
-                        )
-                    )
-                    lines.extend(diff)
+                    matcher = difflib.SequenceMatcher(None, search_lines, replace_lines)
+                    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+                        if tag == 'equal':
+                            for line in search_lines[i1:i2]:
+                                lines.append(line.rstrip('\n'))
+                        elif tag == 'delete':
+                            for line in search_lines[i1:i2]:
+                                lines.append(f"-{line.rstrip('\n')}")
+                        elif tag == 'insert':
+                            for line in replace_lines[j1:j2]:
+                                lines.append(f"+{line.rstrip('\n')}")
+                        elif tag == 'replace':
+                            for line in search_lines[i1:i2]:
+                                lines.append(f"-{line.rstrip('\n')}")
+                            for line in replace_lines[j1:j2]:
+                                lines.append(f"+{line.rstrip('\n')}")
                     lines.append("```")
 
             if file_change.explanation is not None:
