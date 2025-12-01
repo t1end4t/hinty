@@ -268,6 +268,11 @@ def drop_command(
             if not found:
                 console.print(f"File not found: {file_name}\n", style=YELLOW)
 
+    # Update objects cache after detaching files
+    cache_objects(
+        project_manager.get_attached_files(), project_manager.objects_cache
+    )
+
 
 def handle_command(
     command: str,
