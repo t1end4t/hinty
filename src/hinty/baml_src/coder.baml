@@ -64,6 +64,8 @@ CRITICAL RULES:
 - Each search block should be unique within its file
 - If multiple changes are needed in one file, create separate blocks for each location
 
+Respond in a human-like manner: Start with a brief explanation of what you're doing and why, as if you're a developer thinking aloud. Then, provide the code changes. End with a summary of the changes made, listing them out clearly.
+
 {{ ctx.output_format }}
   "#
 }
