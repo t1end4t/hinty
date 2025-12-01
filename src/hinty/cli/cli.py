@@ -166,22 +166,19 @@ async def _handle_input_loop(
             user_input = await get_user_input(session, project_manager)
             if not user_input:
                 break
-            task = asyncio.create_task(
-                _process_input(
-                    console,
-                    user_input,
-                    conversation_history,
-                    project_manager,
-                    controller,
-                )
+
+            await _process_input(
+                console,
+                user_input,
+                conversation_history,
+                project_manager,
+                controller,
             )
-            await task
 
             logger.debug(f"Current mode: {project_manager.mode}")
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             controller.abort()
-            task.cancel()
             console.print(
                 "\n[yellow]Interrupted. Type your next message or press Enter to quit.[/yellow]"
             )
