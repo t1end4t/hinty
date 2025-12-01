@@ -40,7 +40,7 @@ async def cache_available_files(
 
 def cache_objects(files: List[Path], objects_cache: Path):
     """Cache top-level objects for given files."""
-    
+
     all_objects = set()
     for file in files:
         objs = get_top_level_objects(file)
