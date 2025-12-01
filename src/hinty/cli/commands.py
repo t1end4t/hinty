@@ -161,13 +161,19 @@ def add_command(
         # Interactive mode: Fuzzy search and select files
         fzf = pyfzf.FzfPrompt()
         all_files = []
-        for root, dirs, files in os.walk(project_manager.project_root):
-            for file in files:
-                all_files.append(
-                    os.path.relpath(
-                        os.path.join(root, file), project_manager.project_root
+        cache_path = project_manager.available_files_cache
+        if cache_path.exists():
+            with open(cache_path, "r") as f:
+                all_files = [line.strip() for line in f if line.strip()]
+        else:
+            # Fallback to os.walk if cache doesn't exist
+            for root, dirs, files in os.walk(project_manager.project_root):
+                for file in files:
+                    all_files.append(
+                        os.path.relpath(
+                            os.path.join(root, file), project_manager.project_root
+                        )
                     )
-                )
         selected_files = fzf.prompt(
             all_files, "--multi"
         )  # Multi-select with fuzzy search
