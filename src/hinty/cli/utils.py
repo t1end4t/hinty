@@ -132,16 +132,18 @@ async def display_stream_response(
                     live.update(Group(*group_items))
         else:
             # No response, but update for actions
-            group_items = [
-                Panel(
-                    Markdown(current_response),
-                    title="LLM",
-                    border_style=agent_response_style,
-                ),
-                current_actions,
-            ]
+            group_items = [current_actions]
+            if current_response:
+                group_items.insert(
+                    0,
+                    Panel(
+                        Markdown(current_response),
+                        title="LLM",
+                        border_style=agent_response_style,
+                    ),
+                )
             if current_thinking:
-                group_items.append(current_thinking)
+                group_items.insert(0, current_thinking)
             live.update(Group(*group_items))
     live.stop()
 
