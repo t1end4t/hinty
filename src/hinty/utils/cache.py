@@ -8,13 +8,13 @@ from loguru import logger
 from .tree_sitter import get_all_objects
 
 
-def discover_project_files(project_root: Path) -> List[Path]:
+def _discover_project_files(project_root: Path) -> List[Path]:
     """Discover all files in project, excluding .git directory."""
     all_files = project_root.rglob("*")
     return [f for f in all_files if f.is_file() and ".git" not in f.parts]
 
 
-async def load_gitignore_spec(
+async def _load_gitignore_spec(
     project_root: Path,
 ) -> pathspec.PathSpec | None:
     """Load and parse .gitignore file if it exists."""
@@ -28,7 +28,7 @@ async def load_gitignore_spec(
     return pathspec.PathSpec.from_lines("gitwildmatch", content.splitlines())
 
 
-def filter_files_by_gitignore(
+def _filter_files_by_gitignore(
     files: List[Path], project_root: Path, spec: pathspec.PathSpec | None
 ) -> List[Path]:
     """Filter files using gitignore patterns."""
@@ -42,7 +42,7 @@ def filter_files_by_gitignore(
     ]
 
 
-def validate_file_count(file_count: int, max_files: int) -> None:
+def _validate_file_count(file_count: int, max_files: int) -> None:
     """Validate that file count doesn't exceed maximum."""
     if file_count > max_files:
         logger.warning(
@@ -54,7 +54,7 @@ def validate_file_count(file_count: int, max_files: int) -> None:
         )
 
 
-async def write_file_cache(
+async def _write_file_cache(
     files: List[Path], project_root: Path, cache_path: Path
 ) -> None:
     """Write relative file paths to cache file."""
@@ -71,19 +71,19 @@ async def cache_available_files(
     """Cache all project files, respecting .gitignore."""
     logger.info(f"Caching files for {project_root}")
 
-    files = discover_project_files(project_root)
-    gitignore_spec = await load_gitignore_spec(project_root)
-    filtered_files = filter_files_by_gitignore(
+    files = _discover_project_files(project_root)
+    gitignore_spec = await _load_gitignore_spec(project_root)
+    filtered_files = _filter_files_by_gitignore(
         files, project_root, gitignore_spec
     )
 
-    validate_file_count(len(filtered_files), max_files)
-    await write_file_cache(filtered_files, project_root, available_files_cache)
+    _validate_file_count(len(filtered_files), max_files)
+    await _write_file_cache(filtered_files, project_root, available_files_cache)
 
     logger.info(f"Cached {len(filtered_files)} files")
 
 
-def collect_objects_from_files(files: List[Path]) -> set[str]:
+def _collect_objects_from_files(files: List[Path]) -> set[str]:
     """Collect all unique objects from given files."""
     all_objects = set()
     for file in files:
@@ -92,7 +92,7 @@ def collect_objects_from_files(files: List[Path]) -> set[str]:
     return all_objects
 
 
-async def write_objects_cache(objects: set[str], cache_path: Path) -> None:
+async def _write_objects_cache(objects: set[str], cache_path: Path) -> None:
     """Write sorted objects to cache file."""
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     sorted_objects = sorted(objects)
@@ -105,7 +105,7 @@ async def cache_objects(files: List[Path], objects_cache: Path) -> None:
     """Cache all objects for given files."""
     logger.info(f"Caching objects from {len(files)} files")
 
-    all_objects = collect_objects_from_files(files)
-    await write_objects_cache(all_objects, objects_cache)
+    all_objects = _collect_objects_from_files(files)
+    await _write_objects_cache(all_objects, objects_cache)
 
     logger.info(f"Cached {len(all_objects)} unique objects")
