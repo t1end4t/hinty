@@ -1,19 +1,21 @@
 from pathlib import Path
 from typing import List
+import asyncio
 
+import aiofiles
 import pathspec
 from loguru import logger
 
 from .tree_sitter import get_all_objects
 
 
-def cache_available_files(
+async def cache_available_files(
     project_root: Path, available_files_cache: Path, max_files: int = 10000
 ):
     """Load all files in project root recursively and save to cache, respecting .gitignore."""
     logger.info(f"Starting cache_available_files for {project_root}")
 
-    files = list(project_root.rglob("*"))
+    files = await asyncio.to_thread(lambda: list(project_root.rglob("*")))
     files = [f for f in files if f.is_file()]
     # Exclude .git directory to avoid loading large or unwanted files
     files = [f for f in files if ".git" not in f.parts]
@@ -21,8 +23,9 @@ def cache_available_files(
     # Respect .gitignore to avoid loading large or unwanted files
     gitignore_path = project_root / ".gitignore"
     if gitignore_path.exists():
-        with open(gitignore_path, "r") as f:
-            spec = pathspec.PathSpec.from_lines("gitwildmatch", f)
+        async with aiofiles.open(gitignore_path, "r") as f:
+            gitignore_content = await f.read()
+        spec = pathspec.PathSpec.from_lines("gitwildmatch", gitignore_content.splitlines())
         files = [
             f
             for f in files
@@ -37,11 +40,11 @@ def cache_available_files(
             f"File count exceeds limit of {max_files}. Aborting to prevent performance issues."
         )
 
-    available_files_cache.parent.mkdir(parents=True, exist_ok=True)
+    await asyncio.to_thread(available_files_cache.parent.mkdir, parents=True, exist_ok=True)
     file_names = [str(f.relative_to(project_root)) for f in files]
-    with open(available_files_cache, "w") as f:
+    async with aiofiles.open(available_files_cache, "w") as f:
         for file_name in file_names:
-            f.write(file_name + "\n")
+            await f.write(file_name + "\n")
 
     logger.info(f"Cached {len(files)} files for {project_root}")
 
