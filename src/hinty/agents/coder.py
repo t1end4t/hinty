@@ -16,8 +16,10 @@ from ..baml_client.types import (
     FileInfo,
 )
 from ..core.project_manager import ProjectManager
-from ..tools.file_operations import tool_read_file
-from ..tools.search_and_replace import tool_apply_search_replace
+
+# from ..tools.file_operations import tool_read_file
+# from ..tools.search_and_replace import tool_apply_search_replace
+from ..core.utils import read_content_file, apply_search_replace
 
 
 def format_diff_block(search: str, replace: str) -> List[str]:
@@ -124,7 +126,7 @@ def prepare_files_info(
     actions = []
     for file_path in project_manager.get_attached_files():
         relative_path = file_path.relative_to(project_manager.project_root)
-        result = tool_read_file(file_path)
+        result = read_content_file(file_path)
         if result.success and isinstance(result.output, str):
             file_content = result.output
             files_info.append(
