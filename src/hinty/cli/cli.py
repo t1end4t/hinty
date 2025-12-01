@@ -53,7 +53,7 @@ class BacktickLexer(Lexer):
         return lex_line
 
 
-def setup_session(project_manager: ProjectManager) -> PromptSession:
+def _setup_session(project_manager: ProjectManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, project_manager)
 
@@ -75,7 +75,7 @@ def setup_session(project_manager: ProjectManager) -> PromptSession:
     return session
 
 
-async def initialize_conversation() -> tuple[
+async def _initialize_conversation() -> tuple[
     List[ConversationMessage], ProjectManager, AbortController
 ]:
     """Initialize conversation history and context manager."""
@@ -92,7 +92,7 @@ async def initialize_conversation() -> tuple[
     return conversation_history, project_manager, controller
 
 
-async def process_user_message(
+async def _process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
@@ -127,7 +127,7 @@ async def process_user_message(
         logger.error(f"Error processing user message: {e}")
 
 
-async def process_input(
+async def _process_input(
     console: Console,
     user_input: str,
     conversation_history: List[ConversationMessage],
@@ -140,7 +140,7 @@ async def process_input(
             user_input, console, conversation_history, project_manager
         )
     else:
-        await process_user_message(
+        await _process_user_message(
             user_input,
             conversation_history,
             project_manager,
@@ -149,7 +149,7 @@ async def process_input(
         )
 
 
-async def handle_input_loop(
+async def _handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
@@ -163,7 +163,7 @@ async def handle_input_loop(
             user_input = await get_user_input(session, project_manager)
             if not user_input:
                 break
-            await process_input(
+            await _process_input(
                 console,
                 user_input,
                 conversation_history,
@@ -192,7 +192,7 @@ async def handle_input_loop(
 
 
 # Minimal LLM chat interface
-async def chat():
+async def _chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
@@ -200,9 +200,9 @@ async def chat():
         conversation_history,
         project_manager,
         controller,
-    ) = await initialize_conversation()
-    session = setup_session(project_manager)
-    await handle_input_loop(
+    ) = await _initialize_conversation()
+    session = _setup_session(project_manager)
+    await _handle_input_loop(
         session, conversation_history, project_manager, controller
     )
     logger.debug("Chat ended")
@@ -211,4 +211,4 @@ async def chat():
 @click.command()
 def create_cli():
     """Create and run the CLI."""
-    asyncio.run(chat())
+    asyncio.run(_chat())
