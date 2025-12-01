@@ -75,10 +75,7 @@ def process_coder_chunk(
                     )
                     lines.append(code_block_start)
 
-                    if (
-                        block.search is not None
-                        and block.replace is not None
-                    ):
+                    if block.search is not None and block.replace is not None:
                         diff_lines = format_diff_block(
                             block.search, block.replace
                         )
