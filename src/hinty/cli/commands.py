@@ -45,10 +45,15 @@ class CommandCompleter(Completer):
         text = document.text_before_cursor
         path_part = text[len("/add ") :]
 
-        path_document = Document(path_part, len(path_part))
-        yield from self.path_completer.get_completions(
-            path_document, complete_event
-        )
+        all_files = []
+        cache_path = self.project_manager.available_files_cache
+        if cache_path.exists():
+            with open(cache_path, "r") as f:
+                all_files = [line.strip() for line in f if line.strip()]
+
+        word_document = Document(path_part, len(path_part))
+        completer = FuzzyWordCompleter(all_files)
+        yield from completer.get_completions(word_document, complete_event)
 
     def _get_drop_completions(
         self, document: Document, complete_event: CompleteEvent
