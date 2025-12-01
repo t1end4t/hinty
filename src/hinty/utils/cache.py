@@ -1,7 +1,11 @@
 import asyncio
+import json
 from pathlib import Path
+from typing import List
 
 import pathspec
+
+from .tree_sitter import get_top_level_objects
 
 
 async def cache_available_files(
@@ -31,5 +35,20 @@ async def cache_available_files(
         with open(available_files_cache, "w") as f:
             for file_name in file_names:
                 f.write(file_name + "\n")
+
+    await asyncio.to_thread(_load)
+
+
+async def cache_objects(files: List[Path], objects_cache: Path):
+    """Cache top-level objects for given files."""
+
+    def _load():
+        objects = {}
+        for file in files:
+            objs = get_top_level_objects(file)
+            objects[str(file)] = objs
+        objects_cache.parent.mkdir(parents=True, exist_ok=True)
+        with open(objects_cache, "w") as f:
+            json.dump(objects, f)
 
     await asyncio.to_thread(_load)
