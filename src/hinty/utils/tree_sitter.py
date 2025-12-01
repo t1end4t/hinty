@@ -46,10 +46,10 @@ def get_all_objects(file_path: Path) -> List[str]:
     parser = Parser(language=language)
     tree = parser.parse(content)
 
-    return collect_names(tree.root_node)
+    return _collect_names(tree.root_node)
 
 
-def collect_names(node: Node) -> List[str]:
+def _collect_names(node: Node) -> List[str]:
     names: List[str] = []
 
     match node.type:
@@ -60,12 +60,12 @@ def collect_names(node: Node) -> List[str]:
             if node.type == "function_definition":
                 params = node.child_by_field_name("parameters")
                 if params:
-                    names.extend(collect_identifiers(params))
+                    names.extend(_collect_identifiers(params))
 
         case "assignment":
             left = node.child_by_field_name("left")
             if left:
-                names.extend(collect_identifiers(left))
+                names.extend(_collect_identifiers(left))
 
         # JavaScript/TypeScript
         case "function_declaration" | "class_declaration" | "method_definition":
@@ -74,7 +74,7 @@ def collect_names(node: Node) -> List[str]:
             if node.type in ("function_declaration", "method_definition"):
                 params = node.child_by_field_name("parameters")
                 if params:
-                    names.extend(collect_identifiers(params))
+                    names.extend(_collect_identifiers(params))
 
         case "variable_declarator":
             if name := _get_field_text(node, "name"):
@@ -93,12 +93,12 @@ def collect_names(node: Node) -> List[str]:
             if node.type == "function_item":
                 params = node.child_by_field_name("parameters")
                 if params:
-                    names.extend(collect_identifiers(params))
+                    names.extend(_collect_identifiers(params))
 
         case "let_declaration":
             pattern = node.child_by_field_name("pattern")
             if pattern:
-                names.extend(collect_identifiers(pattern))
+                names.extend(_collect_identifiers(pattern))
 
         # Go
         case "function_declaration" | "method_declaration" | "type_declaration":
@@ -107,10 +107,10 @@ def collect_names(node: Node) -> List[str]:
             if node.type in ("function_declaration", "method_declaration"):
                 params = node.child_by_field_name("parameters")
                 if params:
-                    names.extend(collect_identifiers(params))
+                    names.extend(_collect_identifiers(params))
 
         case "var_declaration" | "short_var_declaration":
-            names.extend(collect_identifiers(node))
+            names.extend(_collect_identifiers(node))
 
         # Java
         case "class_declaration" | "interface_declaration" | "enum_declaration":
@@ -122,7 +122,7 @@ def collect_names(node: Node) -> List[str]:
                 names.append(name)
             params = node.child_by_field_name("parameters")
             if params:
-                names.extend(collect_identifiers(params))
+                names.extend(_collect_identifiers(params))
 
         case "variable_declarator":
             if name := _get_field_text(node, "name"):
@@ -136,7 +136,7 @@ def collect_names(node: Node) -> List[str]:
                     names.append(name)
                 params = declarator.child_by_field_name("parameters")
                 if params:
-                    names.extend(collect_identifiers(params))
+                    names.extend(_collect_identifiers(params))
             elif name := _get_field_text(node, "declarator"):
                 names.append(name)
 
@@ -147,22 +147,22 @@ def collect_names(node: Node) -> List[str]:
         case "declaration":
             declarator = node.child_by_field_name("declarator")
             if declarator:
-                names.extend(collect_identifiers(declarator))
+                names.extend(_collect_identifiers(declarator))
 
     for child in node.children:
-        names.extend(collect_names(child))
+        names.extend(_collect_names(child))
 
     return names
 
 
-def collect_identifiers(node: Node) -> List[str]:
+def _collect_identifiers(node: Node) -> List[str]:
     names: List[str] = []
 
     if node.type == "identifier" and node.text:
         names.append(node.text.decode("utf-8"))
 
     for child in node.children:
-        names.extend(collect_identifiers(child))
+        names.extend(_collect_identifiers(child))
 
     return names
 
