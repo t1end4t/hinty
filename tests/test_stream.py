@@ -32,14 +32,14 @@ async def main():
     message = "how to be better researcher"
     ctx = ProjectManager()
     controller = AbortController()
-    
+
     stream = get_agent_response(
         user_message=message,
         conversation_history=[],
         project_manager=ctx,
         controller=controller,
     )
-    
+
     full_text = ""
     with Live(refresh_per_second=10) as live:
         async for partial in stream:
