@@ -40,18 +40,12 @@ async def main():
 
     # Accumulate text here
     accumulated_text = ""
-    last_time = time.time()
 
     # Create Live context ONCE before the loop
     with Live(
         auto_refresh=True, vertical_overflow="ellipsis", refresh_per_second=10
     ) as live:
         async for partial in stream:
-            current_time = time.time()
-            print(
-                f"Chunk at {current_time:.2f}, delta {current_time - last_time:.2f}s"
-            )
-            last_time = current_time
             if partial.response:
                 if isinstance(partial.response, str):
                     accumulated_text = partial.response
