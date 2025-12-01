@@ -3,6 +3,7 @@ from typing import AsyncGenerator, List
 
 from baml_py import AbortController
 from dotenv import load_dotenv
+from rich import print
 from rich.live import Live
 from rich.markdown import Markdown
 
@@ -52,6 +53,30 @@ async def main():
                         full_text = responses
                         md = Markdown(full_text)
                         live.update(md)
+
+
+async def print_main():
+    message = "how to be better researcher"
+    ctx = ProjectManager()
+    controller = AbortController()
+
+    stream = get_agent_response(
+        user_message=message,
+        conversation_history=[],
+        project_manager=ctx,
+        controller=controller,
+    )
+
+    full_response = ""
+    async for partial in stream:
+        if partial.response:
+            if isinstance(partial.response, str):
+                full_response += partial.response
+            else:
+                async for subpartial in partial.response:
+                    full_response += subpartial
+
+    print(Markdown(full_response))
 
 
 if __name__ == "__main__":
