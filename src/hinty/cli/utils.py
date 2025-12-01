@@ -1,7 +1,6 @@
 import asyncio
 from typing import AsyncGenerator
 
-from baml_py import BamlSyncStream
 from prompt_toolkit import PromptSession
 from rich.console import Console, Group
 from rich.live import Live
@@ -38,41 +37,6 @@ def print_welcome():
     )
 
 
-def _display_with_live(
-    generator: BamlSyncStream[str, str], console: Console
-) -> str:
-    """Helper to display a generator of strings with live updates."""
-    full_response = ""
-    with Live(console=console, refresh_per_second=REFRESH_RATE) as live:
-        for chunk in generator:
-            full_response = chunk
-            live.update(
-                Panel(
-                    Markdown(full_response),
-                    title="LLM",
-                    border_style=agent_response_style,
-                )
-            )
-    return full_response
-
-
-def display_response(
-    response: str | BamlSyncStream[str, str], console: Console
-) -> str:
-    """Display response with live updating and return full response."""
-    if isinstance(response, str):
-        console.print(
-            Panel(
-                Markdown(response),
-                title="LLM",
-                border_style=agent_response_style,
-            )
-        )
-        return response
-    else:
-        return _display_with_live(response, console)
-
-
 async def display_stream_response(
     stream: AsyncGenerator[AgentResponse, None], console: Console
 ) -> str:
@@ -82,7 +46,11 @@ async def display_stream_response(
     current_thinking = None
     full_response = ""
 
-    live = Live(console=console, refresh_per_second=REFRESH_RATE)
+    live = Live(
+        console=console,
+        refresh_per_second=REFRESH_RATE,
+        vertical_overflow="ellipsis",  # auto scroll
+    )
     live.start()
     async for partial in stream:
         # show thinking

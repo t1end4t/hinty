@@ -10,11 +10,12 @@
       1. [x] Python
       2. [ ] Rust
       3. [ ] TypeScript
-   5. [ ] add ask mode
-   6. [ ] abort stream
-   7. [ ] prompt caching
-   8. [ ] multiple clients
-   9. [ ] Add rule
+   5. [ ] Based on commit, create message
+   6. [ ] add ask mode
+   7. [ ] abort stream
+   8. [ ] prompt caching
+   9. [ ] multiple clients
+   10. [ ] Add rule
 2. [ ] Chatgpt agent
 
 # Can not
@@ -23,8 +24,8 @@
 
 # Fix bug
 
-1. [ ] If added file, can not add it anymore
-2. [ ] Should not show panel, just show thinking animation when response is slow
+1. [x] Should not show panel, just show thinking animation when response is slow
+2. [ ] If added file, can not add it anymore
 3. [ ] logging should in file
 
 # Add tools

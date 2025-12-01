@@ -27,7 +27,7 @@ async def _call_router(
         logger.error("Operation was cancelled")
 
 
-async def _handle_smart_mode(
+async def handle_smart_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,

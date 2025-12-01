@@ -2,10 +2,10 @@ import ast
 
 code = """
 class A:
-    def method(self):
+    def _method(self):
         pass
 
-def f(x):
+def _f(x):
     return x
 
 x = 10

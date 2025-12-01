@@ -1,9 +1,4 @@
 def factorial(n):
-    """Return the factorial of a non‑negative integer n.
-
-    Raises:
-        ValueError: If ``n`` is negative.
-    """
     if n < 0:
         raise ValueError("factorial() not defined for negative values")
     result = 1
@@ -31,3 +26,13 @@ def add_two_numbers(a, b):
         print("Invalid input")
         return
     print(a + b)
+
+class Example:
+    """A simple example class."""
+
+    def __init__(self, value):
+        self.value = value
+
+    def greet(self):
+        """Return a greeting using the stored value."""
+        return f"Hello, {self.value}!"

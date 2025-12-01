@@ -27,28 +27,6 @@ LANGUAGES: Dict[str, Language] = {
 }
 
 
-def get_all_objects(file_path: Path) -> List[str]:
-    """
-    Extract all object names (functions, classes, variables, parameters, including inner ones)
-    from a source file using tree-sitter.
-    Supports Python, JavaScript, TypeScript, Rust, Go, Java, and C/C++.
-    For unsupported files, return an empty list.
-    """
-    language = LANGUAGES.get(file_path.suffix)
-    if not language:
-        return []
-
-    try:
-        content = file_path.read_bytes()
-    except (FileNotFoundError, UnicodeDecodeError):
-        return []
-
-    parser = Parser(language=language)
-    tree = parser.parse(content)
-
-    return _collect_names(tree.root_node)
-
-
 def _collect_names(node: Node) -> List[str]:
     names: List[str] = []
 
@@ -172,3 +150,25 @@ def _get_field_text(node: Node, field: str) -> str | None:
 
     if child and child.text:
         return child.text.decode("utf-8") if child else None
+
+
+def get_all_objects(file_path: Path) -> List[str]:
+    """
+    Extract all object names (functions, classes, variables, parameters, including inner ones)
+    from a source file using tree-sitter.
+    Supports Python, JavaScript, TypeScript, Rust, Go, Java, and C/C++.
+    For unsupported files, return an empty list.
+    """
+    language = LANGUAGES.get(file_path.suffix)
+    if not language:
+        return []
+
+    try:
+        content = file_path.read_bytes()
+    except (FileNotFoundError, UnicodeDecodeError):
+        return []
+
+    parser = Parser(language=language)
+    tree = parser.parse(content)
+
+    return _collect_names(tree.root_node)
