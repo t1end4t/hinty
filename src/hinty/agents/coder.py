@@ -126,9 +126,8 @@ def prepare_files_info(
     actions = []
     for file_path in project_manager.get_attached_files():
         relative_path = file_path.relative_to(project_manager.project_root)
-        result = read_content_file(file_path)
-        if result.success and isinstance(result.output, str):
-            file_content = result.output
+        try:
+            file_content = read_content_file(file_path)
             files_info.append(
                 FileInfo(
                     file_path=str(relative_path), file_content=file_content
@@ -136,8 +135,8 @@ def prepare_files_info(
             )
             logger.info(f"Add file: {file_path}")
             actions.append(f"Read file: {relative_path}")
-        else:
-            logger.error(f"Failed to read file {file_path}: {result.error}")
+        except (FileNotFoundError, ValueError) as e:
+            logger.error(f"Failed to read file {file_path}: {e}")
             actions.append(f"Failed to read file: {relative_path}")
     return files_info, actions
 
@@ -157,25 +156,23 @@ def apply_changes(
 ) -> Generator[AgentResponse, None, None]:
     """Apply search replace blocks and yield the result."""
     if final.files_to_change:
-        result = tool_apply_search_replace(final, project_manager.project_root)
-        if result.output is not None:
+        try:
+            output = apply_search_replace(final, project_manager.project_root)
             files_changed = [
                 str(
                     Path(r.split(" to ")[1]).relative_to(
                         project_manager.project_root
                     )
                 )
-                for r in result.output["results"]
+                for r in output["results"]
                 if "Successfully applied" in r
             ]
             yield AgentResponse(
                 actions=[f"Applied changes: {', '.join(files_changed)}"]
             )
-        else:
+        except ValueError as e:
             yield AgentResponse(
-                actions=[
-                    f"Failed to apply changes: {result.error or 'Unknown error'}"
-                ]
+                actions=[f"Failed to apply changes: {e}"]
             )
 
 
