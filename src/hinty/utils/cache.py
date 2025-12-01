@@ -40,12 +40,12 @@ async def cache_available_files(
 
 def cache_objects(files: List[Path], objects_cache: Path):
     """Cache top-level objects for given files."""
-
-    objects = {}
+    
+    all_objects = set()
     for file in files:
         objs = get_top_level_objects(file)
-        objects[str(file)] = objs
+        all_objects.update(objs)
     objects_cache.parent.mkdir(parents=True, exist_ok=True)
     with open(objects_cache, "w") as f:
-        for file_path, objs in objects.items():
-            f.write(f"{file_path}: {', '.join(objs)}\n")
+        for obj in sorted(all_objects):
+            f.write(obj + "\n")
