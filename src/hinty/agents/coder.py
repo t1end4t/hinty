@@ -19,7 +19,7 @@ from ..core.project_manager import ProjectManager
 from ..utils import apply_search_replace, read_content_file
 
 
-def format_diff_block(search: str, replace: str) -> List[str]:
+def _format_diff_block(search: str, replace: str) -> List[str]:
     """Format search/replace as a unified diff showing only changes."""
     search_lines = search.splitlines()
     replace_lines = replace.splitlines()
@@ -46,7 +46,7 @@ def format_diff_block(search: str, replace: str) -> List[str]:
     return diff_lines
 
 
-def process_coder_chunk(
+def _process_coder_chunk(
     chunk: CoderOutput | StreamCoderOutput | None,
 ) -> str:
     """Process a CoderOutput chunk into a formatted string, handling None values."""
@@ -75,7 +75,7 @@ def process_coder_chunk(
                     lines.append(code_block_start)
 
                     if block.search is not None and block.replace is not None:
-                        diff_lines = format_diff_block(
+                        diff_lines = _format_diff_block(
                             block.search, block.replace
                         )
                         lines.extend(diff_lines)
@@ -96,7 +96,7 @@ def process_coder_chunk(
     return "\n".join(lines)
 
 
-async def call_coder(
+async def _call_coder(
     user_message: str,
     files: List[FileInfo],
     conversation_history: List[ConversationMessage],
@@ -115,7 +115,7 @@ async def call_coder(
         logger.error("Operation was cancelled")
 
 
-def prepare_files_info(
+def _prepare_files_info(
     project_manager: ProjectManager,
 ) -> tuple[List[FileInfo], List[str]]:
     """Prepare file information and actions for the coder mode."""
@@ -138,17 +138,17 @@ def prepare_files_info(
     return files_info, actions
 
 
-async def handle_streaming_response(
+async def _handle_streaming_response(
     stream: BamlStream[StreamCoderOutput, CoderOutput],
 ) -> AsyncGenerator[AgentResponse, None]:
     """Handle streaming the coder response."""
     async for chunk in stream:
-        yield AgentResponse(response=process_coder_chunk(chunk))
+        yield AgentResponse(response=_process_coder_chunk(chunk))
     final = await stream.get_final_response()
-    yield AgentResponse(response=process_coder_chunk(final))
+    yield AgentResponse(response=_process_coder_chunk(final))
 
 
-def apply_changes(
+def _apply_changes(
     final: CoderOutput, project_manager: ProjectManager
 ) -> Generator[AgentResponse, None, None]:
     """Apply search replace blocks and yield the result."""
@@ -177,16 +177,16 @@ async def handle_coder_mode(
     project_manager: ProjectManager,
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
-    files_info, actions = prepare_files_info(project_manager)
+    files_info, actions = _prepare_files_info(project_manager)
 
     yield AgentResponse(actions=actions)
 
-    stream = await call_coder(
+    stream = await _call_coder(
         user_message, files_info, conversation_history, controller
     )
     if stream:
-        async for response in handle_streaming_response(stream):
+        async for response in _handle_streaming_response(stream):
             yield response
         final = await stream.get_final_response()
-        for response in apply_changes(final, project_manager):
+        for response in _apply_changes(final, project_manager):
             yield response
