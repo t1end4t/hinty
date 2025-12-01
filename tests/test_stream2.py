@@ -41,6 +41,9 @@ async def main():
 
     # Print response
     previous_content = ""
+    table_buffer = []
+    in_table = False
+    
     async for partial in stream:
         if partial.response:
             if isinstance(partial.response, str):
@@ -62,10 +65,36 @@ async def main():
                         line_content = subpartial[
                             start_pos : current_newline_pos + 1
                         ]
-                        md = Markdown(line_content)
-                        console.print(md)
+                        
+                        # Check if this line is part of a table
+                        line_stripped = line_content.strip()
+                        is_table_line = "|" in line_stripped
+                        
+                        if is_table_line:
+                            # We're in a table, buffer the line
+                            in_table = True
+                            table_buffer.append(line_content)
+                        else:
+                            # Not a table line
+                            if in_table:
+                                # We just exited a table, print the buffered table
+                                table_text = "".join(table_buffer)
+                                md = Markdown(table_text)
+                                console.print(md)
+                                table_buffer = []
+                                in_table = False
+                            
+                            # Print the current non-table line
+                            md = Markdown(line_content)
+                            console.print(md)
 
                     previous_content = subpartial
+    
+    # Print any remaining buffered table at the end
+    if table_buffer:
+        table_text = "".join(table_buffer)
+        md = Markdown(table_text)
+        console.print(md)
 
 
 if __name__ == "__main__":
