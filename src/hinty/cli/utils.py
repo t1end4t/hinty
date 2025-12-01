@@ -15,7 +15,7 @@ from ..cli.theme import (
     catppuccin_mocha_style,
     context_style,
 )
-from ..core.context_manager import ContextManager
+from ..core.project_manager import ProjectManager
 from ..core.models import AgentResponse
 
 console = Console()
@@ -148,14 +148,14 @@ async def display_stream_response(
     return full_response
 
 
-def display_files(context_manager: ContextManager):
+def display_files(project_manager: ProjectManager):
     """Display files panel if the file list is not empty."""
     files_str = (
         " ".join(
-            str(f.relative_to(context_manager.pwd_path))
-            for f in context_manager.get_all_files()
+            str(f.relative_to(project_manager.project_root))
+            for f in project_manager.get_attached_files()
         )
-        if context_manager.get_all_files()
+        if project_manager.get_attached_files()
         else ""
     )
     if files_str:
@@ -163,11 +163,11 @@ def display_files(context_manager: ContextManager):
 
 
 async def get_user_input(
-    session: PromptSession, context_manager: ContextManager
+    session: PromptSession, project_manager: ProjectManager
 ) -> str:
     """Prompt for and return user input."""
 
-    prompt_text = f"{context_manager.current_mode.value} >> "
+    prompt_text = f"{project_manager.mode.value} >> "
     return await asyncio.to_thread(
         session.prompt,
         prompt_text,
