@@ -89,7 +89,9 @@ class CommandCompleter(Completer):
                 objects = [line.strip() for line in f if line.strip()]
         word_document = Document(text, len(text))
         completer = FuzzyWordCompleter(objects)
-        for completion in completer.get_completions(word_document, complete_event):
+        for completion in completer.get_completions(
+            word_document, complete_event
+        ):
             yield Completion(
                 text=f"`{completion.text}`",
                 start_position=completion.start_position,
