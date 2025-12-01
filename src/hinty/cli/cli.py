@@ -35,7 +35,6 @@ class BacktickLexer(Lexer):
 
         for line_no, line in enumerate(lines):
             # Find all backtick pairs
-            import re
 
             matches = list(re.finditer(r"`([^`]+)`", line))
             pos = 0
