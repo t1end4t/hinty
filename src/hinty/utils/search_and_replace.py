@@ -1,75 +1,9 @@
-import asyncio
-import base64
-import mimetypes
 from collections import defaultdict
 from pathlib import Path
 
-import pathspec
 from loguru import logger
-from pypdf import PdfReader
 
 from ..baml_client.types import CoderOutput
-
-
-def read_content_file(filepath: Path) -> str:
-    """Read content from a file, handling different types like code, PDF, images, etc.
-
-    For text-based files (e.g., code), returns the text content.
-    For PDFs, extracts and returns text content.
-    For images, returns base64-encoded data URI.
-    For other files, attempts to read as text; falls back to a string representation of bytes if unsuccessful.
-
-    Args:
-        filepath: Path to the file to read.
-
-    Returns:
-        The content as a string.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If there is an error reading the file or unsupported format.
-    """
-    if not filepath.exists():
-        logger.error(f"File {filepath} does not exist")
-        raise FileNotFoundError(f"File {filepath} does not exist")
-
-    mime_type, _ = mimetypes.guess_type(str(filepath))
-
-    try:
-        if mime_type and mime_type.startswith("text"):
-            # Handle text files like code
-            content = filepath.read_text()
-            return content
-        elif mime_type == "application/pdf":
-            # Handle PDF files by extracting text
-            try:
-                reader = PdfReader(filepath)
-                text = ""
-                for page in reader.pages:
-                    text += page.extract_text() + "\n"
-                return text.strip()
-            except ImportError:
-                logger.error("pypdf library not available for PDF reading")
-                raise ValueError("pypdf library not available for PDF reading")
-        elif mime_type and mime_type.startswith("image"):
-            # Handle images by base64 encoding
-            with open(filepath, "rb") as f:
-                data = f.read()
-            encoded = base64.b64encode(data).decode("utf-8")
-            return f"data:{mime_type};base64,{encoded}"
-        else:
-            # Attempt to read as text for other types
-            try:
-                content = filepath.read_text()
-                return content
-            except UnicodeDecodeError:
-                # Fall back to reading as bytes and representing as string
-                with open(filepath, "rb") as f:
-                    data = f.read()
-                return f"<binary data: {len(data)} bytes>"
-    except Exception as e:
-        logger.error(f"Error reading file {filepath}: {e}")
-        raise ValueError(f"Error reading file {filepath}: {e}")
 
 
 def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
@@ -176,34 +110,3 @@ def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
     }
 
     return output
-
-
-async def cache_available_files(
-    project_root: Path, available_files_cache: Path
-):
-    """Load all files in project root recursively and save to cache, respecting .gitignore."""
-
-    def _load():
-        files = list(project_root.rglob("*"))
-        files = [f for f in files if f.is_file()]
-        # Exclude .git directory to avoid loading large or unwanted files
-        files = [f for f in files if ".git" not in f.parts]
-
-        # Respect .gitignore to avoid loading large or unwanted files
-        gitignore_path = project_root / ".gitignore"
-        if gitignore_path.exists():
-            with open(gitignore_path, "r") as f:
-                spec = pathspec.PathSpec.from_lines("gitwildmatch", f)
-            files = [
-                f
-                for f in files
-                if not spec.match_file(str(f.relative_to(project_root)))
-            ]
-
-        available_files_cache.parent.mkdir(parents=True, exist_ok=True)
-        file_names = [str(f.relative_to(project_root)) for f in files]
-        with open(available_files_cache, "w") as f:
-            for file_name in file_names:
-                f.write(file_name + "\n")
-
-    await asyncio.to_thread(_load)
