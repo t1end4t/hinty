@@ -40,6 +40,7 @@ async def main():
     )
 
     # Print response
+    previous_content = ""
     async for partial in stream:
         if partial.response:
             if isinstance(partial.response, str):
@@ -48,7 +49,9 @@ async def main():
                 console.print(md)
             else:
                 async for subpartial in partial.response:
-                    accumulated_text = subpartial
+                    new_content = subpartial[len(previous_content):]
+                    accumulated_text = new_content
+                    previous_content = subpartial
                     md = Markdown(accumulated_text)
                     console.print(md)
 
