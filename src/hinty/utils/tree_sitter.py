@@ -8,11 +8,11 @@ def get_top_level_objects(file_path: Path) -> List[str]:
     Extract top-level object names (functions, classes, variables) from a Python file using AST.
     For non-Python files, return an empty list.
     """
-    if file_path.suffix != '.py':
+    if file_path.suffix != ".py":
         return []
-    
+
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
         tree = ast.parse(content, filename=str(file_path))
         objects = []
