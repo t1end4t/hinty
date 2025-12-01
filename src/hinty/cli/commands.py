@@ -16,7 +16,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from ..baml_client.types import ConversationMessage
-from ..core.context_manager import ContextManager
+from ..core.project_manager import ProjectManager
 from ..core.models import Mode
 from .theme import YELLOW
 
@@ -34,9 +34,9 @@ commands = [
 
 
 class CommandCompleter(Completer):
-    def __init__(self, commands, context_manager: ContextManager):
+    def __init__(self, commands, project_manager: ProjectManager):
         self.commands = commands
-        self.context_manager = context_manager
+        self.project_manager = project_manager
         self.path_completer = FuzzyCompleter(PathCompleter())
 
     def _get_add_completions(
@@ -55,7 +55,7 @@ class CommandCompleter(Completer):
     ):
         text = document.text_before_cursor
         word = text[len("/drop ") :]
-        names = [f.name for f in self.context_manager.get_all_files()]
+        names = [f.name for f in self.project_manager.get_attached_files()]
         word_document = Document(word, len(word))
         completer = FuzzyWordCompleter(names)
         yield from completer.get_completions(word_document, complete_event)
@@ -130,7 +130,7 @@ def clear_command(
 
 
 def mode_command(
-    command: str, console: Console, context_manager: ContextManager
+    command: str, console: Console, project_manager: ProjectManager
 ):
     """Change the current mode."""
     parts = command.split()
@@ -143,7 +143,7 @@ def mode_command(
     mode_str = parts[1]
     try:
         new_mode = Mode.from_string(mode_str)
-        context_manager.set_mode(new_mode)
+        project_manager.change_mode(new_mode)
         console.print(f"Mode changed to {new_mode.value}\n", style=YELLOW)
     except ValueError:
         console.print(
@@ -153,7 +153,7 @@ def mode_command(
 
 
 def add_command(
-    command: str, console: Console, context_manager: ContextManager
+    command: str, console: Console, project_manager: ProjectManager
 ):
     """Add files to context for the agent/LLM."""
     parts = command.split()
@@ -161,11 +161,11 @@ def add_command(
         # Interactive mode: Fuzzy search and select files
         fzf = pyfzf.FzfPrompt()
         all_files = []
-        for root, dirs, files in os.walk(context_manager.pwd_path):
+        for root, dirs, files in os.walk(project_manager.project_root):
             for file in files:
                 all_files.append(
                     os.path.relpath(
-                        os.path.join(root, file), context_manager.pwd_path
+                        os.path.join(root, file), project_manager.project_root
                     )
                 )
         selected_files = fzf.prompt(
@@ -180,42 +180,40 @@ def add_command(
 
     # Validate and add files
     for file_path in selected_files:
-        full_path = os.path.join(context_manager.pwd_path, file_path)
+        full_path = os.path.join(project_manager.project_root, file_path)
         if os.path.isfile(full_path):
-            console.print(f"Added file: {file_path}\n", style=YELLOW)
-            context_manager.add_file(Path(full_path))
+            project_manager.attach_file(Path(full_path))
         else:
             console.print(f"File not found: {file_path}\n", style=YELLOW)
 
 
-def files_command(console: Console, context_manager: ContextManager):
+def files_command(console: Console, project_manager: ProjectManager):
     """List current files in context."""
-    if not context_manager.get_all_files():
+    if not project_manager.get_attached_files():
         console.print("No files attached.\n", style=YELLOW)
     else:
         console.print("Attached files:\n", style=YELLOW)
-        for i, file_path in enumerate(context_manager.get_all_files()):
+        for i, file_path in enumerate(project_manager.get_attached_files()):
             console.print(f"  {i}: {file_path}\n", style=YELLOW)
 
 
 def drop_command(
-    command: str, console: Console, context_manager: ContextManager
+    command: str, console: Console, project_manager: ProjectManager
 ):
     """Drop files from context by name, or all if no file provided."""
     parts = command.split()
     if len(parts) == 1:
-        # No file provided: drop all files
-        context_manager._files.clear()
+        project_manager.detach_file(remove_all=True)
         console.print("All files dropped from context.\n", style=YELLOW)
     else:
         # File names provided: drop specific files
         for file_name in parts[1:]:
             found = False
-            for file_path in context_manager.get_all_files()[
+            for file_path in project_manager.get_attached_files()[
                 :
             ]:  # Copy to avoid modification during iteration
                 if file_path.name == file_name:
-                    context_manager.remove_file(file_path)
+                    project_manager.detach_file(file_path)
                     console.print(f"Dropped file: {file_path}\n", style=YELLOW)
                     found = True
                     break
@@ -227,7 +225,7 @@ def handle_command(
     command: str,
     console: Console,
     conversation_history: List[ConversationMessage],
-    context_manager: ContextManager,
+    project_manager: ProjectManager,
 ):
     """Dispatch commands to their handlers."""
     if command == "/help":
@@ -235,13 +233,13 @@ def handle_command(
     elif command == "/clear":
         clear_command(console, conversation_history)
     elif command.startswith("/mode"):
-        mode_command(command, console, context_manager)
+        mode_command(command, console, project_manager)
     elif command.startswith("/add"):
-        add_command(command, console, context_manager)
+        add_command(command, console, project_manager)
     elif command == "/files":
-        files_command(console, context_manager)
+        files_command(console, project_manager)
     elif command.startswith("/drop"):
-        drop_command(command, console, context_manager)
+        drop_command(command, console, project_manager)
     elif command in ["/exit", "/quit"]:
         console.print("Exiting CLI...\n", style=YELLOW)
         raise SystemExit

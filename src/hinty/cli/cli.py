@@ -17,42 +17,42 @@ from ..cli.utils import (
     get_user_input,
     print_welcome,
 )
-from ..core.context_manager import ContextManager
+from ..core.project_manager import ProjectManager
 from ..core.llm import get_agent_response
 
 console = Console()
 
 
-def setup_session(context_manager: ContextManager) -> PromptSession:
+def setup_session(project_manager: ProjectManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
-    completer = CommandCompleter(commands, context_manager)
+    completer = CommandCompleter(commands, project_manager)
 
     session = PromptSession(
         completer=completer,
         complete_while_typing=True,
-        history=FileHistory(str(context_manager.hinty_history_path)),
+        history=FileHistory(str(project_manager.history_file)),
         auto_suggest=AutoSuggestFromHistory(),
     )
     return session
 
 
 def initialize_conversation() -> tuple[
-    List[ConversationMessage], ContextManager, AbortController
+    List[ConversationMessage], ProjectManager, AbortController
 ]:
     """Initialize conversation history and context manager."""
     conversation_history: List[ConversationMessage] = []
-    context_manager = ContextManager()
+    project_manager = ProjectManager()
     controller = AbortController()
 
-    console.print(f"Current directory: {context_manager.pwd_path}")
+    console.print(f"Current directory: {project_manager.project_root}")
 
-    return conversation_history, context_manager, controller
+    return conversation_history, project_manager, controller
 
 
 async def process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
-    context_manager: ContextManager,
+    project_manager: ProjectManager,
     console: Console,
     controller: AbortController,
 ):
@@ -67,7 +67,7 @@ async def process_user_message(
             responses = get_agent_response(
                 user_input,
                 conversation_history,
-                context_manager,
+                project_manager,
                 controller,
             )
             full_response = await display_stream_response(responses, console)
@@ -88,19 +88,19 @@ async def process_input(
     console: Console,
     user_input: str,
     conversation_history: List[ConversationMessage],
-    context_manager: ContextManager,
+    project_manager: ProjectManager,
     controller: AbortController,
 ):
     """Process user input as a command or message."""
     if user_input.startswith("/"):
         handle_command(
-            user_input, console, conversation_history, context_manager
+            user_input, console, conversation_history, project_manager
         )
     else:
         await process_user_message(
             user_input,
             conversation_history,
-            context_manager,
+            project_manager,
             console,
             controller,
         )
@@ -109,26 +109,26 @@ async def process_input(
 async def handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
-    context_manager: ContextManager,
+    project_manager: ProjectManager,
     controller: AbortController,
 ):
     """Handle the main input loop."""
     logger.debug("Starting input loop")
     while True:
         try:
-            display_files(context_manager)
-            user_input = await get_user_input(session, context_manager)
+            display_files(project_manager)
+            user_input = await get_user_input(session, project_manager)
             if not user_input:
                 break
             await process_input(
                 console,
                 user_input,
                 conversation_history,
-                context_manager,
+                project_manager,
                 controller,
             )
 
-            logger.debug(f"Current mode: {context_manager.current_mode}")
+            logger.debug(f"Current mode: {project_manager.mode}")
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             controller.abort()
@@ -153,12 +153,12 @@ async def chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
-    conversation_history, context_manager, controller = (
+    conversation_history, project_manager, controller = (
         initialize_conversation()
     )
-    session = setup_session(context_manager)
+    session = setup_session(project_manager)
     await handle_input_loop(
-        session, conversation_history, context_manager, controller
+        session, conversation_history, project_manager, controller
     )
     logger.debug("Chat ended")
 

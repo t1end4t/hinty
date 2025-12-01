@@ -1,7 +1,6 @@
 import asyncio
-import json
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from .models import Mode
 
@@ -38,12 +37,12 @@ class ProjectManager:
     @property
     def history_file(self) -> Path:
         """Get the path to the history file."""
-        return self.metadata_directory / "history"
+        return self.metadata_directory / "history.txt"
 
     @property
     def available_files_cache(self) -> Path:
         """Get the path to the available files cache."""
-        return self.metadata_directory / "available_files.json"
+        return self.metadata_directory / "project_files.txt"
 
     def change_mode(self, new_mode: Mode):
         """Change the current mode."""
@@ -55,10 +54,11 @@ class ProjectManager:
 
     def attach_file(self, file_path: Path):
         """Attach a file to the list."""
-        self._attached_files.append(file_path)
+        if file_path not in self._attached_files:
+            self._attached_files.append(file_path)
 
     def detach_file(
-        self, file_path: Optional[Path] = None, remove_all: bool = False
+        self, file_path: Path | None = None, remove_all: bool = False
     ):
         """Detach a file from the list by path, or remove all files if specified."""
         if remove_all:
@@ -73,10 +73,9 @@ class ProjectManager:
             files = list(self.project_root.rglob("*"))
             files = [f for f in files if f.is_file()]
             self.available_files_cache.parent.mkdir(parents=True, exist_ok=True)
-            data = {
-                "files": [str(f.relative_to(self.project_root)) for f in files]
-            }
+            file_names = [str(f.relative_to(self.project_root)) for f in files]
             with open(self.available_files_cache, "w") as f:
-                json.dump(data, f)
+                for file_name in file_names:
+                    f.write(file_name + "\n")
 
         await asyncio.to_thread(_load)

@@ -23,3 +23,11 @@
 1. [ ] If added file, can not add it anymore
 2. [ ] Should not show panel, just show thinking animation when response is slow
 3. [ ] logging should in file
+
+# Add tools
+
+1. [ ] Search web
+
+# Agents
+
+1. [ ] Prompt engineering (for baml)

@@ -4,7 +4,7 @@ from typing import AsyncGenerator, List
 from baml_py import AbortController
 from dotenv import load_dotenv
 from rich.live import Live
-from rich.text import Text
+from rich.markdown import Markdown
 
 from hinty.agents.router import handle_smart_mode
 from hinty.baml_client.types import ConversationMessage
@@ -28,7 +28,7 @@ async def get_agent_response(
 
 
 async def main():
-    message = "what you can do"
+    message = "how to be better researcher"
     ctx = ProjectManager()
     controller = AbortController()
 
@@ -41,11 +41,17 @@ async def main():
 
     async for partial in stream:
         if partial.response:
-            text = Text()
-            with Live(text, refresh_per_second=10) as live:
-                for subpartial in partial.response:
-                    text.plain = subpartial
-                    live.update(text)
+            with Live(auto_refresh=False) as live:
+                if isinstance(partial.response, str):
+                    md = Markdown(partial.response)
+                    live.update(md)
+                else:
+                    responses = []
+                    async for subpartial in partial.response:
+                        responses.append(subpartial)
+                        full_text = "".join(responses)
+                        md = Markdown(full_text)
+                        live.update(md)
 
 
 if __name__ == "__main__":

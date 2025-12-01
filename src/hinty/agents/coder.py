@@ -14,7 +14,7 @@ from ..baml_client.types import (
     ConversationMessage,
     FileInfo,
 )
-from ..core.context_manager import ContextManager
+from ..core.project_manager import ProjectManager
 from ..tools.file_operations import tool_read_file
 from ..tools.search_and_replace import tool_apply_search_replace
 
@@ -81,13 +81,13 @@ async def call_coder(
 
 
 def prepare_files_info(
-    context_manager: ContextManager,
+    project_manager: ProjectManager,
 ) -> tuple[List[FileInfo], List[str]]:
     """Prepare file information and actions for the coder mode."""
     files_info = []
     actions = []
-    for file_path in context_manager.get_all_files():
-        relative_path = file_path.relative_to(context_manager.pwd_path)
+    for file_path in project_manager.get_attached_files():
+        relative_path = file_path.relative_to(project_manager.project_root)
         result = tool_read_file(file_path)
         if result.success and isinstance(result.output, str):
             file_content = result.output
@@ -115,16 +115,16 @@ async def handle_streaming_response(
 
 
 def apply_changes(
-    final: CoderOutput, context_manager: ContextManager
+    final: CoderOutput, project_manager: ProjectManager
 ) -> Generator[AgentResponse, None, None]:
     """Apply search replace blocks and yield the result."""
     if final.files_to_change:
-        result = tool_apply_search_replace(final, context_manager.pwd_path)
+        result = tool_apply_search_replace(final, project_manager.project_root)
         if result.output is not None:
             files_changed = [
                 str(
                     Path(r.split(" to ")[1]).relative_to(
-                        context_manager.pwd_path
+                        project_manager.project_root
                     )
                 )
                 for r in result.output["results"]
@@ -144,10 +144,10 @@ def apply_changes(
 async def handle_coder_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
-    context_manager: ContextManager,
+    project_manager: ProjectManager,
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
-    files_info, actions = prepare_files_info(context_manager)
+    files_info, actions = prepare_files_info(project_manager)
 
     yield AgentResponse(actions=actions)
 
@@ -158,5 +158,5 @@ async def handle_coder_mode(
         async for response in handle_streaming_response(stream):
             yield response
         final = await stream.get_final_response()
-        for response in apply_changes(final, context_manager):
+        for response in apply_changes(final, project_manager):
             yield response
