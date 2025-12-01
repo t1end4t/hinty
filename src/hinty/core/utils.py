@@ -11,14 +11,18 @@ async def cache_available_files(
     def _load():
         files = list(project_root.rglob("*"))
         files = [f for f in files if f.is_file()]
-        
+
         # Respect .gitignore to avoid loading large or unwanted files
-        gitignore_path = project_root / '.gitignore'
+        gitignore_path = project_root / ".gitignore"
         if gitignore_path.exists():
-            with open(gitignore_path, 'r') as f:
-                spec = pathspec.PathSpec.from_lines('gitwildmatch', f)
-            files = [f for f in files if not spec.match_file(str(f.relative_to(project_root)))]
-        
+            with open(gitignore_path, "r") as f:
+                spec = pathspec.PathSpec.from_lines("gitwildmatch", f)
+            files = [
+                f
+                for f in files
+                if not spec.match_file(str(f.relative_to(project_root)))
+            ]
+
         available_files_cache.parent.mkdir(parents=True, exist_ok=True)
         file_names = [str(f.relative_to(project_root)) for f in files]
         with open(available_files_cache, "w") as f:
