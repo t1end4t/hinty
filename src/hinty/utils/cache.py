@@ -25,7 +25,9 @@ async def cache_available_files(
     if gitignore_path.exists():
         async with aiofiles.open(gitignore_path, "r") as f:
             gitignore_content = await f.read()
-        spec = pathspec.PathSpec.from_lines("gitwildmatch", gitignore_content.splitlines())
+        spec = pathspec.PathSpec.from_lines(
+            "gitwildmatch", gitignore_content.splitlines()
+        )
         files = [
             f
             for f in files
@@ -40,7 +42,9 @@ async def cache_available_files(
             f"File count exceeds limit of {max_files}. Aborting to prevent performance issues."
         )
 
-    await asyncio.to_thread(available_files_cache.parent.mkdir, parents=True, exist_ok=True)
+    await asyncio.to_thread(
+        available_files_cache.parent.mkdir, parents=True, exist_ok=True
+    )
     file_names = [str(f.relative_to(project_root)) for f in files]
     async with aiofiles.open(available_files_cache, "w") as f:
         for file_name in file_names:
