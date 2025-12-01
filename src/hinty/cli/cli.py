@@ -36,28 +36,34 @@ class BacktickLexer(Lexer):
         for line_no, line in enumerate(lines):
             # Find all backtick pairs
             import re
-            matches = list(re.finditer(r'`([^`]+)`', line))
+
+            matches = list(re.finditer(r"`([^`]+)`", line))
             pos = 0
             for match in matches:
                 # Text before backtick
                 if match.start() > pos:
-                    yield (line_no, pos, match.start() - pos), 'default'
+                    yield (line_no, pos, match.start() - pos), "default"
                 # Text inside backticks
-                yield (line_no, match.start(), match.end() - match.start()), 'bold italic'
+                yield (
+                    (line_no, match.start(), match.end() - match.start()),
+                    "bold italic",
+                )
                 pos = match.end()
             # Remaining text
             if pos < len(line):
-                yield (line_no, pos, len(line) - pos), 'default'
+                yield (line_no, pos, len(line) - pos), "default"
 
 
 def setup_session(project_manager: ProjectManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, project_manager)
 
-    style = Style.from_dict({
-        'bold italic': 'bold italic',
-        'default': '',
-    })
+    style = Style.from_dict(
+        {
+            "bold italic": "bold italic",
+            "default": "",
+        }
+    )
 
     session = PromptSession(
         completer=completer,
