@@ -4,6 +4,7 @@ from baml_py import AbortController
 from dotenv import load_dotenv
 from rich.live import Live
 from rich.markdown import Markdown
+from rich.console import Console
 from hinty.agents.router import handle_smart_mode
 from hinty.baml_client.types import ConversationMessage
 from hinty.core.project_manager import ProjectManager
@@ -37,11 +38,8 @@ async def main():
         controller=controller,
     )
 
-    # Accumulate text here
-    accumulated_text = ""
-
-    # Create Live context ONCE before the loop
-    with Live(vertical_overflow="visible") as live:
+    # Stream with Live display
+    with Live() as live:
         async for partial in stream:
             if partial.response:
                 if isinstance(partial.response, str):
@@ -50,7 +48,6 @@ async def main():
                     live.update(md, refresh=True)
                 else:
                     async for subpartial in partial.response:
-                        # Accumulate the streaming text
                         accumulated_text = subpartial
                         md = Markdown(accumulated_text)
                         live.update(md, refresh=True)
