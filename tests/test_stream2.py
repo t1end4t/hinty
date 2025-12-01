@@ -41,7 +41,7 @@ async def main():
     # Stream with Live display
     console = Console()
     console_height = console.height
-    
+
     with Live(console=console) as live:
         async for partial in stream:
             if partial.response:
@@ -52,9 +52,9 @@ async def main():
                 else:
                     async for subpartial in partial.response:
                         # Split into lines and take only the last N lines
-                        lines = subpartial.split('\n')
+                        lines = subpartial.split("\n")
                         last_lines = lines[-console_height:]
-                        accumulated_text = '\n'.join(last_lines)
+                        accumulated_text = "\n".join(last_lines)
                         md = Markdown(accumulated_text)
                         live.update(md, refresh=True)
 
