@@ -9,48 +9,79 @@ from loguru import logger
 from .tree_sitter import get_all_objects
 
 
-async def cache_available_files(
-    project_root: Path, available_files_cache: Path, max_files: int = 10000
-):
-    """Load all files in project root recursively and save to cache, respecting .gitignore."""
-    logger.info(f"Starting cache_available_files for {project_root}")
+def discover_project_files(project_root: Path) -> List[Path]:
+    """Discover all files in project, excluding .git directory."""
+    all_files = project_root.rglob("*")
+    return [f for f in all_files if f.is_file() and ".git" not in f.parts]
 
-    files = await asyncio.to_thread(lambda: list(project_root.rglob("*")))
-    files = [f for f in files if f.is_file()]
-    # Exclude .git directory to avoid loading large or unwanted files
-    files = [f for f in files if ".git" not in f.parts]
 
-    # Respect .gitignore to avoid loading large or unwanted files
+async def load_gitignore_spec(
+    project_root: Path,
+) -> pathspec.PathSpec | None:
+    """Load and parse .gitignore file if it exists."""
     gitignore_path = project_root / ".gitignore"
-    if gitignore_path.exists():
-        async with aiofiles.open(gitignore_path, "r") as f:
-            gitignore_content = await f.read()
-        spec = pathspec.PathSpec.from_lines(
-            "gitwildmatch", gitignore_content.splitlines()
-        )
-        files = [
-            f
-            for f in files
-            if not spec.match_file(str(f.relative_to(project_root)))
-        ]
+    if not gitignore_path.exists():
+        return None
 
-    if len(files) > max_files:
+    async with aiofiles.open(gitignore_path, "r") as f:
+        content = await f.read()
+
+    return pathspec.PathSpec.from_lines("gitwildmatch", content.splitlines())
+
+
+def filter_files_by_gitignore(
+    files: List[Path], project_root: Path, spec: pathspec.PathSpec | None
+) -> List[Path]:
+    """Filter files using gitignore patterns."""
+    if spec is None:
+        return files
+
+    return [
+        f
+        for f in files
+        if not spec.match_file(str(f.relative_to(project_root)))
+    ]
+
+
+def validate_file_count(file_count: int, max_files: int) -> None:
+    """Validate that file count doesn't exceed maximum."""
+    if file_count > max_files:
         logger.warning(
-            f"Too many files ({len(files)}) in {project_root}, aborting cache to prevent slowdown. Consider adjusting max_files or project_root."
+            f"File count ({file_count}) exceeds limit of {max_files}"
         )
         raise ValueError(
-            f"File count exceeds limit of {max_files}. Aborting to prevent performance issues."
+            f"File count exceeds limit of {max_files}. "
+            "Aborting to prevent performance issues."
         )
 
-    await asyncio.to_thread(
-        available_files_cache.parent.mkdir, parents=True, exist_ok=True
-    )
-    file_names = [str(f.relative_to(project_root)) for f in files]
-    async with aiofiles.open(available_files_cache, "w") as f:
-        for file_name in file_names:
-            await f.write(file_name + "\n")
 
-    logger.info(f"Cached {len(files)} files for {project_root}")
+async def write_file_cache(
+    files: List[Path], project_root: Path, cache_path: Path
+) -> None:
+    """Write relative file paths to cache file."""
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    relative_paths = [str(f.relative_to(project_root)) for f in files]
+
+    async with aiofiles.open(cache_path, "w") as f:
+        await f.write("\n".join(relative_paths) + "\n")
+
+
+async def cache_available_files(
+    project_root: Path, available_files_cache: Path, max_files: int = 10000
+) -> None:
+    """Cache all project files, respecting .gitignore."""
+    logger.info(f"Caching files for {project_root}")
+
+    files = discover_project_files(project_root)
+    gitignore_spec = await load_gitignore_spec(project_root)
+    filtered_files = filter_files_by_gitignore(
+        files, project_root, gitignore_spec
+    )
+
+    validate_file_count(len(filtered_files), max_files)
+    await write_file_cache(filtered_files, project_root, available_files_cache)
+
+    logger.info(f"Cached {len(filtered_files)} files")
 
 
 def cache_objects(files: List[Path], objects_cache: Path):
