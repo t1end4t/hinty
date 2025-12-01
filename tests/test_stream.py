@@ -41,15 +41,15 @@ async def main():
 
     async for partial in stream:
         if partial.response:
-            with Live(auto_refresh=False, refresh_per_second=10) as live:
+            with Live(refresh_per_second=10) as live:
                 if isinstance(partial.response, str):
                     md = Markdown(partial.response)
                     live.update(md)
                 else:
-                    responses = []
+                    # responses = []
                     async for subpartial in partial.response:
-                        responses.append(subpartial)
-                        full_text = "".join(responses)
+                        responses = subpartial
+                        full_text = responses
                         md = Markdown(full_text)
                         live.update(md)
 
