@@ -38,7 +38,7 @@ async def cache_available_files(
     await asyncio.to_thread(_load)
 
 
-async def cache_objects(files: List[Path], objects_cache: Path):
+def cache_objects(files: List[Path], objects_cache: Path):
     """Cache top-level objects for given files."""
 
     def _load():
@@ -51,4 +51,4 @@ async def cache_objects(files: List[Path], objects_cache: Path):
             for file_path, objs in objects.items():
                 f.write(f"{file_path}: {', '.join(objs)}\n")
 
-    await asyncio.to_thread(_load)
+    _load()

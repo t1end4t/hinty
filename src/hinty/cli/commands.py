@@ -202,10 +202,8 @@ def add_command(
             console.print(f"File not found: {file_path}\n", style=YELLOW)
 
     # Load objects for attached files
-    asyncio.run(
-        cache_objects(
-            project_manager.get_attached_files(), project_manager.objects_cache
-        )
+    cache_objects(
+        project_manager.get_attached_files(), project_manager.objects_cache
     )
 
 
