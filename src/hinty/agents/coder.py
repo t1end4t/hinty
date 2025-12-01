@@ -1,4 +1,3 @@
-import difflib
 from pathlib import Path
 from typing import AsyncGenerator, Generator, List
 
@@ -47,26 +46,17 @@ def process_coder_chunk(
                         else "```"
                     )
                     lines.append(code_block_start)
-                    search_lines = (
-                        block.search.splitlines(keepends=True)
-                        if block.search is not None
-                        else []
-                    )
-                    replace_lines = (
-                        block.replace.splitlines(keepends=True)
-                        if block.replace is not None
-                        else []
-                    )
-                    diff = list(
-                        difflib.unified_diff(
-                            search_lines,
-                            replace_lines,
-                            fromfile="search",
-                            tofile="replace",
-                            lineterm="",
-                        )
-                    )
-                    lines.extend(diff)
+
+                    if block.search is not None:
+                        search_lines = block.search.splitlines()
+                        for line in search_lines:
+                            lines.append(f"- {line}")
+
+                    if block.replace is not None:
+                        replace_lines = block.replace.splitlines()
+                        for line in replace_lines:
+                            lines.append(f"+ {line}")
+
                     lines.append("```")
 
             if file_change.explanation is not None:
