@@ -66,16 +66,3 @@ class ProjectManager:
         elif file_path is not None:
             self._attached_files.remove(file_path)
 
-    async def cache_available_files(self):
-        """Load all files in project root recursively and save to cache."""
-
-        def _load():
-            files = list(self.project_root.rglob("*"))
-            files = [f for f in files if f.is_file()]
-            self.available_files_cache.parent.mkdir(parents=True, exist_ok=True)
-            file_names = [str(f.relative_to(self.project_root)) for f in files]
-            with open(self.available_files_cache, "w") as f:
-                for file_name in file_names:
-                    f.write(file_name + "\n")
-
-        await asyncio.to_thread(_load)

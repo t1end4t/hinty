@@ -2,17 +2,16 @@
 
 ## TODO
 
-1. [x] add stream
-2. [x] add async for abort controller
-3. [x] thinking animation
-4. [ ] Cache list of file (using .gitignore)
-5. [ ] load map using treesiter
-6. [ ] show diff format (for user know) instead whole search/replace block
-7. [ ] add ask mode
-8. [ ] abort stream
-9. [ ] prompt caching
-10. [ ] multiple clients
-11. [ ] Add rule
+1. [ ] Coding agent
+   1. [ ] Cache list of file (using .gitignore)
+   2. [ ] load map using treesiter
+   3. [ ] show diff format (for user know) instead whole search/replace block
+   4. [ ] add ask mode
+   5. [ ] abort stream
+   6. [ ] prompt caching
+   7. [ ] multiple clients
+   8. [ ] Add rule
+2. [ ] Chatgpt agent
 
 # Can not
 
