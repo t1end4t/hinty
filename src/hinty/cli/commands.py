@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import List
 
@@ -173,13 +172,11 @@ def add_command(
         else:
             # Fallback to os.walk if cache doesn't exist
             for root, _, files in os.walk(project_manager.project_root):
+                root_path = Path(root)
                 for file in files:
-                    all_files.append(
-                        os.path.relpath(
-                            os.path.join(root, file),
-                            project_manager.project_root,
-                        )
-                    )
+                    file_path = root_path / file
+                    rel_path = file_path.relative_to(project_manager.project_root)
+                    all_files.append(str(rel_path))
         selected_files = fzf.prompt(
             all_files, "--multi"
         )  # Multi-select with fuzzy search
@@ -192,9 +189,9 @@ def add_command(
 
     # Validate and add files
     for file_path in selected_files:
-        full_path = os.path.join(project_manager.project_root, file_path)
-        if os.path.isfile(full_path):
-            project_manager.attach_file(Path(full_path))
+        full_path = project_manager.project_root / file_path
+        if full_path.is_file():
+            project_manager.attach_file(full_path)
             console.print(f"Attached file: {file_path}\n", style=YELLOW)
         else:
             console.print(f"File not found: {file_path}\n", style=YELLOW)
