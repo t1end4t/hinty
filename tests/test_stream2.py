@@ -49,7 +49,7 @@ async def main():
                 console.print(md)
             else:
                 async for subpartial in partial.response:
-                    new_content = subpartial[len(previous_content):]
+                    new_content = subpartial[len(previous_content) :]
                     accumulated_text = new_content
                     previous_content = subpartial
                     md = Markdown(accumulated_text)
