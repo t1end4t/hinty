@@ -81,7 +81,13 @@ def collect_names(node: Node) -> List[str]:
                 names.append(name)
 
         # Rust
-        case "function_item" | "struct_item" | "enum_item" | "trait_item" | "impl_item":
+        case (
+            "function_item"
+            | "struct_item"
+            | "enum_item"
+            | "trait_item"
+            | "impl_item"
+        ):
             if name := _get_field_text(node, "name"):
                 names.append(name)
             if node.type == "function_item":
