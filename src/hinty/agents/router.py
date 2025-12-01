@@ -10,7 +10,7 @@ from ..baml_client.async_client import b
 from ..baml_client.types import ConversationMessage
 
 
-async def call_router(
+async def _call_router(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
@@ -27,12 +27,12 @@ async def call_router(
         logger.error("Operation was cancelled")
 
 
-async def handle_smart_mode(
+async def _handle_smart_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
-    stream = await call_router(
+    stream = await _call_router(
         user_message, conversation_history, controller=controller
     )
     yield AgentResponse(response=stream)
