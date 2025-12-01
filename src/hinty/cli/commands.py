@@ -1,3 +1,4 @@
+import asyncio
 import os
 from pathlib import Path
 from typing import List
@@ -18,6 +19,7 @@ from rich.panel import Panel
 from ..baml_client.types import ConversationMessage
 from ..core.project_manager import ProjectManager
 from ..core.models import Mode
+from ..utils.cache import cache_objects
 from .theme import YELLOW
 
 
@@ -198,6 +200,13 @@ def add_command(
             console.print(f"Attached file: {file_path}\n", style=YELLOW)
         else:
             console.print(f"File not found: {file_path}\n", style=YELLOW)
+
+    # Load objects for attached files
+    asyncio.run(
+        cache_objects(
+            project_manager.get_attached_files(), project_manager.objects_cache
+        )
+    )
 
 
 def files_command(console: Console, project_manager: ProjectManager):
