@@ -1,19 +1,41 @@
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 from tree_sitter import Parser, Node, Language
 import tree_sitter_python as tspython
+import tree_sitter_javascript as tsjavascript
+import tree_sitter_typescript as tstypescript
+import tree_sitter_rust as tsrust
+import tree_sitter_go as tsgo
+import tree_sitter_java as tsjava
+import tree_sitter_cpp as tscpp
 
-PY = Language(tspython.language())
+LANGUAGES: Dict[str, Language] = {
+    ".py": Language(tspython.language()),
+    ".js": Language(tsjavascript.language()),
+    ".jsx": Language(tsjavascript.language()),
+    ".ts": Language(tstypescript.language_typescript()),
+    ".tsx": Language(tstypescript.language_tsx()),
+    ".rs": Language(tsrust.language()),
+    ".go": Language(tsgo.language()),
+    ".java": Language(tsjava.language()),
+    ".c": Language(tscpp.language()),
+    ".cpp": Language(tscpp.language()),
+    ".cc": Language(tscpp.language()),
+    ".cxx": Language(tscpp.language()),
+    ".h": Language(tscpp.language()),
+    ".hpp": Language(tscpp.language()),
+}
 
 
-# TODO: support more, not only python
 def get_all_objects(file_path: Path) -> List[str]:
     """
     Extract all object names (functions, classes, variables, parameters, including inner ones)
-    from a Python file using tree-sitter.
-    For non-Python files, return an empty list.
+    from a source file using tree-sitter.
+    Supports Python, JavaScript, TypeScript, Rust, Go, Java, and C/C++.
+    For unsupported files, return an empty list.
     """
-    if file_path.suffix != ".py":
+    language = LANGUAGES.get(file_path.suffix)
+    if not language:
         return []
 
     try:
@@ -21,7 +43,7 @@ def get_all_objects(file_path: Path) -> List[str]:
     except (FileNotFoundError, UnicodeDecodeError):
         return []
 
-    parser = Parser(language=PY)
+    parser = Parser(language=language)
     tree = parser.parse(content)
 
     return collect_names(tree.root_node)
@@ -31,21 +53,95 @@ def collect_names(node: Node) -> List[str]:
     names: List[str] = []
 
     match node.type:
-        case "function_definition":
+        # Python
+        case "function_definition" | "class_definition":
+            if name := _get_field_text(node, "name"):
+                names.append(name)
+            if node.type == "function_definition":
+                params = node.child_by_field_name("parameters")
+                if params:
+                    names.extend(collect_identifiers(params))
+
+        case "assignment":
+            left = node.child_by_field_name("left")
+            if left:
+                names.extend(collect_identifiers(left))
+
+        # JavaScript/TypeScript
+        case "function_declaration" | "class_declaration" | "method_definition":
+            if name := _get_field_text(node, "name"):
+                names.append(name)
+            if node.type in ("function_declaration", "method_definition"):
+                params = node.child_by_field_name("parameters")
+                if params:
+                    names.extend(collect_identifiers(params))
+
+        case "variable_declarator":
+            if name := _get_field_text(node, "name"):
+                names.append(name)
+
+        # Rust
+        case "function_item" | "struct_item" | "enum_item" | "trait_item" | "impl_item":
+            if name := _get_field_text(node, "name"):
+                names.append(name)
+            if node.type == "function_item":
+                params = node.child_by_field_name("parameters")
+                if params:
+                    names.extend(collect_identifiers(params))
+
+        case "let_declaration":
+            pattern = node.child_by_field_name("pattern")
+            if pattern:
+                names.extend(collect_identifiers(pattern))
+
+        # Go
+        case "function_declaration" | "method_declaration" | "type_declaration":
+            if name := _get_field_text(node, "name"):
+                names.append(name)
+            if node.type in ("function_declaration", "method_declaration"):
+                params = node.child_by_field_name("parameters")
+                if params:
+                    names.extend(collect_identifiers(params))
+
+        case "var_declaration" | "short_var_declaration":
+            names.extend(collect_identifiers(node))
+
+        # Java
+        case "class_declaration" | "interface_declaration" | "enum_declaration":
+            if name := _get_field_text(node, "name"):
+                names.append(name)
+
+        case "method_declaration" | "constructor_declaration":
             if name := _get_field_text(node, "name"):
                 names.append(name)
             params = node.child_by_field_name("parameters")
             if params:
                 names.extend(collect_identifiers(params))
 
-        case "class_definition":
+        case "variable_declarator":
             if name := _get_field_text(node, "name"):
                 names.append(name)
 
-        case "assignment":
-            left = node.child_by_field_name("left")
-            if left:
-                names.extend(collect_identifiers(left))
+        # C/C++
+        case "function_definition" | "function_declarator":
+            declarator = node.child_by_field_name("declarator")
+            if declarator and declarator.type == "function_declarator":
+                if name := _get_field_text(declarator, "declarator"):
+                    names.append(name)
+                params = declarator.child_by_field_name("parameters")
+                if params:
+                    names.extend(collect_identifiers(params))
+            elif name := _get_field_text(node, "declarator"):
+                names.append(name)
+
+        case "struct_specifier" | "class_specifier" | "enum_specifier":
+            if name := _get_field_text(node, "name"):
+                names.append(name)
+
+        case "declaration":
+            declarator = node.child_by_field_name("declarator")
+            if declarator:
+                names.extend(collect_identifiers(declarator))
 
     for child in node.children:
         names.extend(collect_names(child))
