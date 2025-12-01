@@ -1,4 +1,4 @@
-from typing import Generator, List
+from typing import AsyncGenerator, List
 
 from baml_py import AbortController
 from dotenv import load_dotenv
@@ -7,39 +7,34 @@ from rich.text import Text
 
 from hinty.agents.router import handle_smart_mode
 from hinty.baml_client.types import ConversationMessage
-from hinty.core.context_manager import ContextManager
+from hinty.core.project_manager import ProjectManager
 from hinty.core.models import AgentResponse
 
 load_dotenv()
 
 
-def get_agent_response(
+async def get_agent_response(
     user_message: str,
     conversation_history: List[ConversationMessage],
-    context_manager: ContextManager,
+    project_manager: ProjectManager,
     controller: AbortController,
-) -> Generator[AgentResponse, None, None]:
+) -> AsyncGenerator[AgentResponse, None]:
     """Get a response from the LLM"""
-    yield handle_smart_mode(
-        user_message, conversation_history, context_manager, controller
-    )
+    async for response in handle_smart_mode(
+        user_message, conversation_history, controller
+    ):
+        yield response
 
 
 def main():
     message = "what you can do"
-    ctx = ContextManager()
+    ctx = ProjectManager()
     controller = AbortController()
 
-    # stream = handle_smart_mode(
-    #     user_message=message,
-    #     conversation_history=[],
-    #     context_manager=ctx,
-    #     controller=controller,
-    # )
     stream = get_agent_response(
         user_message=message,
         conversation_history=[],
-        context_manager=ctx,
+        project_manager=ctx,
         controller=controller,
     )
 
