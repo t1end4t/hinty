@@ -44,9 +44,7 @@ async def main():
     async for partial in stream:
         if partial.response:
             if isinstance(partial.response, str):
-                accumulated_text = partial.response
-                md = Markdown(accumulated_text)
-                console.print(md)
+                pass
             else:
                 async for subpartial in partial.response:
                     new_content = subpartial[len(previous_content) :]
