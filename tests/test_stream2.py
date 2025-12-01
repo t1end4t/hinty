@@ -31,7 +31,6 @@ async def main():
     controller = AbortController()
 
     console = Console()
-    accumulated_text = ""
 
     stream = get_agent_response(
         user_message=message,
@@ -49,9 +48,8 @@ async def main():
                 console.print(md)
             else:
                 async for subpartial in partial.response:
-                    new_content = subpartial[len(accumulated_text) :]
                     accumulated_text = subpartial
-                    md = Markdown(new_content)
+                    md = Markdown(accumulated_text)
                     console.print(md)
 
 
