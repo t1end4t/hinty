@@ -8,6 +8,8 @@ from loguru import logger
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.lexers import Lexer
+from prompt_toolkit.styles import Style
 from rich.console import Console
 
 from ..baml_client.types import ConversationMessage
@@ -25,15 +27,45 @@ from ..utils import cache_available_files
 console = Console()
 
 
+class BacktickLexer(Lexer):
+    """Lexer to apply bold italic style to text between backticks."""
+
+    def lex_document(self, document):
+        lines = document.lines
+
+        for line_no, line in enumerate(lines):
+            # Find all backtick pairs
+            import re
+            matches = list(re.finditer(r'`([^`]+)`', line))
+            pos = 0
+            for match in matches:
+                # Text before backtick
+                if match.start() > pos:
+                    yield (line_no, pos, match.start() - pos), 'default'
+                # Text inside backticks
+                yield (line_no, match.start(), match.end() - match.start()), 'bold italic'
+                pos = match.end()
+            # Remaining text
+            if pos < len(line):
+                yield (line_no, pos, len(line) - pos), 'default'
+
+
 def setup_session(project_manager: ProjectManager) -> PromptSession:
     """Set up the prompt session with completer and style."""
     completer = CommandCompleter(commands, project_manager)
+
+    style = Style.from_dict({
+        'bold italic': 'bold italic',
+        'default': '',
+    })
 
     session = PromptSession(
         completer=completer,
         complete_while_typing=True,
         history=FileHistory(str(project_manager.history_file)),
         auto_suggest=AutoSuggestFromHistory(),
+        lexer=BacktickLexer(),
+        style=style,
     )
     return session
 
@@ -64,11 +96,6 @@ async def process_user_message(
 ):
     """Process a user message: append to history, stream response, update history."""
     logger.debug("Processing user message")
-    # Format user input with bold italic for text in backticks
-    formatted_input = re.sub(
-        r"`([^`]+)`", r"[bold italic]\1[/bold italic]", user_input
-    )
-    console.print(f"[dim]You: {formatted_input}[/dim]")
     user_message = ConversationMessage(role="user", content=user_input)
     conversation_history.append(user_message)
     try:
