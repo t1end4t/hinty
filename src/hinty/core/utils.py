@@ -9,10 +9,9 @@ from loguru import logger
 from pypdf import PdfReader
 
 from ..baml_client.types import CoderOutput
-from ..core.models import ToolResult
 
 
-def read_content_file(filepath: Path) -> ToolResult:
+def read_content_file(filepath: Path) -> str:
     """Read content from a file, handling different types like code, PDF, images, etc.
 
     For text-based files (e.g., code), returns the text content.
@@ -24,13 +23,15 @@ def read_content_file(filepath: Path) -> ToolResult:
         filepath: Path to the file to read.
 
     Returns:
-        ToolResult with success status, output content, and error message if applicable.
+        The content as a string.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If there is an error reading the file or unsupported format.
     """
     if not filepath.exists():
         logger.error(f"File {filepath} does not exist")
-        return ToolResult(
-            success=False, error=f"File {filepath} does not exist"
-        )
+        raise FileNotFoundError(f"File {filepath} does not exist")
 
     mime_type, _ = mimetypes.guess_type(str(filepath))
 
@@ -38,7 +39,7 @@ def read_content_file(filepath: Path) -> ToolResult:
         if mime_type and mime_type.startswith("text"):
             # Handle text files like code
             content = filepath.read_text()
-            return ToolResult(success=True, output=content)
+            return content
         elif mime_type == "application/pdf":
             # Handle PDF files by extracting text
             try:
@@ -46,43 +47,34 @@ def read_content_file(filepath: Path) -> ToolResult:
                 text = ""
                 for page in reader.pages:
                     text += page.extract_text() + "\n"
-                return ToolResult(success=True, output=text.strip())
+                return text.strip()
             except ImportError:
                 logger.error("pypdf library not available for PDF reading")
-                return ToolResult(
-                    success=False,
-                    error="pypdf library not available for PDF reading",
-                )
+                raise ValueError("pypdf library not available for PDF reading")
         elif mime_type and mime_type.startswith("image"):
             # Handle images by base64 encoding
             with open(filepath, "rb") as f:
                 data = f.read()
             encoded = base64.b64encode(data).decode("utf-8")
-            return ToolResult(
-                success=True, output=f"data:{mime_type};base64,{encoded}"
-            )
+            return f"data:{mime_type};base64,{encoded}"
         else:
             # Attempt to read as text for other types
             try:
                 content = filepath.read_text()
-                return ToolResult(success=True, output=content)
+                return content
             except UnicodeDecodeError:
                 # Fall back to reading as bytes and representing as string
                 with open(filepath, "rb") as f:
                     data = f.read()
-                return ToolResult(
-                    success=True, output=f"<binary data: {len(data)} bytes>"
-                )
+                return f"<binary data: {len(data)} bytes>"
     except Exception as e:
         logger.error(f"Error reading file {filepath}: {e}")
-        return ToolResult(
-            success=False, error=f"Error reading file {filepath}: {e}"
-        )
+        raise ValueError(f"Error reading file {filepath}: {e}")
 
 
 def apply_search_replace(
     coder_output: CoderOutput, base_path: Path
-) -> ToolResult:
+) -> dict:
     """
     Applies search and replace operations based on structured coder output.
 
@@ -91,7 +83,10 @@ def apply_search_replace(
         base_path: The base path for relative file paths.
 
     Returns:
-        ToolResult: Result containing success status, applied changes, and any errors.
+        A dictionary with summary of applied changes.
+
+    Raises:
+        ValueError: If no changes are found or errors occur during application.
     """
     changes_by_file = defaultdict(list)
     for file_change in coder_output.files_to_change:
@@ -101,10 +96,7 @@ def apply_search_replace(
 
     if not changes_by_file:
         logger.warning("No search/replace blocks found in the coder output.")
-        return ToolResult(
-            success=False,
-            error="No search/replace blocks found in the coder output.",
-        )
+        raise ValueError("No search/replace blocks found in the coder output.")
 
     results = []
     total_changes_applied = 0
@@ -172,7 +164,9 @@ def apply_search_replace(
         if file_errors:
             errors.extend(file_errors)
 
-    success = len(errors) == 0 and total_changes_applied > 0
+    if errors:
+        raise ValueError("; ".join(errors))
+
     output = {
         "total_changes_applied": total_changes_applied,
         "results": results,
@@ -183,12 +177,7 @@ def apply_search_replace(
         "summary": coder_output.summary,
     }
 
-    if errors:
-        return ToolResult(
-            success=success, output=output, error="; ".join(errors)
-        )
-
-    return ToolResult(success=success, output=output)
+    return output
 
 
 async def cache_available_files(
