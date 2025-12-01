@@ -2,7 +2,6 @@ import asyncio
 from typing import AsyncGenerator, List
 from baml_py import AbortController
 from dotenv import load_dotenv
-from rich.live import Live
 from rich.markdown import Markdown
 from rich.console import Console
 from hinty.agents.router import handle_smart_mode
@@ -31,6 +30,8 @@ async def main():
     ctx = ProjectManager()
     controller = AbortController()
 
+    console = Console()
+
     stream = get_agent_response(
         user_message=message,
         conversation_history=[],
@@ -38,19 +39,18 @@ async def main():
         controller=controller,
     )
 
-    # Stream with Live display
-    with Live() as live:
-        async for partial in stream:
-            if partial.response:
-                if isinstance(partial.response, str):
-                    accumulated_text = partial.response
+    # Print response
+    async for partial in stream:
+        if partial.response:
+            if isinstance(partial.response, str):
+                accumulated_text = partial.response
+                md = Markdown(accumulated_text)
+                console.print(md)
+            else:
+                async for subpartial in partial.response:
+                    accumulated_text = subpartial
                     md = Markdown(accumulated_text)
-                    live.update(md, refresh=True)
-                else:
-                    async for subpartial in partial.response:
-                        accumulated_text = subpartial
-                        md = Markdown(accumulated_text)
-                        live.update(md, refresh=True)
+                    console.print(md)
 
 
 if __name__ == "__main__":
