@@ -1,8 +1,10 @@
-
 import asyncio
 from pathlib import Path
 
-async def cache_available_files(project_root: Path, available_files_cache: Path):
+
+async def cache_available_files(
+    project_root: Path, available_files_cache: Path
+):
     """Load all files in project root recursively and save to cache."""
 
     def _load():
