@@ -60,7 +60,7 @@ async def main():
                         live.update(md, refresh=True)
                         subpartial_times.append(time.time())
 
-    print("Subpartial times:", subpartial_times)
+    print(subpartial_times)
 
 
 if __name__ == "__main__":
