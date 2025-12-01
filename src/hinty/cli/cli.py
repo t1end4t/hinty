@@ -37,7 +37,7 @@ def setup_session(project_manager: ProjectManager) -> PromptSession:
     return session
 
 
-def initialize_conversation() -> tuple[
+async def initialize_conversation() -> tuple[
     List[ConversationMessage], ProjectManager, AbortController
 ]:
     """Initialize conversation history and context manager."""
@@ -46,6 +46,10 @@ def initialize_conversation() -> tuple[
     controller = AbortController()
 
     console.print(f"Current directory: {project_manager.project_root}")
+
+    await cache_available_files(
+        project_manager.project_root, project_manager.available_files_cache
+    )
 
     return conversation_history, project_manager, controller
 
@@ -154,7 +158,7 @@ async def chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
-    conversation_history, project_manager, controller = (
+    conversation_history, project_manager, controller = await (
         initialize_conversation()
     )
     session = setup_session(project_manager)
