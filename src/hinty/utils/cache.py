@@ -42,16 +42,15 @@ def _filter_files_by_gitignore(
     ]
 
 
-def _validate_file_count(file_count: int, max_files: int) -> None:
+def _validate_file_count(file_count: int, max_files: int) -> bool:
     """Validate that file count doesn't exceed maximum."""
     if file_count > max_files:
         logger.warning(
-            f"File count ({file_count}) exceeds limit of {max_files}"
-        )
-        raise ValueError(
-            f"File count exceeds limit of {max_files}. "
+            f"File count ({file_count}) exceeds limit of {max_files}. "
             "Aborting to prevent performance issues."
         )
+        return False
+    return True
 
 
 async def _write_file_cache(
@@ -77,7 +76,9 @@ async def cache_available_files(
         files, project_root, gitignore_spec
     )
 
-    _validate_file_count(len(filtered_files), max_files)
+    if not _validate_file_count(len(filtered_files), max_files):
+        return
+
     await _write_file_cache(filtered_files, project_root, available_files_cache)
 
     logger.info(f"Cached {len(filtered_files)} files")
