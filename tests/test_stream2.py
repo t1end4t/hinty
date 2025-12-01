@@ -2,6 +2,7 @@ import asyncio
 from typing import AsyncGenerator, List
 from baml_py import AbortController
 from dotenv import load_dotenv
+from rich.live import Live
 from rich.markdown import Markdown
 from rich.console import Console
 from hinty.agents.router import handle_smart_mode
@@ -30,8 +31,6 @@ async def main():
     ctx = ProjectManager()
     controller = AbortController()
 
-    console = Console()
-
     stream = get_agent_response(
         user_message=message,
         conversation_history=[],
@@ -39,62 +38,19 @@ async def main():
         controller=controller,
     )
 
-    # Print response
-    previous_content = ""
-    table_buffer = []
-    in_table = False
-
-    async for partial in stream:
-        if partial.response:
-            if isinstance(partial.response, str):
-                pass
-            else:
-                async for subpartial in partial.response:
-                    # Find the last newline in previous content
-                    last_newline_pos = previous_content.rfind("\n")
-
-                    # Find the last newline in current content
-                    current_newline_pos = subpartial.rfind("\n")
-
-                    # If we have a new complete line
-                    if current_newline_pos > last_newline_pos:
-                        # Extract from after the last newline in previous to current newline
-                        start_pos = (
-                            last_newline_pos + 1 if last_newline_pos >= 0 else 0
-                        )
-                        line_content = subpartial[
-                            start_pos : current_newline_pos + 1
-                        ]
-
-                        # Check if this line is part of a table
-                        line_stripped = line_content.strip()
-                        is_table_line = "|" in line_stripped
-
-                        if is_table_line:
-                            # We're in a table, buffer the line
-                            in_table = True
-                            table_buffer.append(line_content)
-                        else:
-                            # Not a table line
-                            if in_table:
-                                # We just exited a table, print the buffered table
-                                table_text = "".join(table_buffer)
-                                md = Markdown(table_text)
-                                console.print(md)
-                                table_buffer = []
-                                in_table = False
-
-                            # Print the current non-table line
-                            md = Markdown(line_content)
-                            console.print(md)
-
-                    previous_content = subpartial
-
-    # Print any remaining buffered table at the end
-    if table_buffer:
-        table_text = "".join(table_buffer)
-        md = Markdown(table_text)
-        console.print(md)
+    # Stream with Live display
+    with Live() as live:
+        async for partial in stream:
+            if partial.response:
+                if isinstance(partial.response, str):
+                    accumulated_text = partial.response
+                    md = Markdown(accumulated_text)
+                    live.update(md, refresh=True)
+                else:
+                    async for subpartial in partial.response:
+                        accumulated_text = subpartial
+                        md = Markdown(accumulated_text)
+                        live.update(md, refresh=True)
 
 
 if __name__ == "__main__":
