@@ -83,14 +83,29 @@ async def cache_available_files(
     logger.info(f"Cached {len(filtered_files)} files")
 
 
-def cache_objects(files: List[Path], objects_cache: Path):
-    """Cache all objects for given files."""
-
+def collect_objects_from_files(files: List[Path]) -> set[str]:
+    """Collect all unique objects from given files."""
     all_objects = set()
     for file in files:
-        objs = get_all_objects(file)
-        all_objects.update(objs)
-    objects_cache.parent.mkdir(parents=True, exist_ok=True)
-    with open(objects_cache, "w") as f:
-        for obj in sorted(all_objects):
-            f.write(obj + "\n")
+        objects = get_all_objects(file)
+        all_objects.update(objects)
+    return all_objects
+
+
+async def write_objects_cache(objects: set[str], cache_path: Path) -> None:
+    """Write sorted objects to cache file."""
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    sorted_objects = sorted(objects)
+
+    async with aiofiles.open(cache_path, "w") as f:
+        await f.write("\n".join(sorted_objects) + "\n")
+
+
+async def cache_objects(files: List[Path], objects_cache: Path) -> None:
+    """Cache all objects for given files."""
+    logger.info(f"Caching objects from {len(files)} files")
+
+    all_objects = collect_objects_from_files(files)
+    await write_objects_cache(all_objects, objects_cache)
+
+    logger.info(f"Cached {len(all_objects)} unique objects")
