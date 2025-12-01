@@ -171,9 +171,7 @@ def apply_changes(
                 actions=[f"Applied changes: {', '.join(files_changed)}"]
             )
         except ValueError as e:
-            yield AgentResponse(
-                actions=[f"Failed to apply changes: {e}"]
-            )
+            yield AgentResponse(actions=[f"Failed to apply changes: {e}"])
 
 
 async def handle_coder_mode(
