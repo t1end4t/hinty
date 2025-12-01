@@ -1,4 +1,3 @@
-import asyncio
 from pathlib import Path
 from typing import List
 
@@ -65,4 +64,3 @@ class ProjectManager:
             self._attached_files.clear()
         elif file_path is not None:
             self._attached_files.remove(file_path)
-
