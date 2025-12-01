@@ -10,7 +10,7 @@ def get_all_objects(file_path: Path) -> List[str]:
     """
     if file_path.suffix != ".py":
         return []
-    
+
     def collect_names(node: ast.AST) -> List[str]:
         names = []
         if isinstance(node, ast.FunctionDef):
@@ -24,7 +24,7 @@ def get_all_objects(file_path: Path) -> List[str]:
         for child in ast.iter_child_nodes(node):
             names.extend(collect_names(child))
         return names
-    
+
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
