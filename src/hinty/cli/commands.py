@@ -1,14 +1,15 @@
 import os
+import re
 from pathlib import Path
 from typing import List
 
 from prompt_toolkit.completion import (
+    CompleteEvent,
     Completer,
     Completion,
     FuzzyCompleter,
     FuzzyWordCompleter,
     PathCompleter,
-    CompleteEvent,
 )
 from prompt_toolkit.document import Document
 from pyfzf import pyfzf
@@ -16,11 +17,10 @@ from rich.console import Console
 from rich.panel import Panel
 
 from ..baml_client.types import ConversationMessage
-from ..core.project_manager import ProjectManager
 from ..core.models import Mode
+from ..core.project_manager import ProjectManager
 from ..utils.cache import cache_objects
 from .theme import YELLOW
-
 
 commands = [
     "/add",
@@ -80,7 +80,6 @@ class CommandCompleter(Completer):
         self, document: Document, complete_event: CompleteEvent
     ):
         text = document.text_before_cursor
-        import re
 
         if not re.search(r"\s\w{3,}$", text):
             return
