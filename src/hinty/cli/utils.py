@@ -45,6 +45,7 @@ async def display_stream_response(
     current_actions = ""
     current_thinking = None
     full_response = ""
+    console_height = console.height
 
     live = Live(
         console=console,
@@ -84,8 +85,11 @@ async def display_stream_response(
             else:
                 # Handle stream case by consuming chunks
                 async for chunk in partial.response:
-                    current_response = chunk
-                    full_response = current_response
+                    full_response = chunk
+                    # Split into lines and take only the last N lines
+                    lines = chunk.split("\n")
+                    last_lines = lines[-console_height:]
+                    current_response = "\n".join(last_lines)
                     group_items = [
                         Panel(
                             Markdown(current_response),
