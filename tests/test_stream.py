@@ -1,3 +1,4 @@
+import asyncio
 from typing import AsyncGenerator, List
 
 from baml_py import AbortController
@@ -26,7 +27,7 @@ async def get_agent_response(
         yield response
 
 
-def main():
+async def main():
     message = "what you can do"
     ctx = ProjectManager()
     controller = AbortController()
@@ -38,7 +39,7 @@ def main():
         controller=controller,
     )
 
-    for partial in stream:
+    async for partial in stream:
         if partial.response:
             text = Text()
             with Live(text, refresh_per_second=10) as live:
@@ -48,4 +49,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
