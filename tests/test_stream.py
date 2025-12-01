@@ -40,6 +40,7 @@ async def main():
 
     # Accumulate text here
     accumulated_text = ""
+    subpartial_times = []
 
     # Create Live context ONCE before the loop
     with Live(
@@ -57,6 +58,9 @@ async def main():
                         accumulated_text = subpartial
                         md = Markdown(accumulated_text)
                         live.update(md, refresh=True)
+                        subpartial_times.append(time.time())
+
+    print("Subpartial times:", subpartial_times)
 
 
 if __name__ == "__main__":
