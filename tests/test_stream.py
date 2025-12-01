@@ -65,8 +65,11 @@ async def main():
     # Print time for each subpartial
     print("\n=== Subpartial Timing ===")
     for i in range(len(subpartial_times)):
-        elapsed = subpartial_times[i] - start_time
-        print(f"Subpartial {i}: {elapsed:.4f}s")
+        if i == 0:
+            delta = subpartial_times[i] - start_time
+        else:
+            delta = subpartial_times[i] - subpartial_times[i - 1]
+        print(f"Subpartial {i}: {delta:.4f}s")
 
 
 if __name__ == "__main__":
