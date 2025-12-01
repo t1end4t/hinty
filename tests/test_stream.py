@@ -40,17 +40,17 @@ async def main():
         controller=controller,
     )
 
-    full_text = ""
-    with Live(refresh_per_second=10) as live:
-        async for partial in stream:
-            if partial.response:
+    async for partial in stream:
+        if partial.response:
+            with Live(refresh_per_second=10) as live:
                 if isinstance(partial.response, str):
-                    full_text += partial.response
-                    md = Markdown(full_text)
+                    md = Markdown(partial.response)
                     live.update(md)
                 else:
+                    # responses = []
                     async for subpartial in partial.response:
-                        full_text += subpartial
+                        responses = subpartial
+                        full_text = responses
                         md = Markdown(full_text)
                         live.update(md)
 
