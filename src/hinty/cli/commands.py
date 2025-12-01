@@ -187,7 +187,7 @@ def mode_command(
         )
 
 
-def add_command(
+async def add_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Add files to context for the agent/LLM."""
@@ -230,7 +230,7 @@ def add_command(
             console.print(f"File not found: {file_path}\n", style=YELLOW)
 
     # Load objects for attached files
-    cache_objects(
+    await cache_objects(
         project_manager.get_attached_files(), project_manager.objects_cache
     )
 
@@ -245,7 +245,7 @@ def files_command(console: Console, project_manager: ProjectManager):
             console.print(f"  {i}: {file_path}\n", style=YELLOW)
 
 
-def drop_command(
+async def drop_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Drop files from context by name, or all if no file provided."""
@@ -269,12 +269,12 @@ def drop_command(
                 console.print(f"File not found: {file_name}\n", style=YELLOW)
 
     # Update objects cache after detaching files
-    cache_objects(
+    await cache_objects(
         project_manager.get_attached_files(), project_manager.objects_cache
     )
 
 
-def handle_command(
+async def handle_command(
     command: str,
     console: Console,
     conversation_history: List[ConversationMessage],
@@ -288,11 +288,11 @@ def handle_command(
     elif command.startswith("/mode"):
         mode_command(command, console, project_manager)
     elif command.startswith("/add"):
-        add_command(command, console, project_manager)
+        await add_command(command, console, project_manager)
     elif command == "/files":
         files_command(console, project_manager)
     elif command.startswith("/drop"):
-        drop_command(command, console, project_manager)
+        await drop_command(command, console, project_manager)
     elif command in ["/exit", "/quit"]:
         console.print("Exiting CLI...\n", style=YELLOW)
         raise SystemExit
