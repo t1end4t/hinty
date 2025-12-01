@@ -49,7 +49,6 @@ async def display_stream_response(
     live = Live(
         console=console,
         refresh_per_second=REFRESH_RATE,
-        vertical_overflow="ellipsis",  # auto scroll
     )
     live.start()
     async for partial in stream:
