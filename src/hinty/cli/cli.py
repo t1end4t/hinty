@@ -136,7 +136,7 @@ async def _process_input(
 ):
     """Process user input as a command or message."""
     if user_input.startswith("/"):
-        handle_command(
+        await handle_command(
             user_input, console, conversation_history, project_manager
         )
     else:
