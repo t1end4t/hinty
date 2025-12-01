@@ -71,13 +71,13 @@ async def print_main():
     async for partial in stream:
         if partial.response:
             if isinstance(partial.response, str):
-                full_response += partial.response
+                full_response = partial.response
             else:
                 async for subpartial in partial.response:
-                    full_response += subpartial
+                    full_response = subpartial
 
-    print(Markdown(full_response))
+                    print(Markdown(full_response))
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(print_main())
