@@ -31,26 +31,26 @@ class BacktickLexer(Lexer):
     """Lexer to apply bold italic style to text between backticks."""
 
     def lex_document(self, document):
-        lines = document.lines
-
-        for line_no, line in enumerate(lines):
-            # Find all backtick pairs
-
+        def lex_line(line_no):
+            line = document.lines[line_no]
             matches = list(re.finditer(r"`([^`]+)`", line))
             pos = 0
+            result = []
             for match in matches:
                 # Text before backtick
                 if match.start() > pos:
-                    yield (line_no, pos, match.start() - pos), "default"
+                    result.append((pos, match.start() - pos, "default"))
                 # Text inside backticks
-                yield (
-                    (line_no, match.start(), match.end() - match.start()),
-                    "bold italic",
+                result.append(
+                    (match.start(), match.end() - match.start(), "bold italic")
                 )
                 pos = match.end()
             # Remaining text
             if pos < len(line):
-                yield (line_no, pos, len(line) - pos), "default"
+                result.append((pos, len(line) - pos, "default"))
+            return result
+
+        return lex_line
 
 
 def setup_session(project_manager: ProjectManager) -> PromptSession:
