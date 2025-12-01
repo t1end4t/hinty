@@ -195,6 +195,7 @@ def add_command(
         full_path = os.path.join(project_manager.project_root, file_path)
         if os.path.isfile(full_path):
             project_manager.attach_file(Path(full_path))
+            console.print(f"Attached file: {file_path}\n", style=YELLOW)
         else:
             console.print(f"File not found: {file_path}\n", style=YELLOW)
 
