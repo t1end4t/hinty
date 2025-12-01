@@ -65,7 +65,9 @@ async def process_user_message(
     """Process a user message: append to history, stream response, update history."""
     logger.debug("Processing user message")
     # Format user input with bold italic for text in backticks
-    formatted_input = re.sub(r'`([^`]+)`', r'[bold italic]\1[/bold italic]', user_input)
+    formatted_input = re.sub(
+        r"`([^`]+)`", r"[bold italic]\1[/bold italic]", user_input
+    )
     console.print(f"[dim]You: {formatted_input}[/dim]")
     user_message = ConversationMessage(role="user", content=user_input)
     conversation_history.append(user_message)
