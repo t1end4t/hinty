@@ -137,7 +137,7 @@ class CommandCompleter(Completer):
             yield from self._get_object_completions(document, complete_event)
 
 
-def help_command(console: Console):
+def _help_command(console: Console):
     """Display help information for CLI commands."""
     help_text = (
         "Available commands:\n"
@@ -155,7 +155,7 @@ def help_command(console: Console):
     console.print(panel, style=YELLOW)
 
 
-def clear_command(
+def _clear_command(
     console: Console, conversation_history: List[ConversationMessage]
 ):
     """Clear conversation history and chat display."""
@@ -164,7 +164,7 @@ def clear_command(
     console.print("Conversation history and chat cleared.\n", style=YELLOW)
 
 
-def mode_command(
+def _mode_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Change the current mode."""
@@ -187,7 +187,7 @@ def mode_command(
         )
 
 
-async def add_command(
+async def _add_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Add files to context for the agent/LLM."""
@@ -235,7 +235,7 @@ async def add_command(
     )
 
 
-def files_command(console: Console, project_manager: ProjectManager):
+def _files_command(console: Console, project_manager: ProjectManager):
     """List current files in context."""
     if not project_manager.get_attached_files():
         console.print("No files attached.\n", style=YELLOW)
@@ -245,7 +245,7 @@ def files_command(console: Console, project_manager: ProjectManager):
             console.print(f"  {i}: {file_path}\n", style=YELLOW)
 
 
-async def drop_command(
+async def _drop_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Drop files from context by name, or all if no file provided."""
@@ -282,17 +282,17 @@ async def handle_command(
 ):
     """Dispatch commands to their handlers."""
     if command == "/help":
-        help_command(console)
+        _help_command(console)
     elif command == "/clear":
-        clear_command(console, conversation_history)
+        _clear_command(console, conversation_history)
     elif command.startswith("/mode"):
-        mode_command(command, console, project_manager)
+        _mode_command(command, console, project_manager)
     elif command.startswith("/add"):
-        await add_command(command, console, project_manager)
+        await _add_command(command, console, project_manager)
     elif command == "/files":
-        files_command(console, project_manager)
+        _files_command(console, project_manager)
     elif command.startswith("/drop"):
-        await drop_command(command, console, project_manager)
+        await _drop_command(command, console, project_manager)
     elif command in ["/exit", "/quit"]:
         console.print("Exiting CLI...\n", style=YELLOW)
         raise SystemExit
