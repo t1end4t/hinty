@@ -81,7 +81,8 @@ class CommandCompleter(Completer):
     ):
         text = document.text_before_cursor
         import re
-        if not re.search(r'\s\w{3,}$', text):
+
+        if not re.search(r"\s\w{3,}$", text):
             return
         objects = []
         cache_path = self.project_manager.objects_cache
