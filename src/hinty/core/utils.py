@@ -72,9 +72,7 @@ def read_content_file(filepath: Path) -> str:
         raise ValueError(f"Error reading file {filepath}: {e}")
 
 
-def apply_search_replace(
-    coder_output: CoderOutput, base_path: Path
-) -> dict:
+def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
     """
     Applies search and replace operations based on structured coder output.
 
