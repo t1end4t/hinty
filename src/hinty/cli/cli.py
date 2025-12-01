@@ -158,9 +158,11 @@ async def chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
-    conversation_history, project_manager, controller = await (
-        initialize_conversation()
-    )
+    (
+        conversation_history,
+        project_manager,
+        controller,
+    ) = await initialize_conversation()
     session = setup_session(project_manager)
     await handle_input_loop(
         session, conversation_history, project_manager, controller
