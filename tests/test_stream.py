@@ -65,15 +65,17 @@ async def main():
     # Calculate and print time differences
     print("\n=== Subpartial Timing Analysis ===")
     print(f"Total subpartials: {len(subpartial_times)}")
-    
+
     if subpartial_times:
         print(f"First subpartial at: {subpartial_times[0] - start_time:.4f}s")
         print(f"Last subpartial at: {subpartial_times[-1] - start_time:.4f}s")
-        print(f"Total duration: {subpartial_times[-1] - subpartial_times[0]:.4f}s")
-        
+        print(
+            f"Total duration: {subpartial_times[-1] - subpartial_times[0]:.4f}s"
+        )
+
         print("\nTime between subpartials:")
         for i in range(1, len(subpartial_times)):
-            delta = subpartial_times[i] - subpartial_times[i-1]
+            delta = subpartial_times[i] - subpartial_times[i - 1]
             print(f"  Subpartial {i}: {delta:.4f}s")
 
 
