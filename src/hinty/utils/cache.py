@@ -1,5 +1,4 @@
 import asyncio
-import json
 from pathlib import Path
 from typing import List
 
@@ -49,6 +48,7 @@ async def cache_objects(files: List[Path], objects_cache: Path):
             objects[str(file)] = objs
         objects_cache.parent.mkdir(parents=True, exist_ok=True)
         with open(objects_cache, "w") as f:
-            json.dump(objects, f)
+            for file_path, objs in objects.items():
+                f.write(f"{file_path}: {', '.join(objs)}\n")
 
     await asyncio.to_thread(_load)
