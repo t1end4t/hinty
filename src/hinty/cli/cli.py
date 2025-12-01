@@ -39,15 +39,15 @@ class BacktickLexer(Lexer):
             for match in matches:
                 # Text before backtick
                 if match.start() > pos:
-                    result.append((pos, match.start() - pos, "default"))
+                    result.append((pos, match.start(), "default"))
                 # Text inside backticks
                 result.append(
-                    (match.start(), match.end() - match.start(), "bold italic")
+                    (match.start(), match.end(), "bold italic")
                 )
                 pos = match.end()
             # Remaining text
             if pos < len(line):
-                result.append((pos, len(line) - pos, "default"))
+                result.append((pos, len(line), "default"))
             return result
 
         return lex_line
