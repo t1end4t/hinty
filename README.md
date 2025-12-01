@@ -3,9 +3,9 @@
 ## TODO
 
 1. [ ] Coding agent
-   1. [ ] Cache list of file (using .gitignore)
-   2. [ ] load map using treesiter
-   3. [ ] show diff format (for user know) instead whole search/replace block
+   1. [x] Cache list of file (using .gitignore)
+   2. [x] show diff format (for user know) instead whole search/replace block
+   3. [ ] load map using treesiter
    4. [ ] add ask mode
    5. [ ] abort stream
    6. [ ] prompt caching

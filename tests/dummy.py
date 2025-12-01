@@ -11,10 +11,23 @@ def factorial(n):
         result *= i
     return result
 
+
 def hello_world():
     """Return a greeting string."""
-    return "Hello, World!"
+    print("Bye some one")
+
 
 def hello_world_again():
     """Return a greeting string."""
     return "Hello, World!"
+
+
+def add_two_numbers(a, b):
+    """Add two numbers and print the result."""
+    try:
+        a = float(a)
+        b = float(b)
+    except ValueError:
+        print("Invalid input")
+        return
+    print(a + b)
