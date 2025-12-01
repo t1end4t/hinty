@@ -43,6 +43,11 @@ class ProjectManager:
         """Get the path to the available files cache."""
         return self.metadata_directory / "project_files.txt"
 
+    @property
+    def objects_cache(self) -> Path:
+        """Get the path to the objects cache."""
+        return self.metadata_directory / "objects.txt"
+
     def change_mode(self, new_mode: Mode):
         """Change the current mode."""
         self._mode = new_mode
