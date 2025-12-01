@@ -79,6 +79,8 @@ class CommandCompleter(Completer):
     def _get_object_completions(
         self, document: Document, complete_event: CompleteEvent
     ):
+        if not self.project_manager.get_attached_files():
+            return
         text = document.text_before_cursor
 
         if not re.search(r"\s\w{3,}$", text):
