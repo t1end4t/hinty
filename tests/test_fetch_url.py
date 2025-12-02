@@ -1,12 +1,13 @@
-import asyncio
+import logging
 from hinty.tools.fetch_url import tool_fetch_url
 
-
-async def main():
-    url = "https://example.com"
-    content = await tool_fetch_url(url)
-    print(content)
+logger = logging.getLogger(__name__)
 
 
+# Usage example
 if __name__ == "__main__":
-    asyncio.run(main())
+    import asyncio
+
+    a = asyncio.run(tool_fetch_url("https://arxiv.org/abs/1706.03762"))
+
+    print(a)
