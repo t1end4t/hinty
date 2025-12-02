@@ -12,6 +12,23 @@ def _is_stackoverflow_url(url: str) -> bool:
     return url.startswith("https://stackoverflow.com/questions/")
 
 
+def _is_reddit_url(url: str) -> bool:
+    return (
+        url.startswith("https://www.reddit.com/r/")
+        and "/comments/" in url
+    )
+
+
+def _parse_reddit_ids(url: str) -> tuple[str, str]:
+    match = re.match(
+        r"https://www\.reddit\.com/r/([^/]+)/comments/([^/]+)/",
+        url,
+    )
+    if not match:
+        raise ValueError("Invalid Reddit post URL format")
+    return match.group(1), match.group(2)
+
+
 def _parse_stackoverflow_question_id(url: str) -> str:
     match = re.match(
         r"https://stackoverflow\.com/questions/(\d+)/",
@@ -136,9 +153,51 @@ async def _fetch_stackoverflow_question(url: str) -> str:
     return result
 
 
+async def _fetch_reddit_post(url: str) -> str:
+    subreddit, post_id = _parse_reddit_ids(url)
+    api_url = f"https://www.reddit.com/r/{subreddit}/comments/{post_id}/.json"
+    logger.info(f"Fetching Reddit post via API: {api_url}")
+    headers = {"User-Agent": "Python-Reddit-Fetcher"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(api_url) as response:
+            response.raise_for_status()
+            data = await response.json()
+    if not data or len(data) < 2:
+        logger.warning(f"No post or comments found for: {url}")
+        return ""
+    post_data = data[0]["data"]["children"][0]["data"]
+    title = post_data.get("title", "")
+    selftext = post_data.get("selftext", "")
+    result = f"Title: {title}\n\nPost: {selftext}"
+    comments_data = data[1]["data"]["children"]
+    if comments_data:
+        result += "\n\nComments:\n"
+
+        def collect_comments(comments):
+            bodies = []
+            for comment in comments:
+                if comment["kind"] == "t1":
+                    body = comment["data"].get("body", "")
+                    bodies.append(body)
+                    replies = comment["data"].get("replies")
+                    if replies and replies != "":
+                        bodies.extend(
+                            collect_comments(replies["data"]["children"])
+                        )
+            return bodies
+
+        all_comments = collect_comments(comments_data)
+        for i, comment in enumerate(all_comments, 1):
+            result += f"\n{i}. {comment}\n"
+    logger.info(f"Successfully fetched Reddit post: {url}")
+    return result
+
+
 async def tool_fetch_url(url: str) -> str:
     if _is_github_url(url):
         return await _fetch_github_readme(url)
     elif _is_stackoverflow_url(url):
         return await _fetch_stackoverflow_question(url)
+    elif _is_reddit_url(url):
+        return await _fetch_reddit_post(url)
     return await _fetch_general_url(url)
