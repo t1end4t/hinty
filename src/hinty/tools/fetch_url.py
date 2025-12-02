@@ -198,7 +198,9 @@ async def tool_fetch_url(url: str) -> ToolResult:
             result = await _fetch_github_readme(url)
         elif url.startswith("https://stackoverflow.com/questions/"):
             result = await _fetch_stackoverflow_question(url)
-        elif url.startswith("https://www.reddit.com/r/") and "/comments/" in url:
+        elif (
+            url.startswith("https://www.reddit.com/r/") and "/comments/" in url
+        ):
             result = await _fetch_reddit_post(url)
         elif url.startswith("https://arxiv.org/abs/"):
             result = await _fetch_arxiv_abstract(url)
