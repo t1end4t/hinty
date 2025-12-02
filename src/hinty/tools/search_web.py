@@ -36,10 +36,14 @@ def tool_search_web(query: str) -> ToolResult:
             response = client.models.generate_content(
                 model=model, contents=contents, config=config
             )
-            logger.info(f"Gemini web search completed successfully for query: {query}")
+            logger.info(
+                f"Gemini web search completed successfully for query: {query}"
+            )
             return ToolResult(success=True, output=response.text)
         except Exception as e:
-            logger.error(f"Error during Gemini web search for query '{query}': {e}")
+            logger.error(
+                f"Error during Gemini web search for query '{query}': {e}"
+            )
             return ToolResult(success=False, error=str(e))
     else:
         # Default to Tavily
@@ -54,8 +58,12 @@ def tool_search_web(query: str) -> ToolResult:
         try:
             client = TavilyClient(api_key=api_key)
             response = client.search(query=query)
-            logger.info(f"Tavily web search completed successfully for query: {query}")
+            logger.info(
+                f"Tavily web search completed successfully for query: {query}"
+            )
             return ToolResult(success=True, output=response)
         except Exception as e:
-            logger.error(f"Error during Tavily web search for query '{query}': {e}")
+            logger.error(
+                f"Error during Tavily web search for query '{query}': {e}"
+            )
             return ToolResult(success=False, error=str(e))
