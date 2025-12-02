@@ -13,26 +13,28 @@ def tool_search_web(query: str) -> ToolResult:
     provider = os.getenv("WEB_SEARCH_PROVIDER", "tavily").lower()
     logger.info(f"Starting web search for query: {query} using {provider}")
 
-    if provider == "gemini":
-        api_key = os.getenv("GEMINI_API_KEY")
+    if provider == "google":
+        api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
-            logger.error("GEMINI_API_KEY environment variable not set")
+            logger.error("GOOGLE_API_KEY environment variable not set")
             return ToolResult(
                 success=False,
-                error="GEMINI_API_KEY environment variable is required for Gemini provider",
+                error="GOOGLE_API_KEY environment variable is required for Gemini provider",
             )
 
         try:
             client = genai.Client(api_key=api_key)
-            model = "gemini-2.0-flash-exp"
+            model = "gemini-flash-lite-latest"
             contents = [
                 types.Content(
                     role="user",
                     parts=[types.Part.from_text(text=query)],
                 )
             ]
-            tools = [types.Tool(googleSearch=types.GoogleSearch())]
-            config = types.GenerateContentConfig(tools=tools)
+            tools = [
+                types.Tool(google_search=types.GoogleSearch()),
+            ]
+            config = types.GenerateContentConfig(tools=tools)  # type: ignore
             response = client.models.generate_content(
                 model=model, contents=contents, config=config
             )
