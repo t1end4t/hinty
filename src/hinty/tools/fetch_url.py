@@ -2,6 +2,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from loguru import logger
 import re
+import base64
 
 
 async def tool_fetch_url(url: str) -> str:
@@ -21,7 +22,7 @@ async def tool_fetch_url(url: str) -> str:
 
 
 async def tool_fetch_github_readme(url: str) -> str:
-    """Fetches the raw README.md content from a GitHub repository."""
+    """Fetches the raw README.md content from a GitHub repository using the GitHub API."""
     if not url.startswith("https://github.com/"):
         raise ValueError("URL must be a GitHub repository URL")
     # Extract user and repo from URL
@@ -29,28 +30,22 @@ async def tool_fetch_github_readme(url: str) -> str:
     if not match:
         raise ValueError("Invalid GitHub repository URL format")
     user, repo = match.groups()
-    # Try main branch first, then master
-    raw_urls = [
-        f"https://raw.githubusercontent.com/{user}/{repo}/main/README.md",
-        f"https://raw.githubusercontent.com/{user}/{repo}/master/README.md",
-    ]
-    for raw_url in raw_urls:
-        logger.info(f"Attempting to fetch README from: {raw_url}")
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with session.get(raw_url) as response:
-                    if response.status == 200:
-                        content = await response.text()
-                        logger.info(
-                            f"Successfully fetched README from GitHub URL: {url}"
-                        )
-                        return content
-                    elif response.status == 404:
-                        continue  # Try next URL
-                    else:
-                        response.raise_for_status()
-            except aiohttp.ClientError as e:
-                logger.warning(f"Error fetching {raw_url}: {e}")
-                continue
-    logger.warning(f"No README.md found for repository: {url}")
-    return ""
+    api_url = f"https://api.github.com/repos/{user}/{repo}/readme"
+    logger.info(f"Fetching README via GitHub API: {api_url}")
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(api_url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    # Decode base64 content
+                    content = base64.b64decode(data['content']).decode('utf-8')
+                    logger.info(f"Successfully fetched README from GitHub URL: {url}")
+                    return content
+                elif response.status == 404:
+                    logger.warning(f"No README.md found for repository: {url}")
+                    return ""
+                else:
+                    response.raise_for_status()
+        except aiohttp.ClientError as e:
+            logger.error(f"Error fetching README via API: {e}")
+            return ""
