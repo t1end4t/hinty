@@ -2,6 +2,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from loguru import logger
 import re
+from ..core.models import ToolResult
 
 
 async def _fetch_general_url(url: str) -> str:
@@ -191,13 +192,21 @@ async def _fetch_arxiv_abstract(url: str) -> str:
     return result
 
 
-async def tool_fetch_url(url: str) -> str:
-    if url.startswith("https://github.com/"):
-        return await _fetch_github_readme(url)
-    elif url.startswith("https://stackoverflow.com/questions/"):
-        return await _fetch_stackoverflow_question(url)
-    elif url.startswith("https://www.reddit.com/r/") and "/comments/" in url:
-        return await _fetch_reddit_post(url)
-    elif url.startswith("https://arxiv.org/abs/"):
-        return await _fetch_arxiv_abstract(url)
-    return await _fetch_general_url(url)
+async def tool_fetch_url(url: str) -> ToolResult:
+    try:
+        if url.startswith("https://github.com/"):
+            result = await _fetch_github_readme(url)
+        elif url.startswith("https://stackoverflow.com/questions/"):
+            result = await _fetch_stackoverflow_question(url)
+        elif url.startswith("https://www.reddit.com/r/") and "/comments/" in url:
+            result = await _fetch_reddit_post(url)
+        elif url.startswith("https://arxiv.org/abs/"):
+            result = await _fetch_arxiv_abstract(url)
+        else:
+            result = await _fetch_general_url(url)
+        if result:
+            return ToolResult(success=True, output=result)
+        else:
+            return ToolResult(success=False, error="No content found")
+    except Exception as e:
+        return ToolResult(success=False, error=str(e))
