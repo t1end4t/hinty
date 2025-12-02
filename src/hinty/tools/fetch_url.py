@@ -15,7 +15,7 @@ def _parse_github_repo(url: str) -> tuple[str, str]:
     )
     if not match:
         raise ValueError("Invalid GitHub repository URL format")
-    return match.groups()
+    return (match.group(1), match.group(2))
 
 
 def _build_github_api_url(user: str, repo: str) -> str:
