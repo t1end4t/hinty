@@ -1,11 +1,15 @@
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-from loguru import logger
-import numpy as np
-from sentence_transformers import SentenceTransformer, CrossEncoder
-from rank_bm25 import BM25Okapi
+from typing import Any, Dict, List, Optional
+
 import nltk
+import numpy as np
+from loguru import logger
+from marker.converters.pdf import PdfConverter
+from marker.models import create_model_dict
+from marker.output import text_from_rendered
 from nltk.tokenize import word_tokenize
+from rank_bm25 import BM25Okapi
+from sentence_transformers import CrossEncoder, SentenceTransformer
 
 # Download required NLTK data
 try:
@@ -27,9 +31,6 @@ def parse_pdf_with_marker(pdf_path: Path) -> str:
     logger.info(f"Parsing PDF: {pdf_path}")
 
     try:
-        from marker.convert import convert_single_pdf
-        from marker.models import load_all_models
-
         # Load models once (cache them)
         models = load_all_models()
 
