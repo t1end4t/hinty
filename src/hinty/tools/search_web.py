@@ -14,7 +14,10 @@ def tool_search_web(query: str) -> ToolResult:
     api_key = os.getenv("TAVILY_API_KEY")
     if not api_key:
         logger.error("TAVILY_API_KEY environment variable not set")
-        return ToolResult(success=False, error="TAVILY_API_KEY environment variable is required")
+        return ToolResult(
+            success=False,
+            error="TAVILY_API_KEY environment variable is required",
+        )
 
     try:
         client = TavilyClient(api_key=api_key)
