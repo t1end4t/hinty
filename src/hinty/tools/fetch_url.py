@@ -72,7 +72,9 @@ async def tool_fetch_github_readme(url: str) -> str:
             return ""
 
 
-async def tool_fetch_reddit(subreddit: str, sort: str = "hot", limit: int = 10) -> str:
+async def tool_fetch_reddit(
+    subreddit: str, sort: str = "hot", limit: int = 10
+) -> str:
     """Fetches top posts from a Reddit subreddit, extracting titles and text content."""
     if not subreddit:
         raise ValueError("Subreddit name cannot be empty")
@@ -94,18 +96,24 @@ async def tool_fetch_reddit(subreddit: str, sort: str = "hot", limit: int = 10) 
                         title = post_data.get("title", "")
                         selftext = post_data.get("selftext", "")
                         if selftext:
-                            content.append(f"Title: {title}\nText: {selftext}\n")
+                            content.append(
+                                f"Title: {title}\nText: {selftext}\n"
+                            )
                         else:
                             content.append(f"Title: {title}\n")
                     cleaned_content = "\n".join(content)
-                    logger.info(f"Successfully fetched {len(posts)} posts from r/{subreddit}")
+                    logger.info(
+                        f"Successfully fetched {len(posts)} posts from r/{subreddit}"
+                    )
                     return cleaned_content
                 elif response.status == 404:
                     logger.warning(f"Subreddit r/{subreddit} not found")
                     return ""
                 else:
                     error_text = await response.text()
-                    logger.error(f"Reddit API error {response.status}: {error_text}")
+                    logger.error(
+                        f"Reddit API error {response.status}: {error_text}"
+                    )
                     return ""
         except aiohttp.ClientError as e:
             logger.error(f"Error fetching from Reddit: {e}")
