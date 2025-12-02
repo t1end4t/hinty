@@ -4,66 +4,6 @@ from loguru import logger
 import re
 
 
-def _is_github_url(url: str) -> bool:
-    return url.startswith("https://github.com/")
-
-
-def _is_stackoverflow_url(url: str) -> bool:
-    return url.startswith("https://stackoverflow.com/questions/")
-
-
-def _is_reddit_url(url: str) -> bool:
-    return url.startswith("https://www.reddit.com/r/") and "/comments/" in url
-
-
-def _is_arxiv_url(url: str) -> bool:
-    return url.startswith("https://arxiv.org/abs/")
-
-
-def _parse_reddit_ids(url: str) -> tuple[str, str]:
-    match = re.match(
-        r"https://www\.reddit\.com/r/([^/]+)/comments/([^/]+)/",
-        url,
-    )
-    if not match:
-        raise ValueError("Invalid Reddit post URL format")
-    return match.group(1), match.group(2)
-
-
-def _parse_arxiv_id(url: str) -> str:
-    match = re.match(
-        r"https://arxiv\.org/abs/([^/]+)",
-        url,
-    )
-    if not match:
-        raise ValueError("Invalid arXiv URL format")
-    return match.group(1)
-
-
-def _parse_stackoverflow_question_id(url: str) -> str:
-    match = re.match(
-        r"https://stackoverflow\.com/questions/(\d+)/",
-        url,
-    )
-    if not match:
-        raise ValueError("Invalid StackOverflow question URL format")
-    return match.group(1)
-
-
-def _parse_github_repo(url: str) -> tuple[str, str]:
-    match = re.match(
-        r"https://github\.com/([^/]+)/([^/.]+)",
-        url.rstrip("/").replace(".git", ""),
-    )
-    if not match:
-        raise ValueError("Invalid GitHub repository URL format")
-    return (match.group(1), match.group(2))
-
-
-def _build_github_api_url(user: str, repo: str) -> str:
-    return f"https://api.github.com/repos/{user}/{repo}/readme"
-
-
 async def _fetch_general_url(url: str) -> str:
     logger.info(f"Fetching content from URL: {url}")
     async with aiohttp.ClientSession() as session:
@@ -78,8 +18,14 @@ async def _fetch_general_url(url: str) -> str:
 
 
 async def _fetch_github_readme(url: str) -> str:
-    user, repo = _parse_github_repo(url)
-    api_url = _build_github_api_url(user, repo)
+    match = re.match(
+        r"https://github\.com/([^/]+)/([^/.]+)",
+        url.rstrip("/").replace(".git", ""),
+    )
+    if not match:
+        raise ValueError("Invalid GitHub repository URL format")
+    user, repo = match.group(1), match.group(2)
+    api_url = f"https://api.github.com/repos/{user}/{repo}/readme"
     logger.info(f"Fetching README via GitHub API: {api_url}")
     headers = {
         "Accept": "application/vnd.github.v3.raw",
@@ -112,7 +58,13 @@ async def _fetch_github_readme(url: str) -> str:
 
 
 async def _fetch_stackoverflow_question(url: str) -> str:
-    question_id = _parse_stackoverflow_question_id(url)
+    match = re.match(
+        r"https://stackoverflow\.com/questions/(\d+)/",
+        url,
+    )
+    if not match:
+        raise ValueError("Invalid StackOverflow question URL format")
+    question_id = match.group(1)
     api_url = f"https://api.stackexchange.com/2.3/questions/{question_id}?site=stackoverflow&filter=withbody"
     logger.info(f"Fetching StackOverflow question via API: {api_url}")
     async with aiohttp.ClientSession() as session:
@@ -165,7 +117,13 @@ async def _fetch_stackoverflow_question(url: str) -> str:
 
 
 async def _fetch_reddit_post(url: str) -> str:
-    subreddit, post_id = _parse_reddit_ids(url)
+    match = re.match(
+        r"https://www\.reddit\.com/r/([^/]+)/comments/([^/]+)/",
+        url,
+    )
+    if not match:
+        raise ValueError("Invalid Reddit post URL format")
+    subreddit, post_id = match.group(1), match.group(2)
     api_url = f"https://www.reddit.com/r/{subreddit}/comments/{post_id}/.json"
     logger.info(f"Fetching Reddit post via API: {api_url}")
     headers = {"User-Agent": "Python-Reddit-Fetcher"}
@@ -205,7 +163,13 @@ async def _fetch_reddit_post(url: str) -> str:
 
 
 async def _fetch_arxiv_abstract(url: str) -> str:
-    paper_id = _parse_arxiv_id(url)
+    match = re.match(
+        r"https://arxiv\.org/abs/([^/]+)",
+        url,
+    )
+    if not match:
+        raise ValueError("Invalid arXiv URL format")
+    paper_id = match.group(1)
     api_url = f"https://export.arxiv.org/api/query?id_list={paper_id}"
     logger.info(f"Fetching arXiv abstract via API: {api_url}")
     async with aiohttp.ClientSession() as session:
@@ -227,12 +191,12 @@ async def _fetch_arxiv_abstract(url: str) -> str:
 
 
 async def tool_fetch_url(url: str) -> str:
-    if _is_github_url(url):
+    if url.startswith("https://github.com/"):
         return await _fetch_github_readme(url)
-    elif _is_stackoverflow_url(url):
+    elif url.startswith("https://stackoverflow.com/questions/"):
         return await _fetch_stackoverflow_question(url)
-    elif _is_reddit_url(url):
+    elif url.startswith("https://www.reddit.com/r/") and "/comments/" in url:
         return await _fetch_reddit_post(url)
-    elif _is_arxiv_url(url):
+    elif url.startswith("https://arxiv.org/abs/"):
         return await _fetch_arxiv_abstract(url)
     return await _fetch_general_url(url)
