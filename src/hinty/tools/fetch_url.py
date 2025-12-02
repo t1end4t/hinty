@@ -32,7 +32,7 @@ async def tool_fetch_github_readme(url: str) -> str:
     # Try main branch first, then master
     raw_urls = [
         f"https://raw.githubusercontent.com/{user}/{repo}/main/README.md",
-        f"https://raw.githubusercontent.com/{user}/{repo}/master/README.md"
+        f"https://raw.githubusercontent.com/{user}/{repo}/master/README.md",
     ]
     for raw_url in raw_urls:
         logger.info(f"Attempting to fetch README from: {raw_url}")
@@ -41,7 +41,9 @@ async def tool_fetch_github_readme(url: str) -> str:
                 async with session.get(raw_url) as response:
                     if response.status == 200:
                         content = await response.text()
-                        logger.info(f"Successfully fetched README from GitHub URL: {url}")
+                        logger.info(
+                            f"Successfully fetched README from GitHub URL: {url}"
+                        )
                         return content
                     elif response.status == 404:
                         continue  # Try next URL
