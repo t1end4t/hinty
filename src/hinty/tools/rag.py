@@ -11,6 +11,8 @@ from nltk.tokenize import word_tokenize
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
+from ..core.models import ToolResult
+
 # Download required NLTK data
 try:
     nltk.data.find("tokenizers/punkt")
@@ -239,7 +241,7 @@ def rag_query(
     overlap: int = 128,
     alpha: float = 0.5,
     use_reranker: bool = True,
-) -> List[Dict[str, Any]]:
+) -> ToolResult:
     """
     Complete RAG pipeline: parse PDF, index, search, and rerank.
 
@@ -253,29 +255,33 @@ def rag_query(
         use_reranker: Whether to use cross-encoder reranking
 
     Returns:
-        List of relevant chunks with scores
+        ToolResult containing list of relevant chunks with scores or error
     """
-    logger.info(f"Starting RAG query for: {query[:50]}...")
+    try:
+        logger.info(f"Starting RAG query for: {query[:50]}...")
 
-    # Step 1: Parse PDF
-    markdown_text = parse_pdf_with_marker(pdf_path)
+        # Step 1: Parse PDF
+        markdown_text = parse_pdf_with_marker(pdf_path)
 
-    # Step 2: Chunk text
-    chunks = chunk_text_hierarchical(markdown_text, chunk_size, overlap)
+        # Step 2: Chunk text
+        chunks = chunk_text_hierarchical(markdown_text, chunk_size, overlap)
 
-    # Step 3: Create hybrid index
-    index = create_hybrid_index(chunks)
+        # Step 3: Create hybrid index
+        index = create_hybrid_index(chunks)
 
-    # Step 4: Hybrid search
-    initial_results = hybrid_search(
-        query, index, top_k=top_k * 2 if use_reranker else top_k, alpha=alpha
-    )
+        # Step 4: Hybrid search
+        initial_results = hybrid_search(
+            query, index, top_k=top_k * 2 if use_reranker else top_k, alpha=alpha
+        )
 
-    # Step 5: Rerank (optional)
-    if use_reranker:
-        final_results = rerank_results(query, initial_results, top_k=top_k)
-    else:
-        final_results = initial_results[:top_k]
+        # Step 5: Rerank (optional)
+        if use_reranker:
+            final_results = rerank_results(query, initial_results, top_k=top_k)
+        else:
+            final_results = initial_results[:top_k]
 
-    logger.info(f"RAG query complete, returning {len(final_results)} results")
-    return final_results
+        logger.info(f"RAG query complete, returning {len(final_results)} results")
+        return ToolResult(success=True, output=final_results)
+    except Exception as e:
+        logger.error(f"RAG query failed: {e}")
+        return ToolResult(success=False, error=str(e))
