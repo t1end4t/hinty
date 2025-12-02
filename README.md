@@ -3,28 +3,28 @@
 ## TODO
 
 1. [ ] Coding agent
-   1. [x] Cache list of file (using .gitignore)
-   2. [x] show diff format (for user know) instead whole search/replace block
-   3. [x] Use bold and italic for object (use ``)
-   4. [x] load map using treesiter (type 3 characters)
+   1. [ ] Rewrite logic
+   2. [x] Cache list of file (using .gitignore)
+   3. [x] show diff format (for user know) instead whole search/replace block
+   4. [x] Use bold and italic for object (use ``)
+   5. [x] load map using treesiter (type 3 characters)
       1. [x] Python
       2. [x] Rust
       3. [x] TypeScript
-   5. [ ] add ask mode
-   6. [ ] multiple clients
-   7. [ ] Based on commit, create message
-   8. [ ] abort stream
-   9. [ ] prompt caching
-   10. [ ] Add rule
-   11. [ ] Make it different than aider (not create code, just hint)
+   6. [ ] add ask mode
+   7. [ ] multiple clients
+   8. [ ] Based on commit, create message
+   9. [ ] abort stream
+   10. [ ] prompt caching
+   11. [ ] Add rule
+   12. [ ] Make it different than aider (not create code, just hint)
 2. [ ] Chatgpt agent
    1. [ ] Tool functions
       1. [ ] search_web
       2. [ ] fetch_url
       3. [ ] summarize
-      4. [ ] read_file
-      5. [ ] write_file
-      6. [ ] clipboard
+      4. [ ] write_file
+   2. [ ] Easy to copy/paste (especially code block)
 3. [ ] General features
    1. [ ] Copy/paste, especially code block
 
@@ -45,3 +45,4 @@
 2. [ ] Researcher
 3. [ ] Writer
 4. [ ] Work with second-brain
+5. [ ] Math coaching
