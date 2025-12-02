@@ -6,6 +6,8 @@ import re
 
 async def tool_fetch_url(url: str) -> str:
     """Fetches the content of a web page given its URL, extracting readable text."""
+    if url.startswith("https://github.com/"):
+        return await tool_fetch_github_readme(url)
     logger.info(f"Fetching content from URL: {url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
