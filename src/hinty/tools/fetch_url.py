@@ -4,11 +4,11 @@ from loguru import logger
 import re
 
 
-def is_github_url(url: str) -> bool:
+def _is_github_url(url: str) -> bool:
     return url.startswith("https://github.com/")
 
 
-def parse_github_repo(url: str) -> tuple[str, str]:
+def _parse_github_repo(url: str) -> tuple[str, str]:
     match = re.match(
         r"https://github\.com/([^/]+)/([^/.]+)",
         url.rstrip("/").replace(".git", ""),
@@ -18,11 +18,11 @@ def parse_github_repo(url: str) -> tuple[str, str]:
     return match.groups()
 
 
-def build_github_api_url(user: str, repo: str) -> str:
+def _build_github_api_url(user: str, repo: str) -> str:
     return f"https://api.github.com/repos/{user}/{repo}/readme"
 
 
-async def fetch_general_url(url: str) -> str:
+async def _fetch_general_url(url: str) -> str:
     logger.info(f"Fetching content from URL: {url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -35,9 +35,9 @@ async def fetch_general_url(url: str) -> str:
     return cleaned_text
 
 
-async def fetch_github_readme(url: str) -> str:
-    user, repo = parse_github_repo(url)
-    api_url = build_github_api_url(user, repo)
+async def _fetch_github_readme(url: str) -> str:
+    user, repo = _parse_github_repo(url)
+    api_url = _build_github_api_url(user, repo)
     logger.info(f"Fetching README via GitHub API: {api_url}")
     headers = {
         "Accept": "application/vnd.github.v3.raw",
@@ -70,6 +70,6 @@ async def fetch_github_readme(url: str) -> str:
 
 
 async def tool_fetch_url(url: str) -> str:
-    if is_github_url(url):
-        return await fetch_github_readme(url)
-    return await fetch_general_url(url)
+    if _is_github_url(url):
+        return await _fetch_github_readme(url)
+    return await _fetch_general_url(url)
