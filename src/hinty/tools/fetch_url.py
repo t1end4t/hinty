@@ -2,55 +2,51 @@ import aiohttp
 from bs4 import BeautifulSoup
 from loguru import logger
 import re
-
-
-async def tool_fetch_url(url: str) -> str:
-    """Fetches the content of a web page given its URL, extracting readable text."""
-    if url.startswith("https://github.com/"):
-        return await _fetch_github_readme(url)
-    logger.info(f"Fetching content from URL: {url}")
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            response.raise_for_status()
-            content = await response.text()
-    # Parse HTML and extract readable text
-    soup = BeautifulSoup(content, "html.parser")
-    text = soup.get_text()
-    # Normalize whitespace for better readability
-    cleaned_text = " ".join(text.split())
-    logger.info(f"Successfully fetched and processed content from URL: {url}")
-    return cleaned_text
-
-
-async def _fetch_github_readme(url: str) -> str:
-    """Fetches the raw README.md content (as Markdown) from a GitHub repository."""
-    if not url.startswith("https://github.com/"):
-        raise ValueError("URL must be a GitHub repository URL")
-
-    # Extract user and repo from URL (handle trailing slashes and .git)
+  
+  
+def is_github_url(url: str) -> bool:
+    return url.startswith("https://github.com/")
+  
+  
+def parse_github_repo(url: str) -> tuple[str, str]:
     match = re.match(
         r"https://github\.com/([^/]+)/([^/.]+)",
         url.rstrip("/").replace(".git", ""),
     )
     if not match:
         raise ValueError("Invalid GitHub repository URL format")
-
-    user, repo = match.groups()
-    api_url = f"https://api.github.com/repos/{user}/{repo}/readme"
-
+    return match.groups()
+  
+  
+def build_github_api_url(user: str, repo: str) -> str:
+    return f"https://api.github.com/repos/{user}/{repo}/readme"
+  
+  
+async def fetch_general_url(url: str) -> str:
+    logger.info(f"Fetching content from URL: {url}")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            response.raise_for_status()
+            content = await response.text()
+    soup = BeautifulSoup(content, "html.parser")
+    text = soup.get_text()
+    cleaned_text = " ".join(text.split())
+    logger.info(f"Successfully fetched and processed content from URL: {url}")
+    return cleaned_text
+  
+  
+async def fetch_github_readme(url: str) -> str:
+    user, repo = parse_github_repo(url)
+    api_url = build_github_api_url(user, repo)
     logger.info(f"Fetching README via GitHub API: {api_url}")
-
-    # Add headers for better API experience
     headers = {
-        "Accept": "application/vnd.github.v3.raw",  # This gets raw Markdown directly!
+        "Accept": "application/vnd.github.v3.raw",
         "User-Agent": "Python-README-Fetcher",
     }
-
     async with aiohttp.ClientSession() as session:
         try:
             async with session.get(api_url, headers=headers) as response:
                 if response.status == 200:
-                    # With the .raw accept header, we get Markdown directly
                     content = await response.text()
                     logger.info(
                         f"Successfully fetched README ({len(content)} chars) from: {url}"
@@ -71,3 +67,9 @@ async def _fetch_github_readme(url: str) -> str:
         except Exception as e:
             logger.error(f"Unexpected error fetching README: {e}")
             return ""
+  
+  
+async def tool_fetch_url(url: str) -> str:
+    if is_github_url(url):
+        return await fetch_github_readme(url)
+    return await fetch_general_url(url)
