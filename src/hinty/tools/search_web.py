@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from google import genai
@@ -8,7 +9,7 @@ from tavily import TavilyClient
 from hinty.core.models import ToolResult
 
 
-def search_with_google(query: str) -> ToolResult:
+async def search_with_google(query: str) -> ToolResult:
     """Perform web search using Google Gemini API."""
     logger.info(f"Starting Google Gemini web search for query: {query}")
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -32,8 +33,11 @@ def search_with_google(query: str) -> ToolResult:
             types.Tool(google_search=types.GoogleSearch()),
         ]
         config = types.GenerateContentConfig(tools=tools)  # type: ignore
-        response = client.models.generate_content(
-            model=model, contents=contents, config=config
+        response = await asyncio.to_thread(
+            client.models.generate_content,
+            model=model,
+            contents=contents,
+            config=config,
         )
         logger.info(
             f"Google Gemini web search completed successfully for query: {query}"
@@ -46,7 +50,7 @@ def search_with_google(query: str) -> ToolResult:
         return ToolResult(success=False, error=str(e))
 
 
-def search_with_tavily(query: str) -> ToolResult:
+async def search_with_tavily(query: str) -> ToolResult:
     """Perform web search using Tavily API."""
     logger.info(f"Starting Tavily web search for query: {query}")
     api_key = os.getenv("TAVILY_API_KEY")
@@ -59,7 +63,7 @@ def search_with_tavily(query: str) -> ToolResult:
 
     try:
         client = TavilyClient(api_key=api_key)
-        response = client.search(query=query)
+        response = await asyncio.to_thread(client.search, query=query)
         logger.info(
             f"Tavily web search completed successfully for query: {query}"
         )
@@ -69,12 +73,12 @@ def search_with_tavily(query: str) -> ToolResult:
         return ToolResult(success=False, error=str(e))
 
 
-def tool_search_web(query: str) -> ToolResult:
+async def tool_search_web(query: str) -> ToolResult:
     """Perform a web search using the configured provider."""
     provider = os.getenv("WEB_SEARCH_PROVIDER", "tavily").lower()
     logger.info(f"Dispatching web search for query: {query} using {provider}")
 
     if provider == "google":
-        return search_with_google(query)
+        return await search_with_google(query)
     else:
-        return search_with_tavily(query)
+        return await search_with_tavily(query)
