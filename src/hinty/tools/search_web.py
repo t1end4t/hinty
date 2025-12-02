@@ -16,12 +16,12 @@ def search_web_tool(query: str) -> Dict[str, Any]:
         A dictionary containing the search response.
     """
     logger.info(f"Starting web search for query: {query}")
-    
+
     api_key = os.getenv("TAVILY_API_KEY")
     if not api_key:
         logger.error("TAVILY_API_KEY environment variable not set")
         raise ValueError("TAVILY_API_KEY environment variable is required")
-    
+
     try:
         client = TavilyClient(api_key=api_key)
         response = client.search(query=query)
