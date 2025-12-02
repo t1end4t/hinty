@@ -13,10 +13,7 @@ def _is_stackoverflow_url(url: str) -> bool:
 
 
 def _is_reddit_url(url: str) -> bool:
-    return (
-        url.startswith("https://www.reddit.com/r/")
-        and "/comments/" in url
-    )
+    return url.startswith("https://www.reddit.com/r/") and "/comments/" in url
 
 
 def _parse_reddit_ids(url: str) -> tuple[str, str]:
