@@ -1,5 +1,10 @@
-from tavily import TavilyClient
+from dotenv import load_dotenv
 
-client = TavilyClient("TAVILY_API_KEY")
-response = client.search(query="who is Ho Chi Minh")
-print(response)
+from hinty.tools.search_web import tool_search_web
+
+load_dotenv()
+
+if __name__ == "__main__":
+    a = tool_search_web("lastest result of Arsenal football team")
+
+    print(a)

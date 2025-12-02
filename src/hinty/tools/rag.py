@@ -233,7 +233,7 @@ def rerank_results(
     return reranked
 
 
-def rag_query(
+def tool_rag(
     query: str,
     pdf_path: Path,
     top_k: int = 5,
