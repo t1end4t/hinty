@@ -110,14 +110,24 @@ async def _fetch_stackoverflow_question(url: str) -> str:
                     if response.status == 200:
                         answer_data = await response.json()
                         if answer_data.get("items"):
-                            accepted_body_html = answer_data["items"][0].get("body", "")
-                            accepted_body_text = BeautifulSoup(accepted_body_html, "html.parser").get_text()
-                            accepted_cleaned = " ".join(accepted_body_text.split())
+                            accepted_body_html = answer_data["items"][0].get(
+                                "body", ""
+                            )
+                            accepted_body_text = BeautifulSoup(
+                                accepted_body_html, "html.parser"
+                            ).get_text()
+                            accepted_cleaned = " ".join(
+                                accepted_body_text.split()
+                            )
                             result += f"\n\nAccepted Answer: {accepted_cleaned}"
                         else:
-                            logger.warning(f"No accepted answer found for ID: {accepted_answer_id}")
+                            logger.warning(
+                                f"No accepted answer found for ID: {accepted_answer_id}"
+                            )
                     else:
-                        logger.error(f"Failed to fetch accepted answer: {response.status}")
+                        logger.error(
+                            f"Failed to fetch accepted answer: {response.status}"
+                        )
             except aiohttp.ClientError as e:
                 logger.error(f"Error fetching accepted answer: {e}")
             except Exception as e:
