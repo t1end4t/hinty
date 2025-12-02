@@ -2,7 +2,6 @@ import aiohttp
 from bs4 import BeautifulSoup
 from loguru import logger
 import re
-import base64
 
 
 async def tool_fetch_url(url: str) -> str:
@@ -22,32 +21,51 @@ async def tool_fetch_url(url: str) -> str:
 
 
 async def tool_fetch_github_readme(url: str) -> str:
-    """Fetches the raw README.md content from a GitHub repository using the GitHub API."""
+    """Fetches the raw README.md content (as Markdown) from a GitHub repository."""
     if not url.startswith("https://github.com/"):
         raise ValueError("URL must be a GitHub repository URL")
-    # Extract user and repo from URL
-    match = re.match(r"https://github\.com/([^/]+)/([^/]+)", url)
+
+    # Extract user and repo from URL (handle trailing slashes and .git)
+    match = re.match(
+        r"https://github\.com/([^/]+)/([^/.]+)",
+        url.rstrip("/").replace(".git", ""),
+    )
     if not match:
         raise ValueError("Invalid GitHub repository URL format")
+
     user, repo = match.groups()
     api_url = f"https://api.github.com/repos/{user}/{repo}/readme"
+
     logger.info(f"Fetching README via GitHub API: {api_url}")
+
+    # Add headers for better API experience
+    headers = {
+        "Accept": "application/vnd.github.v3.raw",  # This gets raw Markdown directly!
+        "User-Agent": "Python-README-Fetcher",
+    }
+
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.get(api_url) as response:
+            async with session.get(api_url, headers=headers) as response:
                 if response.status == 200:
-                    data = await response.json()
-                    # Decode base64 content
-                    content = base64.b64decode(data["content"]).decode("utf-8")
+                    # With the .raw accept header, we get Markdown directly
+                    content = await response.text()
                     logger.info(
-                        f"Successfully fetched README from GitHub URL: {url}"
+                        f"Successfully fetched README ({len(content)} chars) from: {url}"
                     )
                     return content
                 elif response.status == 404:
-                    logger.warning(f"No README.md found for repository: {url}")
+                    logger.warning(f"No README found for repository: {url}")
                     return ""
                 else:
-                    response.raise_for_status()
+                    error_text = await response.text()
+                    logger.error(
+                        f"GitHub API error {response.status}: {error_text}"
+                    )
+                    return ""
         except aiohttp.ClientError as e:
             logger.error(f"Error fetching README via API: {e}")
+            return ""
+        except Exception as e:
+            logger.error(f"Unexpected error fetching README: {e}")
             return ""
