@@ -41,16 +41,33 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 # #########################################################################
 
 # #########################################################################
-# Generated classes (5)
+# Generated classes (12)
 # #########################################################################
 
+class ChatResponse(BaseModel):
+    response: str
+    tool_call: typing.Optional[typing.Union["SearchWebTool", "FetchUrlTool", "RAGTool", "WriteFileTool"]] = None
+    requires_tool: bool
+
+class CodebaseContext(BaseModel):
+    file_tree: str
+    related_files: typing.List["RelatedFile"]
+    project_language: str
+    project_framework: typing.Optional[str] = None
+
 class CoderOutput(BaseModel):
+    thinking: str
     files_to_change: typing.List["FileChange"]
+    additional_files_to_check: typing.List[str]
     summary: str
 
 class ConversationMessage(BaseModel):
     role: typing.Union[typing_extensions.Literal['user'], typing_extensions.Literal['assistant']]
     content: str
+
+class FetchUrlTool(BaseModel):
+    tool_name: typing_extensions.Literal['fetch_url']
+    url: str
 
 class FileChange(BaseModel):
     file_path: str
@@ -61,10 +78,29 @@ class FileInfo(BaseModel):
     file_path: str
     file_content: str
 
+class RAGTool(BaseModel):
+    tool_name: typing_extensions.Literal['rag']
+    query: str
+    context_source: typing.Optional[str] = None
+
+class RelatedFile(BaseModel):
+    file_path: str
+    relationship: str
+    relevant_excerpt: str
+
 class SearchReplaceBlock(BaseModel):
     search: str
     replace: str
     language: str
+
+class SearchWebTool(BaseModel):
+    tool_name: typing_extensions.Literal['search_web']
+    query: str
+
+class WriteFileTool(BaseModel):
+    tool_name: typing_extensions.Literal['write_file']
+    file_path: str
+    content: str
 
 # #########################################################################
 # Generated type aliases (0)

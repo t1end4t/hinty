@@ -79,36 +79,36 @@ class BamlAsyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
     
-    async def Coder(self, user_message: str,files: typing.List["types.FileInfo"],conversation_history: typing.List["types.ConversationMessage"],
+    async def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> types.ChatResponse:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            # Use streaming internally when on_tick is provided
+            stream = self.stream.ChatGPT(message=message,conversation_history=conversation_history,file_content=file_content,tool_result=tool_result,
+                baml_options=baml_options)
+            return await stream.get_final_response()
+        else:
+            # Original non-streaming code
+            result = await self.__options.merge_options(baml_options).call_function_async(function_name="ChatGPT", args={
+                "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+            })
+            return typing.cast(types.ChatResponse, result.cast_to(types, types, stream_types, False, __runtime__))
+    async def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
         baml_options: BamlCallOptions = {},
     ) -> types.CoderOutput:
         # Check if on_tick is provided
         if 'on_tick' in baml_options:
             # Use streaming internally when on_tick is provided
-            stream = self.stream.Coder(user_message=user_message,files=files,conversation_history=conversation_history,
+            stream = self.stream.Coder(user_message=user_message,files=files,codebase_context=codebase_context,conversation_history=conversation_history,
                 baml_options=baml_options)
             return await stream.get_final_response()
         else:
             # Original non-streaming code
             result = await self.__options.merge_options(baml_options).call_function_async(function_name="Coder", args={
-                "user_message": user_message,"files": files,"conversation_history": conversation_history,
+                "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
             })
             return typing.cast(types.CoderOutput, result.cast_to(types, types, stream_types, False, __runtime__))
-    async def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
-        baml_options: BamlCallOptions = {},
-    ) -> str:
-        # Check if on_tick is provided
-        if 'on_tick' in baml_options:
-            # Use streaming internally when on_tick is provided
-            stream = self.stream.Router(message=message,conversation_history=conversation_history,
-                baml_options=baml_options)
-            return await stream.get_final_response()
-        else:
-            # Original non-streaming code
-            result = await self.__options.merge_options(baml_options).call_function_async(function_name="Router", args={
-                "message": message,"conversation_history": conversation_history,
-            })
-            return typing.cast(str, result.cast_to(types, types, stream_types, False, __runtime__))
     
 
 
@@ -118,28 +118,28 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def Coder(self, user_message: str,files: typing.List["types.FileInfo"],conversation_history: typing.List["types.ConversationMessage"],
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlStream[stream_types.ChatResponse, types.ChatResponse]:
+        ctx, result = self.__options.merge_options(baml_options).create_async_stream(function_name="ChatGPT", args={
+            "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+        })
+        return baml_py.BamlStream[stream_types.ChatResponse, types.ChatResponse](
+          result,
+          lambda x: typing.cast(stream_types.ChatResponse, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ChatResponse, x.cast_to(types, types, stream_types, False, __runtime__)),
+          ctx,
+        )
+    def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlStream[stream_types.CoderOutput, types.CoderOutput]:
         ctx, result = self.__options.merge_options(baml_options).create_async_stream(function_name="Coder", args={
-            "user_message": user_message,"files": files,"conversation_history": conversation_history,
+            "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
         })
         return baml_py.BamlStream[stream_types.CoderOutput, types.CoderOutput](
           result,
           lambda x: typing.cast(stream_types.CoderOutput, x.cast_to(types, types, stream_types, True, __runtime__)),
           lambda x: typing.cast(types.CoderOutput, x.cast_to(types, types, stream_types, False, __runtime__)),
-          ctx,
-        )
-    def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
-        baml_options: BamlCallOptions = {},
-    ) -> baml_py.BamlStream[str, str]:
-        ctx, result = self.__options.merge_options(baml_options).create_async_stream(function_name="Router", args={
-            "message": message,"conversation_history": conversation_history,
-        })
-        return baml_py.BamlStream[str, str](
-          result,
-          lambda x: typing.cast(str, x.cast_to(types, types, stream_types, True, __runtime__)),
-          lambda x: typing.cast(str, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
     
@@ -150,18 +150,18 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    async def Coder(self, user_message: str,files: typing.List["types.FileInfo"],conversation_history: typing.List["types.ConversationMessage"],
+    async def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="ChatGPT", args={
+            "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+        }, mode="request")
+        return result
+    async def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="Coder", args={
-            "user_message": user_message,"files": files,"conversation_history": conversation_history,
-        }, mode="request")
-        return result
-    async def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
-        baml_options: BamlCallOptions = {},
-    ) -> baml_py.baml_py.HTTPRequest:
-        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="Router", args={
-            "message": message,"conversation_history": conversation_history,
+            "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
         }, mode="request")
         return result
     
@@ -172,18 +172,18 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    async def Coder(self, user_message: str,files: typing.List["types.FileInfo"],conversation_history: typing.List["types.ConversationMessage"],
+    async def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="ChatGPT", args={
+            "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+        }, mode="stream")
+        return result
+    async def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="Coder", args={
-            "user_message": user_message,"files": files,"conversation_history": conversation_history,
-        }, mode="stream")
-        return result
-    async def Router(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,
-        baml_options: BamlCallOptions = {},
-    ) -> baml_py.baml_py.HTTPRequest:
-        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="Router", args={
-            "message": message,"conversation_history": conversation_history,
+            "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
         }, mode="stream")
         return result
     

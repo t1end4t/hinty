@@ -7,17 +7,18 @@ from loguru import logger
 from hinty.core.models import AgentResponse
 
 from ..baml_client.async_client import b
-from ..baml_client.types import ConversationMessage
+from ..baml_client.types import ConversationMessage, ChatResponse
+from ..baml_client.stream_types import ChatResponse as StreamChatResponse
 
 
-async def _call_router(
+async def _call_chatgpt(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlStream[str, str] | None:
+) -> BamlStream[StreamChatResponse, ChatResponse] | None:
     """Call the orchestrator agent with a user message and conversation history"""
     try:
-        resp = b.stream.Router(
+        resp = b.stream.ChatGPT(
             user_message,
             conversation_history,
             baml_options={"abort_controller": controller},
@@ -27,12 +28,12 @@ async def _call_router(
         logger.error("Operation was cancelled")
 
 
-async def handle_smart_mode(
+async def handle_chatgpt_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
-    stream = await _call_router(
+    stream = await _call_chatgpt(
         user_message, conversation_history, controller=controller
     )
     yield AgentResponse(response=stream)

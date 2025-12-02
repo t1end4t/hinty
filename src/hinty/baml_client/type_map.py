@@ -16,11 +16,20 @@ from . import stream_types
 
 type_map = {
 
+    "types.ChatResponse": types.ChatResponse,
+    "stream_types.ChatResponse": stream_types.ChatResponse,
+
+    "types.CodebaseContext": types.CodebaseContext,
+    "stream_types.CodebaseContext": stream_types.CodebaseContext,
+
     "types.CoderOutput": types.CoderOutput,
     "stream_types.CoderOutput": stream_types.CoderOutput,
 
     "types.ConversationMessage": types.ConversationMessage,
     "stream_types.ConversationMessage": stream_types.ConversationMessage,
+
+    "types.FetchUrlTool": types.FetchUrlTool,
+    "stream_types.FetchUrlTool": stream_types.FetchUrlTool,
 
     "types.FileChange": types.FileChange,
     "stream_types.FileChange": stream_types.FileChange,
@@ -28,8 +37,20 @@ type_map = {
     "types.FileInfo": types.FileInfo,
     "stream_types.FileInfo": stream_types.FileInfo,
 
+    "types.RAGTool": types.RAGTool,
+    "stream_types.RAGTool": stream_types.RAGTool,
+
+    "types.RelatedFile": types.RelatedFile,
+    "stream_types.RelatedFile": stream_types.RelatedFile,
+
     "types.SearchReplaceBlock": types.SearchReplaceBlock,
     "stream_types.SearchReplaceBlock": stream_types.SearchReplaceBlock,
+
+    "types.SearchWebTool": types.SearchWebTool,
+    "stream_types.SearchWebTool": stream_types.SearchWebTool,
+
+    "types.WriteFileTool": types.WriteFileTool,
+    "stream_types.WriteFileTool": stream_types.WriteFileTool,
 
 
 }

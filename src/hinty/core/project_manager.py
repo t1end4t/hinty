@@ -9,7 +9,7 @@ class ProjectManager:
 
     def __init__(
         self,
-        mode: Mode = Mode.SMART,
+        mode: Mode = Mode.CHATGPT,
         project_root: Path = Path.cwd(),
     ):
         """Initialize project context."""

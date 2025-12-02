@@ -8,31 +8,40 @@
    3. [x] Use bold and italic for object (use ``)
    4. [x] load map using treesiter (type 3 characters)
       1. [x] Python
-      2. [ ] Rust
-      3. [ ] TypeScript
-   5. [ ] Based on commit, create message
-   6. [ ] add ask mode
-   7. [ ] abort stream
-   8. [ ] prompt caching
-   9. [ ] multiple clients
+      2. [x] Rust
+      3. [x] TypeScript
+   5. [ ] add ask mode
+   6. [ ] multiple clients
+   7. [ ] Based on commit, create message
+   8. [ ] abort stream
+   9. [ ] prompt caching
    10. [ ] Add rule
+   11. [ ] Make it different than aider (not create code, just hint)
 2. [ ] Chatgpt agent
+   1. [ ] Tool functions
+      1. [ ] search_web
+      2. [ ] fetch_url
+      3. [ ] summarize
+      4. [ ] read_file
+      5. [ ] write_file
+      6. [ ] clipboard
+3. [ ] General features
+   1. [ ] Copy/paste, especially code block
 
-# Can not
+# CAN NOT
 
 1. [ ] Get thinking content
 
 # Fix bug
 
 1. [x] Should not show panel, just show thinking animation when response is slow
-2. [ ] Fully streaming
+2. [x] Fully streaming
 3. [ ] If added file, can not add it anymore
 4. [ ] logging should in file
-
-# Add tools
-
-1. [ ] Search web
 
 # Agents
 
 1. [ ] Prompt engineering (for baml)
+2. [ ] Researcher
+3. [ ] Writer
+4. [ ] Work with second-brain

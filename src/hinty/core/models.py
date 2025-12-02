@@ -24,12 +24,12 @@ class ToolResult:
 
 
 class Mode(Enum):
-    SMART = "smart"
+    # SMART = "smart"
     CHATGPT = "chatgpt"
     CODER = "code"
-    RESEARCHER = "research"
-    WRITER = "write"
-    SECOND_BRAIN = "second-brain"
+    # RESEARCHER = "research"
+    # WRITER = "write"
+    # SECOND_BRAIN = "second-brain"
 
     @classmethod
     def from_string(cls, value: str) -> "Mode":

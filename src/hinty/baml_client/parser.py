@@ -24,17 +24,17 @@ class LlmResponseParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def ChatGPT(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ChatResponse:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="ChatGPT", llm_response=llm_response, mode="request")
+        return typing.cast(types.ChatResponse, result)
+
     def Coder(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.CoderOutput:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="request")
         return typing.cast(types.CoderOutput, result)
-
-    def Router(
-        self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> str:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="Router", llm_response=llm_response, mode="request")
-        return typing.cast(str, result)
 
     
 
@@ -44,16 +44,16 @@ class LlmStreamParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def ChatGPT(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ChatResponse:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="ChatGPT", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ChatResponse, result)
+
     def Coder(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.CoderOutput:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.CoderOutput, result)
-
-    def Router(
-        self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> str:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="Router", llm_response=llm_response, mode="stream")
-        return typing.cast(str, result)
 
     

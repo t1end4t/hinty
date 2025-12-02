@@ -2,7 +2,7 @@ from typing import AsyncGenerator, List
 
 from baml_py import AbortController
 
-from ..agents.router import handle_smart_mode
+from ..agents.chatgpt import handle_chatgpt_mode
 from ..agents.coder import handle_coder_mode
 from ..baml_client.types import ConversationMessage
 from ..core.project_manager import ProjectManager
@@ -16,8 +16,8 @@ async def get_agent_response(
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
     """Get a response from the LLM"""
-    if project_manager.mode == Mode.SMART:
-        async for response in handle_smart_mode(
+    if project_manager.mode == Mode.CHATGPT:
+        async for response in handle_chatgpt_mode(
             user_message, conversation_history, controller
         ):
             yield response

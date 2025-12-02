@@ -23,16 +23,33 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (5)
+# Generated classes (12)
 # #########################################################################
 
+class ChatResponse(BaseModel):
+    response: typing.Optional[str] = None
+    tool_call: typing.Optional[typing.Union["SearchWebTool", "FetchUrlTool", "RAGTool", "WriteFileTool"]] = None
+    requires_tool: typing.Optional[bool] = None
+
+class CodebaseContext(BaseModel):
+    file_tree: typing.Optional[str] = None
+    related_files: typing.List["RelatedFile"]
+    project_language: typing.Optional[str] = None
+    project_framework: typing.Optional[str] = None
+
 class CoderOutput(BaseModel):
+    thinking: typing.Optional[str] = None
     files_to_change: typing.List["FileChange"]
+    additional_files_to_check: typing.List[str]
     summary: typing.Optional[str] = None
 
 class ConversationMessage(BaseModel):
     role: typing.Optional[typing.Union[str, str]] = None
     content: typing.Optional[str] = None
+
+class FetchUrlTool(BaseModel):
+    tool_name: typing.Optional[str] = None
+    url: typing.Optional[str] = None
 
 class FileChange(BaseModel):
     file_path: typing.Optional[str] = None
@@ -43,10 +60,29 @@ class FileInfo(BaseModel):
     file_path: typing.Optional[str] = None
     file_content: typing.Optional[str] = None
 
+class RAGTool(BaseModel):
+    tool_name: typing.Optional[str] = None
+    query: typing.Optional[str] = None
+    context_source: typing.Optional[str] = None
+
+class RelatedFile(BaseModel):
+    file_path: typing.Optional[str] = None
+    relationship: typing.Optional[str] = None
+    relevant_excerpt: typing.Optional[str] = None
+
 class SearchReplaceBlock(BaseModel):
     search: typing.Optional[str] = None
     replace: typing.Optional[str] = None
     language: typing.Optional[str] = None
+
+class SearchWebTool(BaseModel):
+    tool_name: typing.Optional[str] = None
+    query: typing.Optional[str] = None
+
+class WriteFileTool(BaseModel):
+    tool_name: typing.Optional[str] = None
+    file_path: typing.Optional[str] = None
+    content: typing.Optional[str] = None
 
 # #########################################################################
 # Generated type aliases (0)
