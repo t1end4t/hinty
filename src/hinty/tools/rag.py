@@ -31,16 +31,14 @@ def parse_pdf_with_marker(pdf_path: Path) -> str:
     logger.info(f"Parsing PDF: {pdf_path}")
 
     try:
-        # Load models once (cache them)
-        models = load_all_models()
-
-        # Convert PDF to markdown
-        markdown_text, images, metadata = convert_single_pdf(
-            str(pdf_path), models
+        converter = PdfConverter(
+            artifact_dict=create_model_dict(),
         )
+        rendered = converter(str(pdf_path))
+        text, _, images = text_from_rendered(rendered)
 
         logger.info(f"Successfully parsed PDF: {pdf_path}")
-        return markdown_text
+        return text
 
     except ImportError:
         logger.error(
