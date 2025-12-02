@@ -1,4 +1,5 @@
 import aiohttp
+import json
 from bs4 import BeautifulSoup
 from loguru import logger
 import re
@@ -68,4 +69,50 @@ async def tool_fetch_github_readme(url: str) -> str:
             return ""
         except Exception as e:
             logger.error(f"Unexpected error fetching README: {e}")
+            return ""
+
+
+async def tool_fetch_reddit(subreddit: str, sort: str = "hot", limit: int = 10) -> str:
+    """Fetches top posts from a Reddit subreddit, extracting titles and text content."""
+    if not subreddit:
+        raise ValueError("Subreddit name cannot be empty")
+
+    url = f"https://www.reddit.com/r/{subreddit}/{sort}.json?limit={limit}"
+    headers = {"User-Agent": "Python-Reddit-Fetcher"}
+
+    logger.info(f"Fetching posts from Reddit: {url}")
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    posts = data.get("data", {}).get("children", [])
+                    content = []
+                    for post in posts:
+                        post_data = post.get("data", {})
+                        title = post_data.get("title", "")
+                        selftext = post_data.get("selftext", "")
+                        if selftext:
+                            content.append(f"Title: {title}\nText: {selftext}\n")
+                        else:
+                            content.append(f"Title: {title}\n")
+                    cleaned_content = "\n".join(content)
+                    logger.info(f"Successfully fetched {len(posts)} posts from r/{subreddit}")
+                    return cleaned_content
+                elif response.status == 404:
+                    logger.warning(f"Subreddit r/{subreddit} not found")
+                    return ""
+                else:
+                    error_text = await response.text()
+                    logger.error(f"Reddit API error {response.status}: {error_text}")
+                    return ""
+        except aiohttp.ClientError as e:
+            logger.error(f"Error fetching from Reddit: {e}")
+            return ""
+        except json.JSONDecodeError as e:
+            logger.error(f"Error parsing Reddit JSON: {e}")
+            return ""
+        except Exception as e:
+            logger.error(f"Unexpected error fetching from Reddit: {e}")
             return ""
