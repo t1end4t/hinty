@@ -38,8 +38,10 @@ async def tool_fetch_github_readme(url: str) -> str:
                 if response.status == 200:
                     data = await response.json()
                     # Decode base64 content
-                    content = base64.b64decode(data['content']).decode('utf-8')
-                    logger.info(f"Successfully fetched README from GitHub URL: {url}")
+                    content = base64.b64decode(data["content"]).decode("utf-8")
+                    logger.info(
+                        f"Successfully fetched README from GitHub URL: {url}"
+                    )
                     return content
                 elif response.status == 404:
                     logger.warning(f"No README.md found for repository: {url}")
