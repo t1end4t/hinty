@@ -7,7 +7,7 @@ import re
 async def tool_fetch_url(url: str) -> str:
     """Fetches the content of a web page given its URL, extracting readable text."""
     if url.startswith("https://github.com/"):
-        return await tool_fetch_github_readme(url)
+        return await _fetch_github_readme(url)
     logger.info(f"Fetching content from URL: {url}")
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -22,7 +22,7 @@ async def tool_fetch_url(url: str) -> str:
     return cleaned_text
 
 
-async def tool_fetch_github_readme(url: str) -> str:
+async def _fetch_github_readme(url: str) -> str:
     """Fetches the raw README.md content (as Markdown) from a GitHub repository."""
     if not url.startswith("https://github.com/"):
         raise ValueError("URL must be a GitHub repository URL")
