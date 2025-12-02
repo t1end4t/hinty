@@ -2,12 +2,12 @@ import aiohttp
 from bs4 import BeautifulSoup
 from loguru import logger
 import re
-  
-  
+
+
 def is_github_url(url: str) -> bool:
     return url.startswith("https://github.com/")
-  
-  
+
+
 def parse_github_repo(url: str) -> tuple[str, str]:
     match = re.match(
         r"https://github\.com/([^/]+)/([^/.]+)",
@@ -16,12 +16,12 @@ def parse_github_repo(url: str) -> tuple[str, str]:
     if not match:
         raise ValueError("Invalid GitHub repository URL format")
     return match.groups()
-  
-  
+
+
 def build_github_api_url(user: str, repo: str) -> str:
     return f"https://api.github.com/repos/{user}/{repo}/readme"
-  
-  
+
+
 async def fetch_general_url(url: str) -> str:
     logger.info(f"Fetching content from URL: {url}")
     async with aiohttp.ClientSession() as session:
@@ -33,8 +33,8 @@ async def fetch_general_url(url: str) -> str:
     cleaned_text = " ".join(text.split())
     logger.info(f"Successfully fetched and processed content from URL: {url}")
     return cleaned_text
-  
-  
+
+
 async def fetch_github_readme(url: str) -> str:
     user, repo = parse_github_repo(url)
     api_url = build_github_api_url(user, repo)
@@ -67,8 +67,8 @@ async def fetch_github_readme(url: str) -> str:
         except Exception as e:
             logger.error(f"Unexpected error fetching README: {e}")
             return ""
-  
-  
+
+
 async def tool_fetch_url(url: str) -> str:
     if is_github_url(url):
         return await fetch_github_readme(url)
