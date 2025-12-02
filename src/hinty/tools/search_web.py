@@ -1,5 +1,7 @@
 import os
 
+from google import genai
+from google.genai import types
 from loguru import logger
 from tavily import TavilyClient
 
@@ -7,22 +9,53 @@ from hinty.core.models import ToolResult
 
 
 def tool_search_web(query: str) -> ToolResult:
-    """Perform a web search using Tavily API."""
-    logger.info(f"Starting web search for query: {query}")
+    """Perform a web search using Tavily API or Gemini API."""
+    provider = os.getenv("WEB_SEARCH_PROVIDER", "tavily").lower()
+    logger.info(f"Starting web search for query: {query} using {provider}")
 
-    api_key = os.getenv("TAVILY_API_KEY")
-    if not api_key:
-        logger.error("TAVILY_API_KEY environment variable not set")
-        return ToolResult(
-            success=False,
-            error="TAVILY_API_KEY environment variable is required",
-        )
+    if provider == "gemini":
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            logger.error("GEMINI_API_KEY environment variable not set")
+            return ToolResult(
+                success=False,
+                error="GEMINI_API_KEY environment variable is required for Gemini provider",
+            )
 
-    try:
-        client = TavilyClient(api_key=api_key)
-        response = client.search(query=query)
-        logger.info(f"Web search completed successfully for query: {query}")
-        return ToolResult(success=True, output=response)
-    except Exception as e:
-        logger.error(f"Error during web search for query '{query}': {e}")
-        return ToolResult(success=False, error=str(e))
+        try:
+            client = genai.Client(api_key=api_key)
+            model = "gemini-2.0-flash-exp"
+            contents = [
+                types.Content(
+                    role="user",
+                    parts=[types.Part.from_text(text=query)],
+                )
+            ]
+            tools = [types.Tool(googleSearch=types.GoogleSearch())]
+            config = types.GenerateContentConfig(tools=tools)
+            response = client.models.generate_content(
+                model=model, contents=contents, config=config
+            )
+            logger.info(f"Gemini web search completed successfully for query: {query}")
+            return ToolResult(success=True, output=response.text)
+        except Exception as e:
+            logger.error(f"Error during Gemini web search for query '{query}': {e}")
+            return ToolResult(success=False, error=str(e))
+    else:
+        # Default to Tavily
+        api_key = os.getenv("TAVILY_API_KEY")
+        if not api_key:
+            logger.error("TAVILY_API_KEY environment variable not set")
+            return ToolResult(
+                success=False,
+                error="TAVILY_API_KEY environment variable is required",
+            )
+
+        try:
+            client = TavilyClient(api_key=api_key)
+            response = client.search(query=query)
+            logger.info(f"Tavily web search completed successfully for query: {query}")
+            return ToolResult(success=True, output=response)
+        except Exception as e:
+            logger.error(f"Error during Tavily web search for query '{query}': {e}")
+            return ToolResult(success=False, error=str(e))
