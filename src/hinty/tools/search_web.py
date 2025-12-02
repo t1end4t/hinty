@@ -8,7 +8,7 @@ from tavily import TavilyClient
 from hinty.core.models import ToolResult
 
 
-async def search_with_google(query: str) -> ToolResult:
+def search_with_google(query: str) -> ToolResult:
     """Perform web search using Google Gemini API."""
     logger.info(f"Starting Google Gemini web search for query: {query}")
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -32,7 +32,7 @@ async def search_with_google(query: str) -> ToolResult:
             types.Tool(google_search=types.GoogleSearch()),
         ]
         config = types.GenerateContentConfig(tools=tools)  # type: ignore
-        response = await client.models.generate_content_async(
+        response = client.models.generate_content(
             model=model, contents=contents, config=config
         )
         logger.info(
@@ -46,7 +46,7 @@ async def search_with_google(query: str) -> ToolResult:
         return ToolResult(success=False, error=str(e))
 
 
-async def search_with_tavily(query: str) -> ToolResult:
+def search_with_tavily(query: str) -> ToolResult:
     """Perform web search using Tavily API."""
     logger.info(f"Starting Tavily web search for query: {query}")
     api_key = os.getenv("TAVILY_API_KEY")
@@ -59,7 +59,7 @@ async def search_with_tavily(query: str) -> ToolResult:
 
     try:
         client = TavilyClient(api_key=api_key)
-        response = await client.search_async(query=query)
+        response = client.search(query=query)
         logger.info(
             f"Tavily web search completed successfully for query: {query}"
         )
@@ -69,7 +69,7 @@ async def search_with_tavily(query: str) -> ToolResult:
         return ToolResult(success=False, error=str(e))
 
 
-async def tool_search_web(query: str) -> ToolResult:
+def tool_search_web(query: str) -> ToolResult:
     """Perform a web search using the configured provider."""
     provider = os.getenv("WEB_SEARCH_PROVIDER", "tavily").lower()
     logger.info(f"Dispatching web search for query: {query} using {provider}")
