@@ -271,7 +271,10 @@ def rag_query(
 
         # Step 4: Hybrid search
         initial_results = hybrid_search(
-            query, index, top_k=top_k * 2 if use_reranker else top_k, alpha=alpha
+            query,
+            index,
+            top_k=top_k * 2 if use_reranker else top_k,
+            alpha=alpha,
         )
 
         # Step 5: Rerank (optional)
@@ -280,7 +283,9 @@ def rag_query(
         else:
             final_results = initial_results[:top_k]
 
-        logger.info(f"RAG query complete, returning {len(final_results)} results")
+        logger.info(
+            f"RAG query complete, returning {len(final_results)} results"
+        )
         return ToolResult(success=True, output=final_results)
     except Exception as e:
         logger.error(f"RAG query failed: {e}")
