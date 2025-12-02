@@ -16,6 +16,10 @@ def _is_reddit_url(url: str) -> bool:
     return url.startswith("https://www.reddit.com/r/") and "/comments/" in url
 
 
+def _is_arxiv_url(url: str) -> bool:
+    return url.startswith("https://arxiv.org/abs/")
+
+
 def _parse_reddit_ids(url: str) -> tuple[str, str]:
     match = re.match(
         r"https://www\.reddit\.com/r/([^/]+)/comments/([^/]+)/",
@@ -24,6 +28,16 @@ def _parse_reddit_ids(url: str) -> tuple[str, str]:
     if not match:
         raise ValueError("Invalid Reddit post URL format")
     return match.group(1), match.group(2)
+
+
+def _parse_arxiv_id(url: str) -> str:
+    match = re.match(
+        r"https://arxiv\.org/abs/([^/]+)",
+        url,
+    )
+    if not match:
+        raise ValueError("Invalid arXiv URL format")
+    return match.group(1)
 
 
 def _parse_stackoverflow_question_id(url: str) -> str:
@@ -190,6 +204,26 @@ async def _fetch_reddit_post(url: str) -> str:
     return result
 
 
+async def _fetch_arxiv_abstract(url: str) -> str:
+    paper_id = _parse_arxiv_id(url)
+    api_url = f"https://export.arxiv.org/api/query?id_list={paper_id}"
+    logger.info(f"Fetching arXiv abstract via API: {api_url}")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(api_url) as response:
+            response.raise_for_status()
+            xml_content = await response.text()
+    soup = BeautifulSoup(xml_content, "xml")
+    entry = soup.find("entry")
+    if not entry:
+        logger.warning(f"No entry found for arXiv ID: {paper_id}")
+        return ""
+    title = entry.find("title").text.strip() if entry.find("title") else ""
+    abstract = entry.find("summary").text.strip() if entry.find("summary") else ""
+    result = f"Title: {title}\n\nAbstract: {abstract}"
+    logger.info(f"Successfully fetched arXiv abstract: {url}")
+    return result
+
+
 async def tool_fetch_url(url: str) -> str:
     if _is_github_url(url):
         return await _fetch_github_readme(url)
@@ -197,4 +231,6 @@ async def tool_fetch_url(url: str) -> str:
         return await _fetch_stackoverflow_question(url)
     elif _is_reddit_url(url):
         return await _fetch_reddit_post(url)
+    elif _is_arxiv_url(url):
+        return await _fetch_arxiv_abstract(url)
     return await _fetch_general_url(url)
