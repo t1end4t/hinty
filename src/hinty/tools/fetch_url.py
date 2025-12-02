@@ -218,7 +218,9 @@ async def _fetch_arxiv_abstract(url: str) -> str:
         logger.warning(f"No entry found for arXiv ID: {paper_id}")
         return ""
     title = entry.find("title").text.strip() if entry.find("title") else ""
-    abstract = entry.find("summary").text.strip() if entry.find("summary") else ""
+    abstract = (
+        entry.find("summary").text.strip() if entry.find("summary") else ""
+    )
     result = f"Title: {title}\n\nAbstract: {abstract}"
     logger.info(f"Successfully fetched arXiv abstract: {url}")
     return result
