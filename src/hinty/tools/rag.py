@@ -24,7 +24,7 @@ except LookupError:
 
 async def parse_pdf_to_text(pdf_path: Path) -> str:
     """
-    Parse PDF to text using LLM, processing page by page.
+    Parse PDF to text using LLM, processing page by page concurrently.
 
     Args:
         pdf_path: Path to the PDF file
@@ -36,9 +36,9 @@ async def parse_pdf_to_text(pdf_path: Path) -> str:
 
     try:
         doc = fitz.open(str(pdf_path))
-        texts = []
+        num_pages = len(doc)
 
-        for page_num in range(len(doc)):
+        async def process_page(page_num: int) -> str:
             page = doc.load_page(page_num)
             # Create a new PDF with just this page
             new_doc = fitz.open()
@@ -51,7 +51,11 @@ async def parse_pdf_to_text(pdf_path: Path) -> str:
 
             # Use LLM to parse the page
             page_text = await b.PdfParser(pdf_input=Pdf.from_base64(b64))
-            texts.append(str(page_text))
+            return str(page_text)
+
+        # Process all pages concurrently
+        tasks = [process_page(page_num) for page_num in range(num_pages)]
+        texts = await asyncio.gather(*tasks)
 
         doc.close()
 
