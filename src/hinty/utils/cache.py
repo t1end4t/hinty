@@ -53,15 +53,15 @@ def _validate_file_count(file_count: int, max_files: int) -> bool:
     return True
 
 
-async def _write_file_cache(
+def _write_file_cache(
     files: List[Path], project_root: Path, cache_path: Path
 ) -> None:
     """Write relative file paths to cache file."""
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     relative_paths = [str(f.relative_to(project_root)) for f in files]
 
-    async with aiofiles.open(cache_path, "w") as f:
-        await f.write("\n".join(relative_paths) + "\n")
+    with aiofiles.open(cache_path, "w") as f:
+        f.write("\n".join(relative_paths) + "\n")
 
 
 async def cache_available_files(
