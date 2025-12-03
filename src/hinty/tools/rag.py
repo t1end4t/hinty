@@ -262,7 +262,7 @@ def tool_rag(
         text = parse_pdf_to_text(pdf_path)
 
         # Step 2: Chunk text
-        chunks = chunk_text_hierarchical(text, chunk_size, overlap)
+        chunks = chunk_text_hierarchical(markdown_text, chunk_size, overlap)
 
         # Step 3: Create hybrid index
         index = create_hybrid_index(chunks)
