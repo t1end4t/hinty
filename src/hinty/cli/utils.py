@@ -84,7 +84,7 @@ async def display_stream_response(
                 live.update(Group(*group_items))
             else:
                 # Handle stream case by consuming chunks
-                async for chunk in partial.response:
+                for chunk in partial.response:
                     full_response = chunk
                     # Split into lines and take only the last N lines
                     lines = chunk.split("\n")

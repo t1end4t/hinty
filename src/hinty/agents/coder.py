@@ -1,14 +1,14 @@
 import difflib
 from pathlib import Path
-from typing import AsyncGenerator, Generator, List
+from typing import Generator, List
 
-from baml_py import AbortController, BamlStream
+from baml_py import AbortController, BamlSyncStream
 from baml_py.errors import BamlAbortError
 from loguru import logger
 
 from hinty.core.models import AgentResponse
 
-from ..baml_client.async_client import b
+from ..baml_client import b
 from ..baml_client.stream_types import CoderOutput as StreamCoderOutput
 from ..baml_client.types import (
     CoderOutput,
@@ -96,25 +96,6 @@ def _process_coder_chunk(
     return "\n".join(lines)
 
 
-async def _call_coder(
-    user_message: str,
-    files: List[FileInfo],
-    conversation_history: List[ConversationMessage],
-    controller: AbortController,
-) -> BamlStream[StreamCoderOutput, CoderOutput] | None:
-    """Call the coder agent with a user message, files, and conversation history"""
-    try:
-        resp = b.stream.Coder(
-            user_message,
-            files,
-            conversation_history,
-            baml_options={"abort_controller": controller},
-        )
-        return resp
-    except BamlAbortError:
-        logger.error("Operation was cancelled")
-
-
 def _prepare_files_info(
     project_manager: ProjectManager,
 ) -> tuple[List[FileInfo], List[str]]:
@@ -138,13 +119,14 @@ def _prepare_files_info(
     return files_info, actions
 
 
-async def _handle_streaming_response(
-    stream: BamlStream[StreamCoderOutput, CoderOutput],
-) -> AsyncGenerator[AgentResponse, None]:
+# TODO: check it
+def _handle_streaming_response(
+    stream: BamlSyncStream[StreamCoderOutput, CoderOutput],
+) -> Generator[AgentResponse, None, None]:
     """Handle streaming the coder response."""
-    async for chunk in stream:
+    for chunk in stream:
         yield AgentResponse(response=_process_coder_chunk(chunk))
-    final = await stream.get_final_response()
+    final = stream.get_final_response()
     yield AgentResponse(response=_process_coder_chunk(final))
 
 
@@ -171,22 +153,44 @@ def _apply_changes(
             yield AgentResponse(actions=[f"Failed to apply changes: {e}"])
 
 
-async def handle_coder_mode(
+# BUG: change this
+def call_coder(
+    user_message: str,
+    files: List[FileInfo],
+    conversation_history: List[ConversationMessage],
+    controller: AbortController,
+) -> BamlSyncStream[StreamCoderOutput, CoderOutput] | None:
+    """Call the coder agent with a user message, files, and conversation history"""
+    codebase_context = None
+    try:
+        resp = b.stream.Coder(
+            user_message,
+            files,
+            codebase_context,
+            conversation_history,
+            baml_options={"abort_controller": controller},
+        )
+        return resp
+    except BamlAbortError:
+        logger.error("Operation was cancelled")
+
+
+def handle_coder_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
     controller: AbortController,
-) -> AsyncGenerator[AgentResponse, None]:
+) -> Generator[AgentResponse, None, None]:
     files_info, actions = _prepare_files_info(project_manager)
 
     yield AgentResponse(actions=actions)
 
-    stream = await _call_coder(
+    stream = call_coder(
         user_message, files_info, conversation_history, controller
     )
     if stream:
-        async for response in _handle_streaming_response(stream):
+        for response in _handle_streaming_response(stream):
             yield response
-        final = await stream.get_final_response()
+        final = stream.get_final_response()
         for response in _apply_changes(final, project_manager):
             yield response

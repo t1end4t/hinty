@@ -613,7 +613,9 @@ dependencies = [
     { name = "platformdirs" },
     { name = "prompt-toolkit" },
     { name = "pydantic" },
+    { name = "pyfzf" },
     { name = "pymupdf" },
+    { name = "pypdf" },
     { name = "rank-bm25" },
     { name = "rich" },
     { name = "sentence-transformers" },
@@ -653,7 +655,9 @@ requires-dist = [
     { name = "platformdirs", specifier = ">=4.0.0" },
     { name = "prompt-toolkit", specifier = ">=3.0.52" },
     { name = "pydantic", specifier = ">=2.12.4" },
+    { name = "pyfzf", specifier = ">=0.3.1" },
     { name = "pymupdf", specifier = ">=1.26.6" },
+    { name = "pypdf", specifier = ">=6.4.0" },
     { name = "rank-bm25", specifier = ">=0.2.2" },
     { name = "rich", specifier = ">=14.2.0" },
     { name = "sentence-transformers", specifier = ">=5.1.2" },
@@ -1773,6 +1777,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pyfzf"
+version = "0.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/4c/c0c658a1e1e9f0e01932990d7947579515fe048d0a515f07458ecd992b8f/pyfzf-0.3.1.tar.gz", hash = "sha256:dd902e34cffeca9c3082f96131593dd20b4b3a9bba5b9dde1b0688e424b46bd2", size = 3652, upload-time = "2022-03-01T11:43:51.248Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/35/6a6c7b95390ec58904646a04f54e1b56fd57d7a247588b791c6331697797/pyfzf-0.3.1-py3-none-any.whl", hash = "sha256:736f71563461b75f6f85b55345bdc638fa0dc14c32c857c59e8b1ca1cfa3cf4a", size = 4315, upload-time = "2022-03-01T11:43:49.754Z" },
+]
+
+[[package]]
 name = "pygments"
 version = "2.19.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1793,6 +1806,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/4f/bf/6e02e3d84b32c137c71a0a3dcdba8f2f6e9950619a3bc272245c7c06a051/pymupdf-1.26.6-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:7777d0b7124c2ebc94849536b6a1fb85d158df3b9d873935e63036559391534c", size = 24115381, upload-time = "2025-11-05T14:33:54.338Z" },
     { url = "https://files.pythonhosted.org/packages/ab/9d/30f7fcb3776bfedde66c06297960debe4883b1667294a1ee9426c942e94d/pymupdf-1.26.6-cp310-abi3-win32.whl", hash = "sha256:8f3ef05befc90ca6bb0f12983200a7048d5bff3e1c1edef1bb3de60b32cb5274", size = 17203613, upload-time = "2025-11-05T17:19:47.494Z" },
     { url = "https://files.pythonhosted.org/packages/f9/e8/989f4eaa369c7166dc24f0eaa3023f13788c40ff1b96701f7047421554a8/pymupdf-1.26.6-cp310-abi3-win_amd64.whl", hash = "sha256:ce02ca96ed0d1acfd00331a4d41a34c98584d034155b06fd4ec0f051718de7ba", size = 18405680, upload-time = "2025-11-05T14:34:48.672Z" },
+]
+
+[[package]]
+name = "pypdf"
+version = "6.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/01/f7510cc6124f494cfbec2e8d3c2e1a20d4f6c18622b0c03a3a70e968bacb/pypdf-6.4.0.tar.gz", hash = "sha256:4769d471f8ddc3341193ecc5d6560fa44cf8cd0abfabf21af4e195cc0c224072", size = 5276661, upload-time = "2025-11-23T14:04:43.185Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cd/f2/9c9429411c91ac1dd5cd66780f22b6df20c64c3646cdd1e6d67cf38579c4/pypdf-6.4.0-py3-none-any.whl", hash = "sha256:55ab9837ed97fd7fcc5c131d52fcc2223bc5c6b8a1488bbf7c0e27f1f0023a79", size = 329497, upload-time = "2025-11-23T14:04:41.448Z" },
 ]
 
 [[package]]

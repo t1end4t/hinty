@@ -95,7 +95,7 @@ async def _initialize_conversation() -> tuple[
     return conversation_history, project_manager, controller
 
 
-async def _process_user_message(
+def _process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
@@ -116,7 +116,7 @@ async def _process_user_message(
                 project_manager,
                 controller,
             )
-            full_response = await display_stream_response(responses, console)
+            full_response = display_stream_response(responses, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
@@ -130,7 +130,7 @@ async def _process_user_message(
         logger.error(f"Error processing user message: {e}")
 
 
-async def _process_input(
+def _process_input(
     console: Console,
     user_input: str,
     conversation_history: List[ConversationMessage],
@@ -139,11 +139,11 @@ async def _process_input(
 ):
     """Process user input as a command or message."""
     if user_input.startswith("/"):
-        await handle_command(
+        handle_command(
             user_input, console, conversation_history, project_manager
         )
     else:
-        await _process_user_message(
+        _process_user_message(
             user_input,
             conversation_history,
             project_manager,
@@ -152,7 +152,7 @@ async def _process_input(
         )
 
 
-async def _handle_input_loop(
+def _handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
@@ -163,11 +163,11 @@ async def _handle_input_loop(
     while True:
         try:
             display_files(project_manager)
-            user_input = await get_user_input(session, project_manager)
+            user_input = get_user_input(session, project_manager)
             if not user_input:
                 break
 
-            await _process_input(
+            _process_input(
                 console,
                 user_input,
                 conversation_history,
@@ -196,7 +196,7 @@ async def _handle_input_loop(
 
 
 # Minimal LLM chat interface
-async def _chat():
+def _chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
@@ -204,9 +204,9 @@ async def _chat():
         conversation_history,
         project_manager,
         controller,
-    ) = await _initialize_conversation()
+    ) = _initialize_conversation()
     session = _setup_session(project_manager)
-    await _handle_input_loop(
+    _handle_input_loop(
         session, conversation_history, project_manager, controller
     )
     logger.debug("Chat ended")
@@ -215,4 +215,4 @@ async def _chat():
 @click.command()
 def create_cli():
     """Create and run the CLI."""
-    asyncio.run(_chat())
+    _chat()

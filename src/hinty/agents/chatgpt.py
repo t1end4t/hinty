@@ -1,21 +1,21 @@
-from typing import AsyncGenerator, List
+from typing import Generator, List
 
-from baml_py import AbortController, BamlStream
+from baml_py import AbortController, BamlSyncStream
 from baml_py.errors import BamlAbortError
 from loguru import logger
 
 from hinty.core.models import AgentResponse
 
-from ..baml_client.async_client import b
+from ..baml_client import b
 from ..baml_client.types import ConversationMessage, ChatResponse
 from ..baml_client.stream_types import ChatResponse as StreamChatResponse
 
 
-async def _call_chatgpt(
+def call_chatgpt(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> BamlStream[StreamChatResponse, ChatResponse] | None:
+) -> BamlSyncStream[StreamChatResponse, ChatResponse] | None:
     """Call the orchestrator agent with a user message and conversation history"""
     try:
         resp = b.stream.ChatGPT(
@@ -28,17 +28,17 @@ async def _call_chatgpt(
         logger.error("Operation was cancelled")
 
 
-async def handle_chatgpt_mode(
+def handle_chatgpt_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
     controller: AbortController,
-) -> AsyncGenerator[AgentResponse, None]:
-    stream = await _call_chatgpt(
+) -> Generator[AgentResponse, None, None]:
+    stream = call_chatgpt(
         user_message, conversation_history, controller=controller
     )
     yield AgentResponse(response=stream)
 
     # get final response
     if stream:
-        final = await stream.get_final_response()
+        final = stream.get_final_response()
         yield AgentResponse(response=final)
