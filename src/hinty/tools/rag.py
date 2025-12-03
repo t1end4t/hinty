@@ -1,14 +1,15 @@
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import fitz
 import nltk
 import numpy as np
+from baml_py import Pdf
 from loguru import logger
 from nltk.tokenize import word_tokenize
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
+from ..baml_client.async_client import b
 from ..core.models import ToolResult
 
 # Download required NLTK data
@@ -31,7 +32,8 @@ def parse_pdf_to_text(pdf_path: Path) -> str:
     logger.info(f"Parsing PDF: {pdf_path}")
 
     try:
-        doc = fitz.open(str(pdf_path))
+        # doc = fitz.open(str(pdf_path))
+        text = b.PdfParser(pdf_input=Pdf.from_base64(b64))
         text = ""
         for page in doc:
             text += str(page.get_text())
