@@ -34,7 +34,7 @@ def parse_pdf_to_text(pdf_path: Path) -> str:
         doc = fitz.open(str(pdf_path))
         text = ""
         for page in doc:
-            text += page.get_text()
+            text += str(page.get_text())
         doc.close()
 
         logger.info(f"Successfully parsed PDF: {pdf_path}")
