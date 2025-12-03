@@ -47,7 +47,7 @@ async def parse_pdf_to_text(pdf_path: Path) -> str:
             new_doc.close()
 
             # Encode to base64
-            b64 = base64.b64encode(pdf_bytes).decode('utf-8')
+            b64 = base64.b64encode(pdf_bytes).decode("utf-8")
 
             # Use LLM to parse the page
             page_text = await b.PdfParser(pdf_input=Pdf.from_base64(b64))
