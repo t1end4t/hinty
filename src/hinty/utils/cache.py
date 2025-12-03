@@ -14,7 +14,7 @@ def _discover_project_files(project_root: Path) -> List[Path]:
     return [f for f in all_files if f.is_file() and ".git" not in f.parts]
 
 
-async def _load_gitignore_spec(
+def _load_gitignore_spec(
     project_root: Path,
 ) -> pathspec.PathSpec | None:
     """Load and parse .gitignore file if it exists."""
@@ -22,8 +22,8 @@ async def _load_gitignore_spec(
     if not gitignore_path.exists():
         return None
 
-    async with aiofiles.open(gitignore_path, "r") as f:
-        content = await f.read()
+    with open(gitignore_path, "r") as f:
+        content = f.read()
 
     return pathspec.PathSpec.from_lines("gitwildmatch", content.splitlines())
 
@@ -71,7 +71,7 @@ async def cache_available_files(
     logger.info(f"Caching files for {project_root}")
 
     files = _discover_project_files(project_root)
-    gitignore_spec = await _load_gitignore_spec(project_root)
+    gitignore_spec = _load_gitignore_spec(project_root)
     filtered_files = _filter_files_by_gitignore(
         files, project_root, gitignore_spec
     )
