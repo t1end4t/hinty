@@ -128,7 +128,7 @@ def chunk_text_hierarchical(
 
     # Split by paragraphs first for better semantic boundaries
     paragraphs = text.split("\n\n")
-    
+
     chunks = []
     start = 0
     chunk_id = 0
@@ -140,7 +140,9 @@ def chunk_text_hierarchical(
         if len(current_chunk) + len(para) > chunk_size and current_chunk:
             # Create parent chunk (larger context)
             parent_start = max(0, current_start - overlap)
-            parent_end = min(len(text), current_start + len(current_chunk) + overlap)
+            parent_end = min(
+                len(text), current_start + len(current_chunk) + overlap
+            )
             parent_text = text[parent_start:parent_end]
 
             # Calculate position score (earlier = higher score)
@@ -161,9 +163,19 @@ def chunk_text_hierarchical(
                 chunk_id += 1
 
             # Start new chunk with overlap
-            overlap_text = current_chunk[-overlap:] if len(current_chunk) > overlap else current_chunk
+            overlap_text = (
+                current_chunk[-overlap:]
+                if len(current_chunk) > overlap
+                else current_chunk
+            )
             current_chunk = overlap_text + "\n\n" + para
-            current_start = current_start + len(current_chunk) - len(overlap_text) - len(para) - 2
+            current_start = (
+                current_start
+                + len(current_chunk)
+                - len(overlap_text)
+                - len(para)
+                - 2
+            )
         else:
             if current_chunk:
                 current_chunk += "\n\n" + para
@@ -176,7 +188,9 @@ def chunk_text_hierarchical(
     # Add final chunk
     if current_chunk and not _is_low_quality_chunk(current_chunk):
         parent_start = max(0, current_start - overlap)
-        parent_end = min(len(text), current_start + len(current_chunk) + overlap)
+        parent_end = min(
+            len(text), current_start + len(current_chunk) + overlap
+        )
         parent_text = text[parent_start:parent_end]
         position_score = 1.0 - (current_start / len(text))
 
@@ -387,12 +401,11 @@ async def tool_rag(
 
         # Step 2: Chunk text with quality filtering
         chunks = chunk_text_hierarchical(text, chunk_size, overlap)
-        
+
         if not chunks:
             logger.warning("No valid chunks created after filtering")
             return ToolResult(
-                success=False, 
-                error="No valid content chunks found in document"
+                success=False, error="No valid content chunks found in document"
             )
 
         # Step 3: Create hybrid index
