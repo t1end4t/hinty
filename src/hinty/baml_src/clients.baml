@@ -1,9 +1,11 @@
 // Learn more about clients at https://docs.boundaryml.com/docs/snippets/clients/overview
 client<llm> GeminiGeneral {
-  provider google-ai
+  provider "openai-generic"
   retry_policy Exponential
   options {
-    model "gemini-flash-latest"
+    base_url "https://openrouter.ai/api/v1"
+    api_key env.OPENROUTER_API_KEY
+    model "google/gemini-2.5-flash-lite-preview-09-2025"
   }
 }
 
@@ -17,36 +19,6 @@ client<llm> GroqRouter {
   }
 }
 
-
-client<llm> GrokCoder {
-  provider "openai-generic"
-  retry_policy Exponential
-  options {
-    base_url "https://openrouter.ai/api/v1"
-    api_key env.OPENROUTER_API_KEY
-    model "x-ai/grok-code-fast-1"
-  }
-}
-
-client<llm> ClaudeWriter {
-  provider "openai-generic"
-  retry_policy Exponential
-  options {
-    base_url "https://openrouter.ai/api/v1"
-    api_key env.OPENROUTER_API_KEY
-    model "anthropic/claude-sonnet-4.5"
-  }
-}
-
-client<llm> Thinking {
-  provider "openai-generic"
-  retry_policy Exponential
-  options {
-    base_url "https://openrouter.ai/api/v1"
-    api_key env.OPENROUTER_API_KEY
-    model "anthropic/claude-opus-4.1"
-  }
-}
 
 // https://docs.boundaryml.com/docs/snippets/clients/retry
 retry_policy Constant {

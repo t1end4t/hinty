@@ -41,7 +41,7 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 # #########################################################################
 
 # #########################################################################
-# Generated classes (12)
+# Generated classes (15)
 # #########################################################################
 
 class ChatResponse(BaseModel):
@@ -61,6 +61,16 @@ class CoderOutput(BaseModel):
     additional_files_to_check: typing.List[str]
     summary: str
 
+class ContentBlock(BaseModel):
+    id: str
+    type: str
+    content: str
+    structured_data: typing.Optional[typing.Dict[str, str]] = None
+    semantic_tags: typing.List[str]
+    context: str
+    page_number: int
+    position: int
+
 class ConversationMessage(BaseModel):
     role: typing.Union[typing_extensions.Literal['user'], typing_extensions.Literal['assistant']]
     content: str
@@ -77,6 +87,18 @@ class FileChange(BaseModel):
 class FileInfo(BaseModel):
     file_path: str
     file_content: str
+
+class PDFPageDocument(BaseModel):
+    page_summary: str
+    content_blocks: typing.List["ContentBlock"]
+    key_entities: typing.Optional[typing.Dict[str, typing.List[str]]] = None
+    metadata: "PageMetadata"
+
+class PageMetadata(BaseModel):
+    page_number: int
+    has_continuation_from_previous: bool
+    continues_to_next: bool
+    section_name: typing.Optional[str] = None
 
 class RAGTool(BaseModel):
     tool_name: typing_extensions.Literal['rag']

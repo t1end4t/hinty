@@ -23,7 +23,7 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (12)
+# Generated classes (15)
 # #########################################################################
 
 class ChatResponse(BaseModel):
@@ -43,6 +43,16 @@ class CoderOutput(BaseModel):
     additional_files_to_check: typing.List[str]
     summary: typing.Optional[str] = None
 
+class ContentBlock(BaseModel):
+    id: typing.Optional[str] = None
+    type: typing.Optional[str] = None
+    content: typing.Optional[str] = None
+    structured_data: typing.Optional[typing.Dict[str, str]] = None
+    semantic_tags: typing.List[str]
+    context: typing.Optional[str] = None
+    page_number: typing.Optional[int] = None
+    position: typing.Optional[int] = None
+
 class ConversationMessage(BaseModel):
     role: typing.Optional[typing.Union[str, str]] = None
     content: typing.Optional[str] = None
@@ -59,6 +69,18 @@ class FileChange(BaseModel):
 class FileInfo(BaseModel):
     file_path: typing.Optional[str] = None
     file_content: typing.Optional[str] = None
+
+class PDFPageDocument(BaseModel):
+    page_summary: typing.Optional[str] = None
+    content_blocks: typing.List["ContentBlock"]
+    key_entities: typing.Optional[typing.Dict[str, typing.List[str]]] = None
+    metadata: typing.Optional["PageMetadata"] = None
+
+class PageMetadata(BaseModel):
+    page_number: typing.Optional[int] = None
+    has_continuation_from_previous: typing.Optional[bool] = None
+    continues_to_next: typing.Optional[bool] = None
+    section_name: typing.Optional[str] = None
 
 class RAGTool(BaseModel):
     tool_name: typing.Optional[str] = None

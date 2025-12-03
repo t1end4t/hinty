@@ -20,7 +20,7 @@ from .globals import DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIM
 class TypeBuilder(type_builder.TypeBuilder):
     def __init__(self):
         super().__init__(classes=set(
-          ["ChatResponse","CodebaseContext","CoderOutput","ConversationMessage","FetchUrlTool","FileChange","FileInfo","RAGTool","RelatedFile","SearchReplaceBlock","SearchWebTool","WriteFileTool",]
+          ["ChatResponse","CodebaseContext","CoderOutput","ContentBlock","ConversationMessage","FetchUrlTool","FileChange","FileInfo","PDFPageDocument","PageMetadata","RAGTool","RelatedFile","SearchReplaceBlock","SearchWebTool","WriteFileTool",]
         ), enums=set(
           []
         ), runtime=DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME)
@@ -31,7 +31,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
     # #########################################################################
-    # Generated classes 12
+    # Generated classes 15
     # #########################################################################
 
     @property
@@ -45,6 +45,10 @@ class TypeBuilder(type_builder.TypeBuilder):
     @property
     def CoderOutput(self) -> "CoderOutputViewer":
         return CoderOutputViewer(self)
+
+    @property
+    def ContentBlock(self) -> "ContentBlockViewer":
+        return ContentBlockViewer(self)
 
     @property
     def ConversationMessage(self) -> "ConversationMessageViewer":
@@ -61,6 +65,14 @@ class TypeBuilder(type_builder.TypeBuilder):
     @property
     def FileInfo(self) -> "FileInfoViewer":
         return FileInfoViewer(self)
+
+    @property
+    def PDFPageDocument(self) -> "PDFPageDocumentViewer":
+        return PDFPageDocumentViewer(self)
+
+    @property
+    def PageMetadata(self) -> "PageMetadataViewer":
+        return PageMetadataViewer(self)
 
     @property
     def RAGTool(self) -> "RAGToolViewer":
@@ -90,7 +102,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
 # #########################################################################
-# Generated classes 12
+# Generated classes 15
 # #########################################################################
 
 class ChatResponseAst:
@@ -238,6 +250,73 @@ class CoderOutputProperties:
     @property
     def summary(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("summary"))
+    
+    
+
+
+class ContentBlockAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ContentBlock")
+        self._properties: typing.Set[str] = set([  "id",  "type",  "content",  "structured_data",  "semantic_tags",  "context",  "page_number",  "position",  ])
+        self._props = ContentBlockProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ContentBlockProperties":
+        return self._props
+
+
+class ContentBlockViewer(ContentBlockAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ContentBlockProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def type(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("type"))
+    
+    @property
+    def content(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("content"))
+    
+    @property
+    def structured_data(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("structured_data"))
+    
+    @property
+    def semantic_tags(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("semantic_tags"))
+    
+    @property
+    def context(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("context"))
+    
+    @property
+    def page_number(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("page_number"))
+    
+    @property
+    def position(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("position"))
     
     
 
@@ -414,6 +493,108 @@ class FileInfoProperties:
     @property
     def file_content(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("file_content"))
+    
+    
+
+
+class PDFPageDocumentAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("PDFPageDocument")
+        self._properties: typing.Set[str] = set([  "page_summary",  "content_blocks",  "key_entities",  "metadata",  ])
+        self._props = PDFPageDocumentProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "PDFPageDocumentProperties":
+        return self._props
+
+
+class PDFPageDocumentViewer(PDFPageDocumentAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class PDFPageDocumentProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def page_summary(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("page_summary"))
+    
+    @property
+    def content_blocks(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("content_blocks"))
+    
+    @property
+    def key_entities(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("key_entities"))
+    
+    @property
+    def metadata(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("metadata"))
+    
+    
+
+
+class PageMetadataAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("PageMetadata")
+        self._properties: typing.Set[str] = set([  "page_number",  "has_continuation_from_previous",  "continues_to_next",  "section_name",  ])
+        self._props = PageMetadataProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "PageMetadataProperties":
+        return self._props
+
+
+class PageMetadataViewer(PageMetadataAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class PageMetadataProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def page_number(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("page_number"))
+    
+    @property
+    def has_continuation_from_previous(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("has_continuation_from_previous"))
+    
+    @property
+    def continues_to_next(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("continues_to_next"))
+    
+    @property
+    def section_name(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("section_name"))
     
     
 

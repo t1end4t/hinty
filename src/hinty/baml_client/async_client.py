@@ -109,6 +109,21 @@ class BamlAsyncClient:
                 "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
             })
             return typing.cast(types.CoderOutput, result.cast_to(types, types, stream_types, False, __runtime__))
+    async def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> types.PDFPageDocument:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            # Use streaming internally when on_tick is provided
+            stream = self.stream.PageByPagePdfParser(pdf_input=pdf_input,page_number=page_number,previous_page_context=previous_page_context,
+                baml_options=baml_options)
+            return await stream.get_final_response()
+        else:
+            # Original non-streaming code
+            result = await self.__options.merge_options(baml_options).call_function_async(function_name="PageByPagePdfParser", args={
+                "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
+            })
+            return typing.cast(types.PDFPageDocument, result.cast_to(types, types, stream_types, False, __runtime__))
     
 
 
@@ -142,6 +157,18 @@ class BamlStreamClient:
           lambda x: typing.cast(types.CoderOutput, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
+    def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlStream[stream_types.PDFPageDocument, types.PDFPageDocument]:
+        ctx, result = self.__options.merge_options(baml_options).create_async_stream(function_name="PageByPagePdfParser", args={
+            "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
+        })
+        return baml_py.BamlStream[stream_types.PDFPageDocument, types.PDFPageDocument](
+          result,
+          lambda x: typing.cast(stream_types.PDFPageDocument, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.PDFPageDocument, x.cast_to(types, types, stream_types, False, __runtime__)),
+          ctx,
+        )
     
 
 class BamlHttpRequestClient:
@@ -164,6 +191,13 @@ class BamlHttpRequestClient:
             "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
         }, mode="request")
         return result
+    async def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="PageByPagePdfParser", args={
+            "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
+        }, mode="request")
+        return result
     
 
 class BamlHttpStreamRequestClient:
@@ -184,6 +218,13 @@ class BamlHttpStreamRequestClient:
     ) -> baml_py.baml_py.HTTPRequest:
         result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="Coder", args={
             "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
+        }, mode="stream")
+        return result
+    async def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="PageByPagePdfParser", args={
+            "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
         }, mode="stream")
         return result
     

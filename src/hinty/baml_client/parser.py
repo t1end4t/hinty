@@ -36,6 +36,12 @@ class LlmResponseParser:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="request")
         return typing.cast(types.CoderOutput, result)
 
+    def PageByPagePdfParser(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.PDFPageDocument:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="PageByPagePdfParser", llm_response=llm_response, mode="request")
+        return typing.cast(types.PDFPageDocument, result)
+
     
 
 class LlmStreamParser:
@@ -55,5 +61,11 @@ class LlmStreamParser:
     ) -> stream_types.CoderOutput:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.CoderOutput, result)
+
+    def PageByPagePdfParser(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.PDFPageDocument:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="PageByPagePdfParser", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.PDFPageDocument, result)
 
     

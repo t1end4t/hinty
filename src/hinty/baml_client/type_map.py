@@ -25,6 +25,9 @@ type_map = {
     "types.CoderOutput": types.CoderOutput,
     "stream_types.CoderOutput": stream_types.CoderOutput,
 
+    "types.ContentBlock": types.ContentBlock,
+    "stream_types.ContentBlock": stream_types.ContentBlock,
+
     "types.ConversationMessage": types.ConversationMessage,
     "stream_types.ConversationMessage": stream_types.ConversationMessage,
 
@@ -36,6 +39,12 @@ type_map = {
 
     "types.FileInfo": types.FileInfo,
     "stream_types.FileInfo": stream_types.FileInfo,
+
+    "types.PDFPageDocument": types.PDFPageDocument,
+    "stream_types.PDFPageDocument": stream_types.PDFPageDocument,
+
+    "types.PageMetadata": types.PageMetadata,
+    "stream_types.PageMetadata": stream_types.PageMetadata,
 
     "types.RAGTool": types.RAGTool,
     "stream_types.RAGTool": stream_types.RAGTool,
