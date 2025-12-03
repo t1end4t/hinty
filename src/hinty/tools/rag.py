@@ -73,11 +73,48 @@ async def parse_pdf_to_text(pdf_path: Path) -> str:
         raise
 
 
+def _is_low_quality_chunk(text: str) -> bool:
+    """
+    Determine if a chunk is low quality (references, tables, etc).
+
+    Args:
+        text: Chunk text to evaluate
+
+    Returns:
+        True if chunk should be filtered out
+    """
+    text_lower = text.lower().strip()
+
+    # Filter out reference sections
+    if any(
+        marker in text_lower[:100]
+        for marker in ["references", "[1]", "[2]", "[3]", "bibliography"]
+    ):
+        return True
+
+    # Filter out chunks that are mostly tables/formatting
+    table_chars = text.count("|") + text.count("---")
+    if table_chars > len(text) * 0.3:
+        return True
+
+    # Filter out chunks with too many citations
+    citation_count = text.count("[") + text.count("]")
+    if citation_count > len(text) / 50:
+        return True
+
+    # Filter out very short chunks
+    if len(text.strip()) < 100:
+        return True
+
+    return False
+
+
 def chunk_text_hierarchical(
     text: str, chunk_size: int = 512, overlap: int = 128
 ) -> List[Dict[str, Any]]:
     """
     Split text into overlapping chunks with parent-child relationships.
+    Filters out low-quality chunks and adds position-based metadata.
 
     Args:
         text: Input text to chunk
@@ -89,33 +126,72 @@ def chunk_text_hierarchical(
     """
     logger.debug(f"Chunking text of length {len(text)}")
 
+    # Split by paragraphs first for better semantic boundaries
+    paragraphs = text.split("\n\n")
+    
     chunks = []
     start = 0
     chunk_id = 0
+    current_chunk = ""
+    current_start = 0
 
-    while start < len(text):
-        end = start + chunk_size
-        chunk_text = text[start:end]
+    for para in paragraphs:
+        # If adding this paragraph exceeds chunk size, save current chunk
+        if len(current_chunk) + len(para) > chunk_size and current_chunk:
+            # Create parent chunk (larger context)
+            parent_start = max(0, current_start - overlap)
+            parent_end = min(len(text), current_start + len(current_chunk) + overlap)
+            parent_text = text[parent_start:parent_end]
 
-        # Create parent chunk (larger context)
-        parent_start = max(0, start - overlap)
-        parent_end = min(len(text), end + overlap)
+            # Calculate position score (earlier = higher score)
+            position_score = 1.0 - (current_start / len(text))
+
+            # Check quality
+            if not _is_low_quality_chunk(current_chunk):
+                chunks.append(
+                    {
+                        "id": chunk_id,
+                        "text": current_chunk.strip(),
+                        "parent_text": parent_text,
+                        "start": current_start,
+                        "end": current_start + len(current_chunk),
+                        "position_score": position_score,
+                    }
+                )
+                chunk_id += 1
+
+            # Start new chunk with overlap
+            overlap_text = current_chunk[-overlap:] if len(current_chunk) > overlap else current_chunk
+            current_chunk = overlap_text + "\n\n" + para
+            current_start = current_start + len(current_chunk) - len(overlap_text) - len(para) - 2
+        else:
+            if current_chunk:
+                current_chunk += "\n\n" + para
+            else:
+                current_chunk = para
+                current_start = start
+
+        start += len(para) + 2  # +2 for \n\n
+
+    # Add final chunk
+    if current_chunk and not _is_low_quality_chunk(current_chunk):
+        parent_start = max(0, current_start - overlap)
+        parent_end = min(len(text), current_start + len(current_chunk) + overlap)
         parent_text = text[parent_start:parent_end]
+        position_score = 1.0 - (current_start / len(text))
 
         chunks.append(
             {
                 "id": chunk_id,
-                "text": chunk_text,
+                "text": current_chunk.strip(),
                 "parent_text": parent_text,
-                "start": start,
-                "end": end,
+                "start": current_start,
+                "end": current_start + len(current_chunk),
+                "position_score": position_score,
             }
         )
 
-        start += chunk_size - overlap
-        chunk_id += 1
-
-    logger.debug(f"Created {len(chunks)} chunks")
+    logger.debug(f"Created {len(chunks)} chunks after filtering")
     return chunks
 
 
@@ -159,15 +235,17 @@ def hybrid_search(
     index: Dict[str, Any],
     top_k: int = 10,
     alpha: float = 0.5,
+    position_weight: float = 0.2,
 ) -> List[Dict[str, Any]]:
     """
-    Perform hybrid search combining dense and sparse retrieval.
+    Perform hybrid search combining dense, sparse, and position-based retrieval.
 
     Args:
         query: Search query
         index: Hybrid index created by create_hybrid_index
         top_k: Number of results to return
         alpha: Weight for dense vs sparse (0=sparse only, 1=dense only)
+        position_weight: Weight for position score (0-1)
 
     Returns:
         List of retrieved chunks with scores
@@ -192,8 +270,17 @@ def hybrid_search(
         sparse_scores.max() - sparse_scores.min() + 1e-10
     )
 
-    # Combine scores
-    hybrid_scores = alpha * dense_scores + (1 - alpha) * sparse_scores
+    # Get position scores
+    position_scores = np.array(
+        [chunk["position_score"] for chunk in index["chunks"]]
+    )
+
+    # Combine scores with position weighting
+    content_weight = 1.0 - position_weight
+    hybrid_scores = (
+        content_weight * (alpha * dense_scores + (1 - alpha) * sparse_scores)
+        + position_weight * position_scores
+    )
 
     # Get top-k indices
     top_indices = np.argsort(hybrid_scores)[-top_k:][::-1]
@@ -259,9 +346,10 @@ async def tool_rag(
     pdf_path: Path,
     project_manager: ProjectManager,
     top_k: int = 5,
-    chunk_size: int = 512,
-    overlap: int = 128,
-    alpha: float = 0.5,
+    chunk_size: int = 800,
+    overlap: int = 200,
+    alpha: float = 0.6,
+    position_weight: float = 0.3,
     use_reranker: bool = True,
 ) -> ToolResult:
     """
@@ -270,10 +358,12 @@ async def tool_rag(
     Args:
         query: Search query
         pdf_path: Path to PDF file
+        project_manager: Project manager for caching
         top_k: Number of final results to return
-        chunk_size: Size of text chunks
-        overlap: Overlap between chunks
-        alpha: Weight for dense vs sparse search
+        chunk_size: Size of text chunks (default 800 for better context)
+        overlap: Overlap between chunks (default 200)
+        alpha: Weight for dense vs sparse search (default 0.6 favors semantic)
+        position_weight: Weight for document position (default 0.3)
         use_reranker: Whether to use cross-encoder reranking
 
     Returns:
@@ -295,18 +385,26 @@ async def tool_rag(
                 f.write(text)
             logger.info(f"Cached PDF text: {pdf_path}")
 
-        # Step 2: Chunk text
+        # Step 2: Chunk text with quality filtering
         chunks = chunk_text_hierarchical(text, chunk_size, overlap)
+        
+        if not chunks:
+            logger.warning("No valid chunks created after filtering")
+            return ToolResult(
+                success=False, 
+                error="No valid content chunks found in document"
+            )
 
         # Step 3: Create hybrid index
         index = create_hybrid_index(chunks)
 
-        # Step 4: Hybrid search
+        # Step 4: Hybrid search with position weighting
         initial_results = hybrid_search(
             query,
             index,
-            top_k=top_k * 2 if use_reranker else top_k,
+            top_k=top_k * 3 if use_reranker else top_k,
             alpha=alpha,
+            position_weight=position_weight,
         )
 
         # Step 5: Rerank (optional)
