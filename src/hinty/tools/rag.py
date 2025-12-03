@@ -285,13 +285,13 @@ async def tool_rag(
         # Step 1: Parse PDF (with caching)
         cache_path = project_manager.get_pdf_cache_path(pdf_path)
         if cache_path.exists():
-            with open(cache_path, 'r', encoding='utf-8') as f:
+            with open(cache_path, "r", encoding="utf-8") as f:
                 text = f.read()
             logger.info(f"Loaded PDF text from cache: {pdf_path}")
         else:
             text = await parse_pdf_to_text(pdf_path)
             cache_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(cache_path, 'w', encoding='utf-8') as f:
+            with open(cache_path, "w", encoding="utf-8") as f:
                 f.write(text)
             logger.info(f"Cached PDF text: {pdf_path}")
 
