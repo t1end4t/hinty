@@ -1,6 +1,9 @@
+import asyncio
+import base64
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import fitz
 import nltk
 import numpy as np
 from baml_py import Pdf
@@ -19,9 +22,9 @@ except LookupError:
     nltk.download("punkt_tab", quiet=True)
 
 
-def parse_pdf_to_text(pdf_path: Path) -> str:
+async def parse_pdf_to_text(pdf_path: Path) -> str:
     """
-    Parse PDF to text using PyMuPDF (fitz).
+    Parse PDF to text using LLM, processing page by page.
 
     Args:
         pdf_path: Path to the PDF file
@@ -32,15 +35,29 @@ def parse_pdf_to_text(pdf_path: Path) -> str:
     logger.info(f"Parsing PDF: {pdf_path}")
 
     try:
-        # doc = fitz.open(str(pdf_path))
-        text = b.PdfParser(pdf_input=Pdf.from_base64(b64))
-        text = ""
-        for page in doc:
-            text += str(page.get_text())
+        doc = fitz.open(str(pdf_path))
+        texts = []
+
+        for page_num in range(len(doc)):
+            page = doc.load_page(page_num)
+            # Create a new PDF with just this page
+            new_doc = fitz.open()
+            new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
+            pdf_bytes = new_doc.tobytes()
+            new_doc.close()
+
+            # Encode to base64
+            b64 = base64.b64encode(pdf_bytes).decode('utf-8')
+
+            # Use LLM to parse the page
+            page_text = await b.PdfParser(pdf_input=Pdf.from_base64(b64))
+            texts.append(str(page_text))
+
         doc.close()
 
+        full_text = "\n".join(texts)
         logger.info(f"Successfully parsed PDF: {pdf_path}")
-        return text
+        return full_text
 
     except ImportError:
         logger.error(
@@ -233,7 +250,7 @@ def rerank_results(
     return reranked
 
 
-def tool_rag(
+async def tool_rag(
     query: str,
     pdf_path: Path,
     top_k: int = 5,
@@ -261,7 +278,7 @@ def tool_rag(
         logger.info(f"Starting RAG query for: {query[:50]}...")
 
         # Step 1: Parse PDF
-        text = parse_pdf_to_text(pdf_path)
+        text = await parse_pdf_to_text(pdf_path)
 
         # Step 2: Chunk text
         chunks = chunk_text_hierarchical(text, chunk_size, overlap)
