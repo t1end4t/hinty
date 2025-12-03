@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import List
 
-import aiofiles
 import pathspec
 from loguru import logger
 
@@ -60,11 +59,11 @@ def _write_file_cache(
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     relative_paths = [str(f.relative_to(project_root)) for f in files]
 
-    with aiofiles.open(cache_path, "w") as f:
+    with open(cache_path, "w") as f:
         f.write("\n".join(relative_paths) + "\n")
 
 
-async def cache_available_files(
+def cache_available_files(
     project_root: Path, available_files_cache: Path, max_files: int = 10000
 ) -> None:
     """Cache all project files, respecting .gitignore."""
@@ -79,7 +78,7 @@ async def cache_available_files(
     if not _validate_file_count(len(filtered_files), max_files):
         return
 
-    await _write_file_cache(filtered_files, project_root, available_files_cache)
+    _write_file_cache(filtered_files, project_root, available_files_cache)
 
     logger.info(f"Cached {len(filtered_files)} files")
 
@@ -93,20 +92,20 @@ def _collect_objects_from_files(files: List[Path]) -> set[str]:
     return all_objects
 
 
-async def _write_objects_cache(objects: set[str], cache_path: Path) -> None:
+def _write_objects_cache(objects: set[str], cache_path: Path) -> None:
     """Write sorted objects to cache file."""
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     sorted_objects = sorted(objects)
 
-    async with aiofiles.open(cache_path, "w") as f:
-        await f.write("\n".join(sorted_objects) + "\n")
+    with open(cache_path, "w") as f:
+        f.write("\n".join(sorted_objects) + "\n")
 
 
-async def cache_objects(files: List[Path], objects_cache: Path) -> None:
+def cache_objects(files: List[Path], objects_cache: Path) -> None:
     """Cache all objects for given files."""
     logger.info(f"Caching objects from {len(files)} files")
 
     all_objects = _collect_objects_from_files(files)
-    await _write_objects_cache(all_objects, objects_cache)
+    _write_objects_cache(all_objects, objects_cache)
 
     logger.info(f"Cached {len(all_objects)} unique objects")
