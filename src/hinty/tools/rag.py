@@ -14,6 +14,7 @@ from sentence_transformers import CrossEncoder, SentenceTransformer
 
 from ..baml_client.async_client import b
 from ..core.models import ToolResult
+from ..core.project_manager import ProjectManager
 
 # Download required NLTK data
 try:
@@ -256,6 +257,7 @@ def rerank_results(
 async def tool_rag(
     query: str,
     pdf_path: Path,
+    project_manager: ProjectManager,
     top_k: int = 5,
     chunk_size: int = 512,
     overlap: int = 128,
@@ -280,8 +282,18 @@ async def tool_rag(
     try:
         logger.info(f"Starting RAG query for: {query[:50]}...")
 
-        # Step 1: Parse PDF
-        text = await parse_pdf_to_text(pdf_path)
+        # Step 1: Parse PDF (with caching)
+        cache_path = project_manager.get_pdf_cache_path(pdf_path)
+        if cache_path.exists():
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                text = f.read()
+            logger.info(f"Loaded PDF text from cache: {pdf_path}")
+        else:
+            text = await parse_pdf_to_text(pdf_path)
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(cache_path, 'w', encoding='utf-8') as f:
+                f.write(text)
+            logger.info(f"Cached PDF text: {pdf_path}")
 
         # Step 2: Chunk text
         chunks = chunk_text_hierarchical(text, chunk_size, overlap)

@@ -48,6 +48,13 @@ class ProjectManager:
         """Get the path to the objects cache."""
         return self.metadata_directory / "objects.txt"
 
+    def get_pdf_cache_path(self, pdf_path: Path) -> Path:
+        """Get the cache path for a PDF file."""
+        import hashlib
+        hash_obj = hashlib.md5(str(pdf_path).encode())
+        cache_filename = f"pdf_cache_{hash_obj.hexdigest()}.txt"
+        return self.metadata_directory / cache_filename
+
     def change_mode(self, new_mode: Mode):
         """Change the current mode."""
         self._mode = new_mode
