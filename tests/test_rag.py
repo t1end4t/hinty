@@ -1,15 +1,22 @@
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+from hinty.core.project_manager import ProjectManager
 from hinty.tools.rag import tool_rag
+
+load_dotenv()
 
 
 def main():
     """Run a simple test of the RAG tool."""
-    # Example usage - replace with actual PDF path and query
     query = "What is the main topic of this document?"
-    pdf_path = Path("example.pdf")  # Replace with actual PDF path
+    pdf_path = Path("tests/test.pdf")  # Replace with actual PDF path
 
-    result = tool_rag(query=query, pdf_path=pdf_path)
+    ctx = ProjectManager()
+
+    result = tool_rag(query=query, pdf_path=pdf_path, project_manager=ctx)
+
     print("RAG Tool Result:")
     print(result)
 
