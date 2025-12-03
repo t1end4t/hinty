@@ -39,7 +39,6 @@ async def parse_pdf_to_text(pdf_path: Path) -> str:
         num_pages = len(doc)
 
         async def process_page(page_num: int) -> str:
-            page = doc.load_page(page_num)
             # Create a new PDF with just this page
             new_doc = fitz.open()
             new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
