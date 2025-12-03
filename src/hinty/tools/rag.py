@@ -1,12 +1,10 @@
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import fitz
 import nltk
 import numpy as np
 from loguru import logger
-from marker.converters.pdf import PdfConverter
-from marker.models import create_model_dict
-from marker.output import text_from_rendered
 from nltk.tokenize import word_tokenize
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer
@@ -20,31 +18,31 @@ except LookupError:
     nltk.download("punkt", quiet=True)
 
 
-def parse_pdf_with_marker(pdf_path: Path) -> str:
+def parse_pdf_to_text(pdf_path: Path) -> str:
     """
-    Parse PDF to Markdown using Marker library.
+    Parse PDF to text using PyMuPDF (fitz).
 
     Args:
         pdf_path: Path to the PDF file
 
     Returns:
-        Markdown content as string
+        Text content as string
     """
     logger.info(f"Parsing PDF: {pdf_path}")
 
     try:
-        converter = PdfConverter(
-            artifact_dict=create_model_dict(),
-        )
-        rendered = converter(str(pdf_path))
-        text, _, images = text_from_rendered(rendered)
+        doc = fitz.open(str(pdf_path))
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
 
         logger.info(f"Successfully parsed PDF: {pdf_path}")
         return text
 
     except ImportError:
         logger.error(
-            "Marker library not installed. Install with: pip install marker-pdf"
+            "PyMuPDF library not installed. Install with: pip install pymupdf"
         )
         raise
     except Exception as e:
@@ -261,7 +259,7 @@ def tool_rag(
         logger.info(f"Starting RAG query for: {query[:50]}...")
 
         # Step 1: Parse PDF
-        markdown_text = parse_pdf_with_marker(pdf_path)
+        text = parse_pdf_to_text(pdf_path)
 
         # Step 2: Chunk text
         chunks = chunk_text_hierarchical(markdown_text, chunk_size, overlap)
