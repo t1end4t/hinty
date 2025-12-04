@@ -136,9 +136,7 @@ def _apply_changes(
 ) -> Generator[AgentResponse, None, None]:
     """Apply search replace blocks and yield the result."""
     if final.files_to_change:
-        result = tool_search_and_replace(
-            final, project_manager.project_root
-        )
+        result = tool_search_and_replace(final, project_manager.project_root)
         if result.success:
             files_changed = [
                 str(
@@ -153,7 +151,9 @@ def _apply_changes(
                 actions=[f"Applied changes: {', '.join(files_changed)}"]
             )
         else:
-            yield AgentResponse(actions=[f"Failed to apply changes: {result.error}"])
+            yield AgentResponse(
+                actions=[f"Failed to apply changes: {result.error}"]
+            )
 
 
 # BUG: change this
