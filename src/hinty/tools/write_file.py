@@ -22,9 +22,9 @@ async def tool_write_file(file_path: str, content: str) -> ToolResult:
         path.write_text(content, encoding="utf-8")
         logger.info(f"Successfully wrote to file: {file_path}")
         return ToolResult(
-            success=True, message="File written successfully.", data=None
+            success=True, output="File written successfully.", error=None
         )
     except Exception as e:
         error_msg = f"Failed to write to file {file_path}: {str(e)}"
         logger.error(error_msg)
-        return ToolResult(success=False, message=error_msg, data=None)
+        return ToolResult(success=False, output=None, error=error_msg)
