@@ -114,7 +114,7 @@ async def _process_user_message(
         logger.debug("Calling external API for router")
 
         with console.status("Thinking..."):
-            responses = await get_agent_response(
+            responses = get_agent_response(
                 user_input,
                 conversation_history,
                 project_manager,
