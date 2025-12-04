@@ -17,15 +17,13 @@ def get_agent_response(
 ) -> Generator[AgentResponse, None, None]:
     """Get a response from the LLM"""
     if project_manager.mode == Mode.CHATGPT:
-        for response in handle_chatgpt_mode(
+        yield from handle_chatgpt_mode(
             user_message, conversation_history, controller
-        ):
-            yield response
-    elif project_manager.mode == Mode.CODER:
-        for response in handle_coder_mode(
-            user_message, conversation_history, project_manager, controller
-        ):
-            yield response
+        )
+    # elif project_manager.mode == Mode.CODER:
+    #     yield from handle_coder_mode(
+    #         user_message, conversation_history, controller
+    #     )
     else:
         yield AgentResponse(
             response=f"Mode {project_manager.mode} not yet implemented"
