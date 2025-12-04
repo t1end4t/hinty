@@ -77,8 +77,16 @@ async def handle_chatgpt_mode(
         if final_response.tool_call is None:
             break
         # Execute tool and prepare result for next iteration
-        tool_name = "fetch_url" if isinstance(final_response.tool_call, FetchUrlTool) else "search_web"
-        input_param = final_response.tool_call.url if isinstance(final_response.tool_call, FetchUrlTool) else final_response.tool_call.query
+        tool_name = (
+            "fetch_url"
+            if isinstance(final_response.tool_call, FetchUrlTool)
+            else "search_web"
+        )
+        input_param = (
+            final_response.tool_call.url
+            if isinstance(final_response.tool_call, FetchUrlTool)
+            else final_response.tool_call.query
+        )
         yield AgentResponse(
             actions=[
                 f"Executing {tool_name} with {'url' if isinstance(final_response.tool_call, FetchUrlTool) else 'query'}: {input_param}"
