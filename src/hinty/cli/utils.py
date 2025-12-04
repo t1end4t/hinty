@@ -41,7 +41,7 @@ async def display_stream_response(
 ) -> str:
     """Display streaming response and return full response."""
     current_response = ""
-    current_actions = ""
+    current_actions = []
     current_thinking = None
     full_response = ""
     console_height = console.height
@@ -54,33 +54,17 @@ async def display_stream_response(
     async for partial in stream:
         # show thinking
         if partial.thinking:
-            current_thinking = Group(
-                f"[bold {agent_thinking_style}]Thinking:[/]",
-                Markdown(partial.thinking),
-            )
+            current_thinking = partial.thinking
 
         # show actions
         if partial.actions:
-            current_actions = (
-                f"[bold {agent_action_style}]{', '.join(partial.actions)}[/]"
-            )
+            current_actions = partial.actions
 
         # accumulate and show response
         if partial.response:
             if isinstance(partial.response, str):
                 current_response = partial.response
                 full_response = current_response
-                group_items = [
-                    Panel(
-                        Markdown(current_response),
-                        title="LLM",
-                        border_style=agent_response_style,
-                    ),
-                    current_actions,
-                ]
-                if current_thinking:
-                    group_items.insert(0, current_thinking)
-                live.update(Group(*group_items))
             else:
                 # Handle stream case by consuming chunks
                 for chunk in partial.response:
@@ -89,22 +73,38 @@ async def display_stream_response(
                     lines = chunk.split("\n")
                     last_lines = lines[-console_height:]
                     current_response = "\n".join(last_lines)
-                    group_items = [
-                        Panel(
-                            Markdown(current_response),
-                            title="LLM",
-                            border_style=agent_response_style,
-                        ),
-                        current_actions,
-                    ]
-                    if current_thinking:
-                        group_items.insert(0, current_thinking)
-                    live.update(Group(*group_items))
+            
+            # Update live display with truncated response
+            group_items = []
+            if current_thinking:
+                group_items.append(
+                    Group(
+                        f"[bold {agent_thinking_style}]Thinking:[/]",
+                        Markdown(current_thinking),
+                    )
+                )
+            group_items.append(
+                Panel(
+                    Markdown(current_response),
+                    title="LLM",
+                    border_style=agent_response_style,
+                )
+            )
+            if current_actions:
+                group_items.append(
+                    f"[bold {agent_action_style}]{', '.join(current_actions)}[/]"
+                )
+            live.update(Group(*group_items))
         else:
             # No response, but update for actions
             group_items = []
             if current_thinking:
-                group_items.append(current_thinking)
+                group_items.append(
+                    Group(
+                        f"[bold {agent_thinking_style}]Thinking:[/]",
+                        Markdown(current_thinking),
+                    )
+                )
             if current_response:
                 group_items.append(
                     Panel(
@@ -113,9 +113,36 @@ async def display_stream_response(
                         border_style=agent_response_style,
                     )
                 )
-            group_items.append(current_actions)
+            if current_actions:
+                group_items.append(
+                    f"[bold {agent_action_style}]{', '.join(current_actions)}[/]"
+                )
             live.update(Group(*group_items))
+    
     live.stop()
+
+    # Print final response normally (cursor stays at bottom)
+    if full_response:
+        group_items = []
+        if current_thinking:
+            group_items.append(
+                Group(
+                    f"[bold {agent_thinking_style}]Thinking:[/]",
+                    Markdown(current_thinking),
+                )
+            )
+        group_items.append(
+            Panel(
+                Markdown(full_response),
+                title="LLM",
+                border_style=agent_response_style,
+            )
+        )
+        if current_actions:
+            group_items.append(
+                f"[bold {agent_action_style}]{', '.join(current_actions)}[/]"
+            )
+        console.print(Group(*group_items))
 
     return full_response
 
