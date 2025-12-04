@@ -7,7 +7,9 @@ from ..baml_client.types import CoderOutput
 from ..core.models import ToolResult
 
 
-def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> ToolResult:
+def apply_search_replace(
+    coder_output: CoderOutput, base_path: Path
+) -> ToolResult:
     """
     Applies search and replace operations based on structured coder output.
 
@@ -26,7 +28,9 @@ def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> ToolResu
 
     if not changes_by_file:
         logger.warning("No search/replace blocks found in the coder output.")
-        return ToolResult(False, None, "No search/replace blocks found in the coder output.")
+        return ToolResult(
+            False, None, "No search/replace blocks found in the coder output."
+        )
 
     results = []
     total_changes_applied = 0
