@@ -55,6 +55,16 @@ async def execute_tool(tool_call: ChatgptTool) -> dict[str, str] | None:
         return None
 
 
+def get_tool_info(tool_call: ChatgptTool) -> tuple[str, str, str]:
+    """Get tool name, parameter name, and input value for display."""
+    if isinstance(tool_call, FetchUrlTool):
+        return "fetch_url", "url", tool_call.url
+    elif isinstance(tool_call, SearchWebTool):
+        return "search_web", "query", tool_call.query
+    else:
+        return "unknown_tool", "input", str(tool_call)
+
+
 async def handle_chatgpt_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
@@ -77,19 +87,10 @@ async def handle_chatgpt_mode(
         if final_response.tool_call is None:
             break
         # Execute tool and prepare result for next iteration
-        tool_name = (
-            "fetch_url"
-            if isinstance(final_response.tool_call, FetchUrlTool)
-            else "search_web"
-        )
-        input_param = (
-            final_response.tool_call.url
-            if isinstance(final_response.tool_call, FetchUrlTool)
-            else final_response.tool_call.query
-        )
+        tool_name, param_name, input_param = get_tool_info(final_response.tool_call)
         yield AgentResponse(
             actions=[
-                f"Executing {tool_name} with {'url' if isinstance(final_response.tool_call, FetchUrlTool) else 'query'}: {input_param}"
+                f"Executing {tool_name} with {param_name}: {input_param}"
             ]
         )
         tool_result = await execute_tool(final_response.tool_call)
