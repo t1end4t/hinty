@@ -1,3 +1,4 @@
+import asyncio
 import re
 import threading
 from typing import List
@@ -98,7 +99,7 @@ def _initialize_conversation() -> tuple[
     return conversation_history, project_manager, controller
 
 
-def _process_user_message(
+async def _process_user_message(
     user_input: str,
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
@@ -113,13 +114,13 @@ def _process_user_message(
         logger.debug("Calling external API for router")
 
         with console.status("Thinking..."):
-            responses = get_agent_response(
+            responses = await get_agent_response(
                 user_input,
                 conversation_history,
                 project_manager,
                 controller,
             )
-            full_response = display_stream_response(responses, console)
+            full_response = await display_stream_response(responses, console)
         assistant_message = ConversationMessage(
             role="assistant", content=full_response
         )
@@ -133,7 +134,7 @@ def _process_user_message(
         logger.error(f"Error processing user message: {e}")
 
 
-def _process_input(
+async def _process_input(
     console: Console,
     user_input: str,
     conversation_history: List[ConversationMessage],
@@ -146,7 +147,7 @@ def _process_input(
             user_input, console, conversation_history, project_manager
         )
     else:
-        _process_user_message(
+        await _process_user_message(
             user_input,
             conversation_history,
             project_manager,
@@ -155,7 +156,7 @@ def _process_input(
         )
 
 
-def _handle_input_loop(
+async def _handle_input_loop(
     session: PromptSession,
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
@@ -170,7 +171,7 @@ def _handle_input_loop(
             if not user_input:
                 break
 
-            _process_input(
+            await _process_input(
                 console,
                 user_input,
                 conversation_history,
@@ -199,7 +200,7 @@ def _handle_input_loop(
 
 
 # Minimal LLM chat interface
-def _chat():
+async def _chat():
     """Run the chat interface."""
     logger.debug("Starting chat")
     print_welcome()
@@ -209,7 +210,7 @@ def _chat():
         controller,
     ) = _initialize_conversation()
     session = _setup_session(project_manager)
-    _handle_input_loop(
+    await _handle_input_loop(
         session, conversation_history, project_manager, controller
     )
     logger.debug("Chat ended")
@@ -218,4 +219,4 @@ def _chat():
 @click.command()
 def create_cli():
     """Create and run the CLI."""
-    _chat()
+    asyncio.run(_chat())

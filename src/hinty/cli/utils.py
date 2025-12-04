@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import AsyncGenerator
 
 from prompt_toolkit import PromptSession
 from rich.console import Console, Group
@@ -36,8 +36,8 @@ def print_welcome():
     )
 
 
-def display_stream_response(
-    stream: Generator[AgentResponse, None, None], console: Console
+async def display_stream_response(
+    stream: AsyncGenerator[AgentResponse, None], console: Console
 ) -> str:
     """Display streaming response and return full response."""
     current_response = ""
@@ -51,7 +51,7 @@ def display_stream_response(
         refresh_per_second=REFRESH_RATE,
     )
     live.start()
-    for partial in stream:
+    async for partial in stream:
         # show thinking
         if partial.thinking:
             current_thinking = Group(
