@@ -137,7 +137,7 @@ def _apply_changes(
     """Apply search replace blocks and yield the result."""
     if final.files_to_change:
         result = tool_search_and_replace(final, project_manager.project_root)
-        if result.success:
+        if result.success and result.output and "results" in result.output:
             files_changed = [
                 str(
                     Path(r.split(" to ")[1]).relative_to(
@@ -151,8 +151,9 @@ def _apply_changes(
                 actions=[f"Applied changes: {', '.join(files_changed)}"]
             )
         else:
+            error_msg = result.error if result.error else "Unknown error"
             yield AgentResponse(
-                actions=[f"Failed to apply changes: {result.error}"]
+                actions=[f"Failed to apply changes: {error_msg}"]
             )
 
 
