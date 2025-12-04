@@ -136,24 +136,24 @@ def _apply_changes(
 ) -> Generator[AgentResponse, None, None]:
     """Apply search replace blocks and yield the result."""
     if final.files_to_change:
-        try:
-            output = tool_search_and_replace(
-                final, project_manager.project_root
-            )
+        result = tool_search_and_replace(
+            final, project_manager.project_root
+        )
+        if result.success:
             files_changed = [
                 str(
                     Path(r.split(" to ")[1]).relative_to(
                         project_manager.project_root
                     )
                 )
-                for r in output["results"]
+                for r in result.output["results"]
                 if "Successfully applied" in r
             ]
             yield AgentResponse(
                 actions=[f"Applied changes: {', '.join(files_changed)}"]
             )
-        except ValueError as e:
-            yield AgentResponse(actions=[f"Failed to apply changes: {e}"])
+        else:
+            yield AgentResponse(actions=[f"Failed to apply changes: {result.error}"])
 
 
 # BUG: change this
