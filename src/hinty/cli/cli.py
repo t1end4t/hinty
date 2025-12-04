@@ -1,4 +1,3 @@
-import asyncio
 import re
 from typing import List
 
@@ -75,7 +74,7 @@ def _setup_session(project_manager: ProjectManager) -> PromptSession:
     return session
 
 
-async def _initialize_conversation() -> tuple[
+def _initialize_conversation() -> tuple[
     List[ConversationMessage], ProjectManager, AbortController
 ]:
     """Initialize conversation history and context manager."""
@@ -85,11 +84,9 @@ async def _initialize_conversation() -> tuple[
 
     console.print(f"Current directory: {project_manager.project_root}")
 
-    # Start caching in background without waiting
-    asyncio.create_task(
-        cache_available_files(
-            project_manager.project_root, project_manager.available_files_cache
-        )
+    # Cache available files synchronously
+    cache_available_files(
+        project_manager.project_root, project_manager.available_files_cache
     )
 
     return conversation_history, project_manager, controller
