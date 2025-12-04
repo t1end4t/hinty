@@ -20,11 +20,12 @@
    12. [ ] Make it different than aider (not create code, just hint)
 2. [ ] Chatgpt agent
    1. [ ] Tool functions
-      1. [ ] search_web
-      2. [ ] fetch_url
-      3. [ ] summarize
-      4. [ ] write_file
-   2. [ ] Easy to copy/paste (especially code block)
+      1. [x] search_web
+      2. [x] fetch_url
+      3. [x] write_file
+      4. [ ] rag -> SKIP FOR NOW
+   2. [ ] Logic
+   3. [ ] Easy to copy/paste (especially code block)
 3. [ ] General features
    1. [ ] Copy/paste, especially code block
 

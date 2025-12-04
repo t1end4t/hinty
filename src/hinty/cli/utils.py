@@ -133,6 +133,12 @@ async def display_stream_response(
                     Markdown(current_thinking),
                 )
             )
+        if current_actions:
+            group_items.append(
+                f"[bold {agent_action_style}]{', '.join(current_actions)}[/]"
+            )
+
+        # NOTE: in final response, show thinking and action before response
         group_items.append(
             Panel(
                 Markdown(full_response),
@@ -140,11 +146,9 @@ async def display_stream_response(
                 border_style=agent_response_style,
             )
         )
-        if current_actions:
-            group_items.append(
-                f"[bold {agent_action_style}]{', '.join(current_actions)}[/]"
-            )
         console.print(Group(*group_items))
+        # add new line
+        console.print()
 
     return full_response
 

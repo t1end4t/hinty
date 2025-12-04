@@ -6,16 +6,7 @@ from hinty.core.models import ToolResult
 
 
 async def tool_write_file(file_path: str, content: str) -> ToolResult:
-    """
-    Write content to a file at the specified path.
-
-    Args:
-        file_path: The path to the file to write to.
-        content: The content to write into the file.
-
-    Returns:
-        ToolResult indicating success or failure.
-    """
+    """Write content to a file at the specified path."""
     try:
         path = Path(file_path)
         path.parent.mkdir(parents=True, exist_ok=True)

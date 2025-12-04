@@ -3,7 +3,6 @@ from typing import AsyncGenerator, List
 from baml_py import AbortController
 
 from ..agents.chatgpt import handle_chatgpt_mode
-from ..agents.coder import handle_coder_mode
 from ..baml_client.types import ConversationMessage
 from ..core.project_manager import ProjectManager
 from ..core.models import AgentResponse, Mode

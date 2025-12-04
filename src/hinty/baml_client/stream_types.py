@@ -23,12 +23,12 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (15)
+# Generated classes (13)
 # #########################################################################
 
-class ChatResponse(BaseModel):
+class ChatGPTOutput(BaseModel):
     response: typing.Optional[str] = None
-    tool_call: typing.Optional[typing.Union["SearchWebTool", "FetchUrlTool", "RAGTool", "WriteFileTool"]] = None
+    tool_call: typing.Optional[typing.Union["SearchWebTool", "FetchUrlTool"]] = None
     requires_tool: typing.Optional[bool] = None
 
 class CodebaseContext(BaseModel):
@@ -82,11 +82,6 @@ class PageMetadata(BaseModel):
     continues_to_next: typing.Optional[bool] = None
     section_name: typing.Optional[str] = None
 
-class RAGTool(BaseModel):
-    tool_name: typing.Optional[str] = None
-    query: typing.Optional[str] = None
-    context_source: typing.Optional[str] = None
-
 class RelatedFile(BaseModel):
     file_path: typing.Optional[str] = None
     relationship: typing.Optional[str] = None
@@ -100,11 +95,6 @@ class SearchReplaceBlock(BaseModel):
 class SearchWebTool(BaseModel):
     tool_name: typing.Optional[str] = None
     query: typing.Optional[str] = None
-
-class WriteFileTool(BaseModel):
-    tool_name: typing.Optional[str] = None
-    file_path: typing.Optional[str] = None
-    content: typing.Optional[str] = None
 
 # #########################################################################
 # Generated type aliases (0)

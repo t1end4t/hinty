@@ -23,7 +23,7 @@ class PDFPageDocument {
     metadata PageMetadata
 }
 
-function PageByPagePdfParser(pdf_input: pdf, page_number: int, previous_page_context: string?) -> PDFPageDocument {
+function PdfParser(pdf_input: pdf, page_number: int, previous_page_context: string?) -> PDFPageDocument {
     client GeminiGeneral
     prompt #"
     You are parsing a PDF page-by-page. This is PAGE {{ page_number }}.

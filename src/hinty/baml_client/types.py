@@ -41,12 +41,12 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 # #########################################################################
 
 # #########################################################################
-# Generated classes (15)
+# Generated classes (13)
 # #########################################################################
 
-class ChatResponse(BaseModel):
+class ChatGPTOutput(BaseModel):
     response: str
-    tool_call: typing.Optional[typing.Union["SearchWebTool", "FetchUrlTool", "RAGTool", "WriteFileTool"]] = None
+    tool_call: typing.Optional[typing.Union["SearchWebTool", "FetchUrlTool"]] = None
     requires_tool: bool
 
 class CodebaseContext(BaseModel):
@@ -100,11 +100,6 @@ class PageMetadata(BaseModel):
     continues_to_next: bool
     section_name: typing.Optional[str] = None
 
-class RAGTool(BaseModel):
-    tool_name: typing_extensions.Literal['rag']
-    query: str
-    context_source: typing.Optional[str] = None
-
 class RelatedFile(BaseModel):
     file_path: str
     relationship: str
@@ -118,11 +113,6 @@ class SearchReplaceBlock(BaseModel):
 class SearchWebTool(BaseModel):
     tool_name: typing_extensions.Literal['search_web']
     query: str
-
-class WriteFileTool(BaseModel):
-    tool_name: typing_extensions.Literal['write_file']
-    file_path: str
-    content: str
 
 # #########################################################################
 # Generated type aliases (0)

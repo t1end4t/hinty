@@ -2,6 +2,12 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List
 from baml_py import BamlSyncStream
+from typing import Union
+from ..baml_client.types import FetchUrlTool, SearchWebTool
+
+
+# Type alias for chatgpt tools
+ChatgptTool = Union[FetchUrlTool, SearchWebTool]
 
 
 @dataclass

@@ -35,7 +35,7 @@ async def simulate_llm_response(user_input: str) -> str:
 
 async def stream_response(text: str, console: Console):
     """Simulate streaming response character by character."""
-    console.print("\n[bold blue]Assistant:[/bold blue]", end=" ")
+    console.print("[bold blue]Assistant:[/bold blue]", end=" ")
     for char in text:
         console.print(char, end="")
         await asyncio.sleep(0.02)  # Simulate streaming delay

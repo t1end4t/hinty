@@ -26,9 +26,9 @@ class LlmResponseParser:
 
     def ChatGPT(
         self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> types.ChatResponse:
+    ) -> types.ChatGPTOutput:
         result = self.__options.merge_options(baml_options).parse_response(function_name="ChatGPT", llm_response=llm_response, mode="request")
-        return typing.cast(types.ChatResponse, result)
+        return typing.cast(types.ChatGPTOutput, result)
 
     def Coder(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -36,10 +36,10 @@ class LlmResponseParser:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="request")
         return typing.cast(types.CoderOutput, result)
 
-    def PageByPagePdfParser(
+    def PdfParser(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.PDFPageDocument:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="PageByPagePdfParser", llm_response=llm_response, mode="request")
+        result = self.__options.merge_options(baml_options).parse_response(function_name="PdfParser", llm_response=llm_response, mode="request")
         return typing.cast(types.PDFPageDocument, result)
 
     
@@ -52,9 +52,9 @@ class LlmStreamParser:
 
     def ChatGPT(
         self, llm_response: str, baml_options: BamlCallOptions = {},
-    ) -> stream_types.ChatResponse:
+    ) -> stream_types.ChatGPTOutput:
         result = self.__options.merge_options(baml_options).parse_response(function_name="ChatGPT", llm_response=llm_response, mode="stream")
-        return typing.cast(stream_types.ChatResponse, result)
+        return typing.cast(stream_types.ChatGPTOutput, result)
 
     def Coder(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -62,10 +62,10 @@ class LlmStreamParser:
         result = self.__options.merge_options(baml_options).parse_response(function_name="Coder", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.CoderOutput, result)
 
-    def PageByPagePdfParser(
+    def PdfParser(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.PDFPageDocument:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="PageByPagePdfParser", llm_response=llm_response, mode="stream")
+        result = self.__options.merge_options(baml_options).parse_response(function_name="PdfParser", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.PDFPageDocument, result)
 
     

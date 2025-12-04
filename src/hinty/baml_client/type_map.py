@@ -16,8 +16,8 @@ from . import stream_types
 
 type_map = {
 
-    "types.ChatResponse": types.ChatResponse,
-    "stream_types.ChatResponse": stream_types.ChatResponse,
+    "types.ChatGPTOutput": types.ChatGPTOutput,
+    "stream_types.ChatGPTOutput": stream_types.ChatGPTOutput,
 
     "types.CodebaseContext": types.CodebaseContext,
     "stream_types.CodebaseContext": stream_types.CodebaseContext,
@@ -46,9 +46,6 @@ type_map = {
     "types.PageMetadata": types.PageMetadata,
     "stream_types.PageMetadata": stream_types.PageMetadata,
 
-    "types.RAGTool": types.RAGTool,
-    "stream_types.RAGTool": stream_types.RAGTool,
-
     "types.RelatedFile": types.RelatedFile,
     "stream_types.RelatedFile": stream_types.RelatedFile,
 
@@ -57,9 +54,6 @@ type_map = {
 
     "types.SearchWebTool": types.SearchWebTool,
     "stream_types.SearchWebTool": stream_types.SearchWebTool,
-
-    "types.WriteFileTool": types.WriteFileTool,
-    "stream_types.WriteFileTool": stream_types.WriteFileTool,
 
 
 }

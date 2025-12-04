@@ -15,22 +15,10 @@ class FetchUrlTool {
   url string @description("The URL to fetch content from")
 }
 
-class RAGTool {
-  tool_name "rag"
-  query string @description("The question or query to search within the provided documents/context")
-  context_source string? @description("Optional: specify which document or source to search in")
-}
-
-class WriteFileTool {
-  tool_name "write_file"
-  file_path string @description("Path where the file should be written")
-  content string @description("Content to write to the file")
-}
-
 // Response that includes both the answer and optional tool call
-class ChatResponse {
+class ChatGPTOutput {
   response string @description("Your helpful response to the user. If a tool is needed, explain what you're doing. If not, provide the complete answer.")
-  tool_call SearchWebTool | FetchUrlTool | RAGTool | WriteFileTool | null @description("The tool to use if additional information is needed, or null if you can answer directly")
+  tool_call SearchWebTool | FetchUrlTool | null @description("The tool to use if additional information is needed, or null if you can answer directly")
   requires_tool bool @description("True if a tool is needed to provide a complete answer, false if the response is complete")
 }
 
@@ -38,9 +26,8 @@ class ChatResponse {
 function ChatGPT(
   message: string,
   conversation_history: ConversationMessage[]?,
-  file_content: string?,
-  tool_result: string?
-) -> ChatResponse {
+  tool_result: map<string, string>?
+) -> ChatGPTOutput {
   client GroqRouter
   prompt #"
     You are a helpful assistant that can use tools when needed.
@@ -48,8 +35,6 @@ function ChatGPT(
     Available tools:
     1. search_web - Search the internet for current information
     2. fetch_url - Retrieve content from a specific URL
-    3. rag - Search within provided documents/context using RAG (Retrieval Augmented Generation)
-    4. write_file - Write content to a file
     
     {{ ctx.output_format }}
     
@@ -58,13 +43,6 @@ function ChatGPT(
 {% for msg in conversation_history -%}
 {{ msg.role | capitalize }}: {{ msg.content }}
 {% endfor %}
-{% endif %}
-
-{% if file_content %}
-    FILE CONTENT PROVIDED BY USER:
-    {{ file_content }}
-    
-    The user has provided the above file content.
 {% endif %}
 
 {% if tool_result %}

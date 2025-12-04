@@ -91,20 +91,20 @@ class BamlSyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
     
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
         baml_options: BamlCallOptions = {},
-    ) -> types.ChatResponse:
+    ) -> types.ChatGPTOutput:
         # Check if on_tick is provided
         if 'on_tick' in baml_options:
-            stream = self.stream.ChatGPT(message=message,conversation_history=conversation_history,file_content=file_content,tool_result=tool_result,
+            stream = self.stream.ChatGPT(message=message,conversation_history=conversation_history,tool_result=tool_result,
                 baml_options=baml_options)
             return stream.get_final_response()
         else:
             # Original non-streaming code
             result = self.__options.merge_options(baml_options).call_function_sync(function_name="ChatGPT", args={
-                "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+                "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
             })
-            return typing.cast(types.ChatResponse, result.cast_to(types, types, stream_types, False, __runtime__))
+            return typing.cast(types.ChatGPTOutput, result.cast_to(types, types, stream_types, False, __runtime__))
     def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
         baml_options: BamlCallOptions = {},
     ) -> types.CoderOutput:
@@ -119,17 +119,17 @@ class BamlSyncClient:
                 "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
             })
             return typing.cast(types.CoderOutput, result.cast_to(types, types, stream_types, False, __runtime__))
-    def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+    def PdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
         baml_options: BamlCallOptions = {},
     ) -> types.PDFPageDocument:
         # Check if on_tick is provided
         if 'on_tick' in baml_options:
-            stream = self.stream.PageByPagePdfParser(pdf_input=pdf_input,page_number=page_number,previous_page_context=previous_page_context,
+            stream = self.stream.PdfParser(pdf_input=pdf_input,page_number=page_number,previous_page_context=previous_page_context,
                 baml_options=baml_options)
             return stream.get_final_response()
         else:
             # Original non-streaming code
-            result = self.__options.merge_options(baml_options).call_function_sync(function_name="PageByPagePdfParser", args={
+            result = self.__options.merge_options(baml_options).call_function_sync(function_name="PdfParser", args={
                 "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
             })
             return typing.cast(types.PDFPageDocument, result.cast_to(types, types, stream_types, False, __runtime__))
@@ -142,16 +142,16 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
         baml_options: BamlCallOptions = {},
-    ) -> baml_py.BamlSyncStream[stream_types.ChatResponse, types.ChatResponse]:
+    ) -> baml_py.BamlSyncStream[stream_types.ChatGPTOutput, types.ChatGPTOutput]:
         ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="ChatGPT", args={
-            "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+            "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
         })
-        return baml_py.BamlSyncStream[stream_types.ChatResponse, types.ChatResponse](
+        return baml_py.BamlSyncStream[stream_types.ChatGPTOutput, types.ChatGPTOutput](
           result,
-          lambda x: typing.cast(stream_types.ChatResponse, x.cast_to(types, types, stream_types, True, __runtime__)),
-          lambda x: typing.cast(types.ChatResponse, x.cast_to(types, types, stream_types, False, __runtime__)),
+          lambda x: typing.cast(stream_types.ChatGPTOutput, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ChatGPTOutput, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
     def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
@@ -166,10 +166,10 @@ class BamlStreamClient:
           lambda x: typing.cast(types.CoderOutput, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
-    def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+    def PdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.PDFPageDocument, types.PDFPageDocument]:
-        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="PageByPagePdfParser", args={
+        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="PdfParser", args={
             "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
         })
         return baml_py.BamlSyncStream[stream_types.PDFPageDocument, types.PDFPageDocument](
@@ -186,11 +186,11 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ChatGPT", args={
-            "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+            "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
         }, mode="request")
         return result
     def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
@@ -200,10 +200,10 @@ class BamlHttpRequestClient:
             "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
         }, mode="request")
         return result
-    def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+    def PdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PageByPagePdfParser", args={
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PdfParser", args={
             "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
         }, mode="request")
         return result
@@ -215,11 +215,11 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,file_content: typing.Optional[str] = None,tool_result: typing.Optional[str] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ChatGPT", args={
-            "message": message,"conversation_history": conversation_history,"file_content": file_content,"tool_result": tool_result,
+            "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
         }, mode="stream")
         return result
     def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
@@ -229,10 +229,10 @@ class BamlHttpStreamRequestClient:
             "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
         }, mode="stream")
         return result
-    def PageByPagePdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
+    def PdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PageByPagePdfParser", args={
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PdfParser", args={
             "pdf_input": pdf_input,"page_number": page_number,"previous_page_context": previous_page_context,
         }, mode="stream")
         return result

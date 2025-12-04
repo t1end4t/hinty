@@ -9,7 +9,7 @@ from tavily import TavilyClient
 from hinty.core.models import ToolResult
 
 
-async def search_with_google(query: str) -> ToolResult:
+async def _search_with_google(query: str) -> ToolResult:
     """Perform web search using Google Gemini API."""
     logger.info(f"Starting Google Gemini web search for query: {query}")
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -36,7 +36,7 @@ async def search_with_google(query: str) -> ToolResult:
         response = await asyncio.to_thread(
             client.models.generate_content,
             model=model,
-            contents=contents,
+            contents=contents,  # type: ignore
             config=config,
         )
         logger.info(
@@ -50,7 +50,7 @@ async def search_with_google(query: str) -> ToolResult:
         return ToolResult(success=False, error=str(e))
 
 
-async def search_with_tavily(query: str) -> ToolResult:
+async def _search_with_tavily(query: str) -> ToolResult:
     """Perform web search using Tavily API."""
     logger.info(f"Starting Tavily web search for query: {query}")
     api_key = os.getenv("TAVILY_API_KEY")
@@ -79,6 +79,6 @@ async def tool_search_web(query: str) -> ToolResult:
     logger.info(f"Dispatching web search for query: {query} using {provider}")
 
     if provider == "google":
-        return await search_with_google(query)
+        return await _search_with_google(query)
     else:
-        return await search_with_tavily(query)
+        return await _search_with_tavily(query)
