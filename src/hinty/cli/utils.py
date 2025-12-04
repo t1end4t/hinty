@@ -73,7 +73,7 @@ async def display_stream_response(
                     lines = chunk.split("\n")
                     last_lines = lines[-console_height:]
                     current_response = "\n".join(last_lines)
-            
+
             # Update live display with truncated response
             group_items = []
             if current_thinking:
@@ -118,7 +118,7 @@ async def display_stream_response(
                     f"[bold {agent_action_style}]{', '.join(current_actions)}[/]"
                 )
             live.update(Group(*group_items))
-    
+
     live.stop()
 
     # Print final response normally (cursor stays at bottom)
