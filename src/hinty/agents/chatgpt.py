@@ -1,21 +1,21 @@
 from typing import AsyncGenerator, List
-  
+
 from baml_py import AbortController, BamlSyncStream
 from baml_py.errors import BamlAbortError
 from loguru import logger
-  
+
 from hinty.core.models import AgentResponse
-  
+
 from ..baml_client import b
 from ..baml_client.stream_types import ChatGPTOutput as StreamChatGPTOutput
 from ..baml_client.types import ChatGPTOutput, ConversationMessage
 from ..baml_client.types import SearchWebTool, FetchUrlTool
-  
+
 from ..tools.fetch_url import tool_fetch_url
 from ..tools.search_web import tool_search_web
 from ..tools.write_file import tool_write_file
-  
-  
+
+
 def call_chatgpt(
     user_message: str,
     conversation_history: List[ConversationMessage],
@@ -33,8 +33,8 @@ def call_chatgpt(
         return resp
     except BamlAbortError:
         logger.error("Operation was cancelled")
-  
-  
+
+
 async def handle_chatgpt_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
