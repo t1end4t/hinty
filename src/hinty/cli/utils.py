@@ -1,5 +1,4 @@
-import asyncio
-from typing import AsyncGenerator
+from typing import Generator
 
 from prompt_toolkit import PromptSession
 from rich.console import Console, Group
@@ -37,8 +36,8 @@ def print_welcome():
     )
 
 
-async def display_stream_response(
-    stream: AsyncGenerator[AgentResponse, None], console: Console
+def display_stream_response(
+    stream: Generator[AgentResponse, None, None], console: Console
 ) -> str:
     """Display streaming response and return full response."""
     current_response = ""
@@ -52,7 +51,7 @@ async def display_stream_response(
         refresh_per_second=REFRESH_RATE,
     )
     live.start()
-    async for partial in stream:
+    for partial in stream:
         # show thinking
         if partial.thinking:
             current_thinking = Group(
@@ -135,14 +134,13 @@ def display_files(project_manager: ProjectManager):
         console.print(f"[{context_style}]Files: {files_str}[/]")
 
 
-async def get_user_input(
+def get_user_input(
     session: PromptSession, project_manager: ProjectManager
 ) -> str:
     """Prompt for and return user input."""
 
     prompt_text = f"{project_manager.mode.value} >> "
-    return await asyncio.to_thread(
-        session.prompt,
+    return session.prompt(
         prompt_text,
         style=catppuccin_mocha_style,
     )
