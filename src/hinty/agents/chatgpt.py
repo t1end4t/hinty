@@ -7,20 +7,27 @@ from loguru import logger
 from hinty.core.models import AgentResponse
 
 from ..baml_client import b
-from ..baml_client.types import ConversationMessage, ChatResponse
-from ..baml_client.stream_types import ChatResponse as StreamChatResponse
+from ..baml_client.stream_types import ChatGPTOutput as StreamChatGPTOutput
+from ..baml_client.types import ChatGPTOutput, ConversationMessage
+from ..baml_client.types import SearchWebTool, FetchUrlTool
+
+from ..tools.fetch_url import tool_fetch_url
+from ..tools.search_web import tool_search_web
+from ..tools.write_file import tool_write_file
 
 
 def call_chatgpt(
     user_message: str,
     conversation_history: List[ConversationMessage],
+    tool_result: dict[str, str] | None,
     controller: AbortController,
-) -> BamlSyncStream[StreamChatResponse, ChatResponse] | None:
+) -> BamlSyncStream[StreamChatGPTOutput, ChatGPTOutput] | None:
     """Call the orchestrator agent with a user message and conversation history"""
     try:
         resp = b.stream.ChatGPT(
             user_message,
             conversation_history,
+            tool_result,
             baml_options={"abort_controller": controller},
         )
         return resp
@@ -33,12 +40,23 @@ def handle_chatgpt_mode(
     conversation_history: List[ConversationMessage],
     controller: AbortController,
 ) -> Generator[AgentResponse, None, None]:
-    stream = call_chatgpt(
-        user_message, conversation_history, controller=controller
+    first_stream = call_chatgpt(
+        user_message,
+        conversation_history,
+        tool_result=None,
+        controller=controller,
     )
-    yield AgentResponse(response=stream)
 
-    # get final response
-    if stream:
-        final = stream.get_final_response()
-        yield AgentResponse(response=final)
+    if first_stream:
+        for chunk in first_stream:
+            yield AgentResponse(response=chunk.response)
+
+        # return final response for user
+        router_decision = first_stream.get_final_response()
+        yield AgentResponse(response=router_decision.response)
+
+        # run tool function to get input
+        if isinstance(router_decision.tool_call, FetchUrlTool):
+            pass
+        elif isinstance(router_decision.tool_call, SearchWebTool):
+            pass
