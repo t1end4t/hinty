@@ -1,4 +1,3 @@
-import asyncio
 import base64
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -12,7 +11,7 @@ from nltk.tokenize import word_tokenize
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
-from ..baml_client.async_client import b
+from ..baml_client import b
 from ..core.models import ToolResult
 from ..core.project_manager import ProjectManager
 
@@ -23,9 +22,9 @@ except LookupError:
     nltk.download("punkt_tab", quiet=True)
 
 
-async def parse_pdf_to_text(pdf_path: Path) -> str:
+def parse_pdf_to_text(pdf_path: Path) -> str:
     """
-    Parse PDF to text using LLM, processing page by page concurrently.
+    Parse PDF to text using LLM, processing page by page sequentially.
 
     Args:
         pdf_path: Path to the PDF file
@@ -39,7 +38,7 @@ async def parse_pdf_to_text(pdf_path: Path) -> str:
         doc = fitz.open(str(pdf_path))
         num_pages = len(doc)
 
-        async def process_page(page_num: int) -> str:
+        def process_page(page_num: int) -> str:
             # Create a new PDF with just this page
             new_doc = fitz.open()
             new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
@@ -50,12 +49,14 @@ async def parse_pdf_to_text(pdf_path: Path) -> str:
             b64 = base64.b64encode(pdf_bytes).decode("utf-8")
 
             # Use LLM to parse the page
-            page_text = await b.PdfParser(pdf_input=Pdf.from_base64(b64))
+            page_text = b.PdfParser(pdf_input=Pdf.from_base64(b64))
             return str(page_text)
 
-        # Process all pages concurrently
-        tasks = [process_page(page_num) for page_num in range(num_pages)]
-        texts = await asyncio.gather(*tasks)
+        # Process all pages sequentially
+        texts = []
+        for page_num in range(num_pages):
+            text = process_page(page_num)
+            texts.append(text)
 
         doc.close()
 
@@ -355,7 +356,7 @@ def rerank_results(
     return reranked
 
 
-async def tool_rag(
+def tool_rag(
     query: str,
     pdf_path: Path,
     project_manager: ProjectManager,
@@ -393,7 +394,7 @@ async def tool_rag(
                 text = f.read()
             logger.info(f"Loaded PDF text from cache: {pdf_path}")
         else:
-            text = await parse_pdf_to_text(pdf_path)
+            text = parse_pdf_to_text(pdf_path)
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             with open(cache_path, "w", encoding="utf-8") as f:
                 f.write(text)
