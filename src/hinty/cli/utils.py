@@ -65,7 +65,7 @@ async def display_stream_response(
             if isinstance(partial.response, str):
                 current_response = partial.response
                 full_response = current_response
-                
+
                 # Update live with string response
                 group_items = []
                 if current_thinking:
