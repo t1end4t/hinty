@@ -16,7 +16,8 @@ from ..baml_client.types import (
     FileInfo,
 )
 from ..core.project_manager import ProjectManager
-from ..utils import apply_search_replace, read_content_file
+from ..tools.search_and_replace import tool_search_and_replace
+from ..utils import read_content_file
 
 
 def _format_diff_block(search: str, replace: str) -> List[str]:
@@ -136,7 +137,9 @@ def _apply_changes(
     """Apply search replace blocks and yield the result."""
     if final.files_to_change:
         try:
-            output = apply_search_replace(final, project_manager.project_root)
+            output = tool_search_and_replace(
+                final, project_manager.project_root
+            )
             files_changed = [
                 str(
                     Path(r.split(" to ")[1]).relative_to(
