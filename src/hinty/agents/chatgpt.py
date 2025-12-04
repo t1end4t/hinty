@@ -35,6 +35,15 @@ def call_chatgpt(
         logger.error("Operation was cancelled")
 
 
+async def execute_tool(tool_call) -> dict[str, str] | None:
+    if isinstance(tool_call, FetchUrlTool):
+        return await tool_fetch_url(tool_call)
+    elif isinstance(tool_call, SearchWebTool):
+        return await tool_search_web(tool_call)
+    else:
+        return None
+
+
 async def handle_chatgpt_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
@@ -57,9 +66,6 @@ async def handle_chatgpt_mode(
         if final_response.tool_call is None:
             break
         # Execute tool and prepare result for next iteration
-        if isinstance(final_response.tool_call, FetchUrlTool):
-            tool_result = await tool_fetch_url(final_response.tool_call)
-        elif isinstance(final_response.tool_call, SearchWebTool):
-            tool_result = await tool_search_web(final_response.tool_call)
-        else:
-            break  # Unknown tool, stop
+        tool_result = await execute_tool(final_response.tool_call)
+        if tool_result is None:
+            break
