@@ -85,6 +85,7 @@ def _initialize_conversation() -> tuple[
     console.print(f"Current directory: {project_manager.project_root}")
 
     # Cache available files synchronously
+    # because cache_available_files is long tasks, do you have any idea AI!
     cache_available_files(
         project_manager.project_root, project_manager.available_files_cache
     )
