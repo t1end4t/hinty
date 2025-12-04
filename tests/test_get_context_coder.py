@@ -1,18 +1,35 @@
 from pathlib import Path
 
+from tree_format import format_tree
 
-def get_directory_tree(pwd: str) -> str:
-    """Generate a string representation of the directory tree starting from pwd."""
-    root = Path(pwd)
-    lines = []
 
-    def add_tree(path: Path, prefix: str = ""):
-        lines.append(f"{prefix}{path.name}/")
-        for child in sorted(path.iterdir()):
-            if child.is_dir():
-                add_tree(child, prefix + "  ")
-            else:
-                lines.append(f"{prefix}  {child.name}")
+def get_tree_with_library(directory=".", max_depth=3):
+    """Generate tree using tree-format library"""
+    path = Path(directory)
 
-    add_tree(root)
-    return "\n".join(lines)
+    def build_tree(p, depth=0):
+        if depth > max_depth:
+            return None
+
+        if p.is_file():
+            return (p.name, [])
+
+        children = []
+        try:
+            for child in sorted(p.iterdir()):
+                if child.name.startswith("."):  # Skip hidden files
+                    continue
+                subtree = build_tree(child, depth + 1)
+                if subtree:
+                    children.append(subtree)
+        except PermissionError:
+            pass
+
+        return (p.name, children)
+
+    tree = build_tree(path)
+    return format_tree(
+        tree,
+        format_node=lambda node: node[0],
+        get_children=lambda node: node[1],
+    )
