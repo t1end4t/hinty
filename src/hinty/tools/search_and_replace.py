@@ -4,9 +4,10 @@ from pathlib import Path
 from loguru import logger
 
 from ..baml_client.types import CoderOutput
+from ..core.models import ToolResult
 
 
-def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
+def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> ToolResult:
     """
     Applies search and replace operations based on structured coder output.
 
@@ -15,10 +16,7 @@ def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
         base_path: The base path for relative file paths.
 
     Returns:
-        A dictionary with summary of applied changes.
-
-    Raises:
-        ValueError: If no changes are found or errors occur during application.
+        ToolResult with success status, output (dict with summary), or error message.
     """
     changes_by_file = defaultdict(list)
     for file_change in coder_output.files_to_change:
@@ -28,7 +26,7 @@ def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
 
     if not changes_by_file:
         logger.warning("No search/replace blocks found in the coder output.")
-        raise ValueError("No search/replace blocks found in the coder output.")
+        return ToolResult(False, None, "No search/replace blocks found in the coder output.")
 
     results = []
     total_changes_applied = 0
@@ -97,7 +95,7 @@ def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
             errors.extend(file_errors)
 
     if errors:
-        raise ValueError("; ".join(errors))
+        return ToolResult(False, None, "; ".join(errors))
 
     output = {
         "total_changes_applied": total_changes_applied,
@@ -109,4 +107,4 @@ def apply_search_replace(coder_output: CoderOutput, base_path: Path) -> dict:
         "summary": coder_output.summary,
     }
 
-    return output
+    return ToolResult(True, output, None)
