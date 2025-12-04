@@ -37,9 +37,9 @@ class CodebaseContext {
 
 function Coder(
   user_message: string,
+  conversation_history: ConversationMessage[],
   files: FileInfo[],
   codebase_context: CodebaseContext?,
-  conversation_history: ConversationMessage[]
 ) -> CoderOutput {
   client GroqRouter
   prompt #"

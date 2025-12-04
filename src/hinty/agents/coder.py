@@ -165,13 +165,11 @@ def call_coder(
     controller: AbortController,
 ) -> BamlSyncStream[StreamCoderOutput, CoderOutput] | None:
     """Call the coder agent with a user message, files, and conversation history"""
-    codebase_context = None
     try:
         resp = b.stream.Coder(
             user_message,
-            files,
-            codebase_context,
             conversation_history,
+            files,
             baml_options={"abort_controller": controller},
         )
         return resp

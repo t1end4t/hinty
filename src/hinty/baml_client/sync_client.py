@@ -105,18 +105,18 @@ class BamlSyncClient:
                 "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
             })
             return typing.cast(types.ChatGPTOutput, result.cast_to(types, types, stream_types, False, __runtime__))
-    def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
+    def Coder(self, user_message: str,conversation_history: typing.List["types.ConversationMessage"],files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"] = None,
         baml_options: BamlCallOptions = {},
     ) -> types.CoderOutput:
         # Check if on_tick is provided
         if 'on_tick' in baml_options:
-            stream = self.stream.Coder(user_message=user_message,files=files,codebase_context=codebase_context,conversation_history=conversation_history,
+            stream = self.stream.Coder(user_message=user_message,conversation_history=conversation_history,files=files,codebase_context=codebase_context,
                 baml_options=baml_options)
             return stream.get_final_response()
         else:
             # Original non-streaming code
             result = self.__options.merge_options(baml_options).call_function_sync(function_name="Coder", args={
-                "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
+                "user_message": user_message,"conversation_history": conversation_history,"files": files,"codebase_context": codebase_context,
             })
             return typing.cast(types.CoderOutput, result.cast_to(types, types, stream_types, False, __runtime__))
     def PdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
@@ -154,11 +154,11 @@ class BamlStreamClient:
           lambda x: typing.cast(types.ChatGPTOutput, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
-    def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
+    def Coder(self, user_message: str,conversation_history: typing.List["types.ConversationMessage"],files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.CoderOutput, types.CoderOutput]:
         ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="Coder", args={
-            "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
+            "user_message": user_message,"conversation_history": conversation_history,"files": files,"codebase_context": codebase_context,
         })
         return baml_py.BamlSyncStream[stream_types.CoderOutput, types.CoderOutput](
           result,
@@ -193,11 +193,11 @@ class BamlHttpRequestClient:
             "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
         }, mode="request")
         return result
-    def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
+    def Coder(self, user_message: str,conversation_history: typing.List["types.ConversationMessage"],files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="Coder", args={
-            "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
+            "user_message": user_message,"conversation_history": conversation_history,"files": files,"codebase_context": codebase_context,
         }, mode="request")
         return result
     def PdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,
@@ -222,11 +222,11 @@ class BamlHttpStreamRequestClient:
             "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
         }, mode="stream")
         return result
-    def Coder(self, user_message: str,files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"],conversation_history: typing.List["types.ConversationMessage"],
+    def Coder(self, user_message: str,conversation_history: typing.List["types.ConversationMessage"],files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="Coder", args={
-            "user_message": user_message,"files": files,"codebase_context": codebase_context,"conversation_history": conversation_history,
+            "user_message": user_message,"conversation_history": conversation_history,"files": files,"codebase_context": codebase_context,
         }, mode="stream")
         return result
     def PdfParser(self, pdf_input: baml_py.Pdf,page_number: int,previous_page_context: typing.Optional[str] = None,

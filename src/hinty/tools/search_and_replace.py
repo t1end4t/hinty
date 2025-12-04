@@ -7,7 +7,7 @@ from ..baml_client.types import CoderOutput
 from ..core.models import ToolResult
 
 
-def apply_search_replace(
+def tool_search_and_replace(
     coder_output: CoderOutput, base_path: Path
 ) -> ToolResult:
     """
