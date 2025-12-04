@@ -8,9 +8,13 @@ from hinty.core.models import AgentResponse
 
 from ..baml_client import b
 from ..baml_client.stream_types import ChatGPTOutput as StreamChatGPTOutput
-from ..baml_client.types import ChatGPTOutput, ConversationMessage
-from ..baml_client.types import SearchWebTool, FetchUrlTool
-
+from ..baml_client.types import (
+    ChatGPTOutput,
+    ConversationMessage,
+    FetchUrlTool,
+    SearchWebTool,
+)
+from ..core.models import ChatgptTool
 from ..tools.fetch_url import tool_fetch_url
 from ..tools.search_web import tool_search_web
 from ..tools.write_file import tool_write_file
@@ -35,7 +39,7 @@ def call_chatgpt(
         logger.error("Operation was cancelled")
 
 
-async def execute_tool(tool_call) -> dict[str, str] | None:
+async def execute_tool(tool_call: ChatgptTool) -> dict[str, str] | None:
     if isinstance(tool_call, FetchUrlTool):
         return await tool_fetch_url(tool_call)
     elif isinstance(tool_call, SearchWebTool):
