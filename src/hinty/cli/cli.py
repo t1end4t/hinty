@@ -167,7 +167,9 @@ async def _handle_input_loop(
     while True:
         try:
             display_files(project_manager)
-            user_input = get_user_input(session, project_manager)
+            user_input = await asyncio.to_thread(
+                get_user_input, session, project_manager
+            )
             if not user_input:
                 break
 
