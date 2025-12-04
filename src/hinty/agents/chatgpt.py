@@ -17,7 +17,6 @@ from ..baml_client.types import (
 from ..core.models import ChatgptTool
 from ..tools.fetch_url import tool_fetch_url
 from ..tools.search_web import tool_search_web
-from ..tools.write_file import tool_write_file
 
 
 def call_chatgpt(
@@ -41,13 +40,13 @@ def call_chatgpt(
 
 async def execute_tool(tool_call: ChatgptTool) -> dict[str, str] | None:
     if isinstance(tool_call, FetchUrlTool):
-        result = await tool_fetch_url(tool_call)
+        result = await tool_fetch_url(tool_call.url)
         if result.success:
             return {"name": "fetch_url", "output": str(result.output)}
         else:
             return None
     elif isinstance(tool_call, SearchWebTool):
-        result = await tool_search_web(tool_call)
+        result = await tool_search_web(tool_call.query)
         if result.success:
             return {"name": "search_web", "output": str(result.output)}
         else:
