@@ -1,4 +1,5 @@
 import re
+import threading
 from typing import List
 
 import click
@@ -84,11 +85,15 @@ def _initialize_conversation() -> tuple[
 
     console.print(f"Current directory: {project_manager.project_root}")
 
-    with console.status("Indexing project files..."):
-        cache_available_files(
+    cache_thread = threading.Thread(
+        target=cache_available_files,
+        args=(
             project_manager.project_root,
             project_manager.available_files_cache,
-        )
+        ),
+        daemon=True,
+    )
+    cache_thread.start()
 
     return conversation_history, project_manager, controller
 
