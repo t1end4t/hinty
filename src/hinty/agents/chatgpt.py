@@ -40,23 +40,26 @@ def handle_chatgpt_mode(
     conversation_history: List[ConversationMessage],
     controller: AbortController,
 ) -> Generator[AgentResponse, None, None]:
-    first_stream = call_chatgpt(
-        user_message,
-        conversation_history,
-        tool_result=None,
-        controller=controller,
-    )
-
-    if first_stream:
-        for chunk in first_stream:
+    tool_result = None
+    while True:
+        stream = call_chatgpt(
+            user_message,
+            conversation_history,
+            tool_result,
+            controller,
+        )
+        if not stream:
+            break
+        for chunk in stream:
             yield AgentResponse(response=chunk.response)
-
-        # return final response for user
-        router_decision = first_stream.get_final_response()
-        yield AgentResponse(response=router_decision.response)
-
-        # run tool function to get input
-        if isinstance(router_decision.tool_call, FetchUrlTool):
-            pass
-        elif isinstance(router_decision.tool_call, SearchWebTool):
-            pass
+        final_response = stream.get_final_response()
+        yield AgentResponse(response=final_response.response)
+        if final_response.tool_call is None:
+            break
+        # Execute tool and prepare result for next iteration
+        if isinstance(final_response.tool_call, FetchUrlTool):
+            tool_result = tool_fetch_url(final_response.tool_call)
+        elif isinstance(final_response.tool_call, SearchWebTool):
+            tool_result = tool_search_web(final_response.tool_call)
+        else:
+            break  # Unknown tool, stop
