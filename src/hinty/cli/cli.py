@@ -113,18 +113,18 @@ async def _process_user_message(
     try:
         logger.debug("Calling external API for router")
 
-        with console.status("Thinking..."):
-            responses = await get_agent_response(
-                user_input,
-                conversation_history,
-                project_manager,
-                controller,
-            )
-            full_response = await display_stream_response(responses, console)
-        assistant_message = ConversationMessage(
-            role="assistant", content=full_response
-        )
-        conversation_history.append(assistant_message)
+        # with console.status("Thinking..."):
+        #     responses = await get_agent_response(
+        #         user_input,
+        #         conversation_history,
+        #         project_manager,
+        #         controller,
+        #     )
+        #     full_response = await display_stream_response(responses, console)
+        # assistant_message = ConversationMessage(
+        #     role="assistant", content=full_response
+        # )
+        # conversation_history.append(assistant_message)
         logger.debug("User message processed")
     except KeyboardInterrupt:
         logger.warning("User interrupted LLM response")
