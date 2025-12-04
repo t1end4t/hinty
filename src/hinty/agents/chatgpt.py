@@ -96,3 +96,4 @@ async def handle_chatgpt_mode(
         tool_result = await execute_tool(final_response.tool_call)
         if tool_result is None:
             break
+        yield AgentResponse(actions=[f"Executed {tool_name}"])
