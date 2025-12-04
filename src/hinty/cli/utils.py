@@ -119,6 +119,8 @@ async def display_stream_response(
                 )
             live.update(Group(*group_items))
 
+    # Clear the live display before stopping
+    live.update("")
     live.stop()
 
     # Print final response normally (cursor stays at bottom)
