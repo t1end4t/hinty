@@ -41,9 +41,17 @@ def call_chatgpt(
 
 async def execute_tool(tool_call: ChatgptTool) -> dict[str, str] | None:
     if isinstance(tool_call, FetchUrlTool):
-        return await tool_fetch_url(tool_call)
+        result = await tool_fetch_url(tool_call)
+        if result.success:
+            return {"name": "fetch_url", "output": str(result.output)}
+        else:
+            return None
     elif isinstance(tool_call, SearchWebTool):
-        return await tool_search_web(tool_call)
+        result = await tool_search_web(tool_call)
+        if result.success:
+            return {"name": "search_web", "output": str(result.output)}
+        else:
+            return None
     else:
         return None
 
