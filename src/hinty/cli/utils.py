@@ -65,6 +65,28 @@ async def display_stream_response(
             if isinstance(partial.response, str):
                 current_response = partial.response
                 full_response = current_response
+                
+                # Update live with string response
+                group_items = []
+                if current_thinking:
+                    group_items.append(
+                        Group(
+                            f"[bold {agent_thinking_style}]Thinking:[/]",
+                            Markdown(current_thinking),
+                        )
+                    )
+                group_items.append(
+                    Panel(
+                        Markdown(current_response),
+                        title="LLM",
+                        border_style=agent_response_style,
+                    )
+                )
+                if current_actions:
+                    group_items.append(
+                        f"[bold {agent_action_style}]{current_actions}[/]"
+                    )
+                live.update(Group(*group_items))
             else:
                 # Handle stream case by consuming chunks
                 for chunk in partial.response:
