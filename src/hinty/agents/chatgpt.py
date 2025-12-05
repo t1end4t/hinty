@@ -1,11 +1,11 @@
 from typing import AsyncGenerator, List
-  
+
 from baml_py import AbortController, BamlSyncStream
 from baml_py.errors import BamlAbortError
 from loguru import logger
-  
+
 from hinty.core.models import AgentResponse
-  
+
 from ..baml_client import b
 from ..baml_client.stream_types import ChatGPTOutput as StreamChatGPTOutput
 from ..baml_client.types import (
@@ -19,8 +19,8 @@ from ..core.clients import get_client_registry
 from ..core.models import ChatgptTool
 from ..tools.fetch_url import tool_fetch_url
 from ..tools.search_web import tool_search_web
-  
-  
+
+
 def call_chatgpt(
     user_message: str,
     conversation_history: List[ConversationMessage],
@@ -31,7 +31,7 @@ def call_chatgpt(
     try:
         # get client from config
         cr = get_client_registry("chatgpt")
-  
+
         resp = b.stream.ChatGPT(
             user_message,
             conversation_history,
@@ -44,8 +44,8 @@ def call_chatgpt(
         return resp
     except BamlAbortError:
         logger.error("Operation was cancelled")
-  
-  
+
+
 async def execute_tool(tool_call: ChatgptTool) -> ToolResult | None:
     if isinstance(tool_call, FetchUrlTool):
         result = await tool_fetch_url(tool_call.url)
@@ -65,8 +65,8 @@ async def execute_tool(tool_call: ChatgptTool) -> ToolResult | None:
         )
     else:
         return None
-  
-  
+
+
 def get_tool_info(tool_call: ChatgptTool) -> tuple[str, str, str]:
     """Get tool name, parameter name, and input value for display."""
     if isinstance(tool_call, FetchUrlTool):
@@ -75,8 +75,8 @@ def get_tool_info(tool_call: ChatgptTool) -> tuple[str, str, str]:
         return "search_web", "query", tool_call.query
     else:
         return "unknown_tool", "input", str(tool_call)
-  
-  
+
+
 async def handle_chatgpt_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
