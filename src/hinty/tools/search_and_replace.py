@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from pathlib import Path
 
@@ -104,7 +105,7 @@ def tool_search_and_replace(
             name="search_and_replace", success=False, error="; ".join(errors)
         )
 
-    output = {
+    output_data = {
         "total_changes_applied": total_changes_applied,
         "results": results,
         "files_processed": len(changes_by_file),
@@ -114,4 +115,4 @@ def tool_search_and_replace(
         "summary": coder_output.summary,
     }
 
-    return ToolResult(name="search_and_replace", success=True, output=output)
+    return ToolResult(name="search_and_replace", success=True, output=json.dumps(output_data))
