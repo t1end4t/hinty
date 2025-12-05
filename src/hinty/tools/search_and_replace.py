@@ -21,7 +21,9 @@ def tool_search_and_replace(
     Returns:
         ToolResult with success status, output (dict with summary), or error message.
     """
-    changes_by_file: typing.DefaultDict[str, typing.List[typing.Tuple[str, str]]] = defaultdict(list)
+    changes_by_file: typing.DefaultDict[
+        str, typing.List[typing.Tuple[str, str]]
+    ] = defaultdict(list)
     for file_change in coder_output.files_to_change:
         file_path = file_change.file_path
         for block in file_change.blocks:
