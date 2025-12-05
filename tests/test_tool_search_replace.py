@@ -1,16 +1,7 @@
-from pathlib import Path
-
-from hinty.tools.search_and_replace import tool_search_and_replace
-
-
-def main():
-    # Define search/replace blocks content
-    blocks_content = """tests/sample.txt
-```python
-<<<<<<< SEARCH
 line 1
-line 2
+line 2 edited
 line 3
+new line
 =======
 line 1
 line 2 edited
