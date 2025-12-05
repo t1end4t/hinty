@@ -3,8 +3,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from ..baml_client.types import CoderOutput
-from ..core.models import ToolResult
+from ..baml_client.types import CoderOutput, ToolResult
 
 
 def tool_search_and_replace(
@@ -29,7 +28,9 @@ def tool_search_and_replace(
     if not changes_by_file:
         logger.warning("No search/replace blocks found in the coder output.")
         return ToolResult(
-            False, None, "No search/replace blocks found in the coder output."
+            name="search_and_replace",
+            success=False,
+            error="No search/replace blocks found in the coder output.",
         )
 
     results = []
@@ -99,7 +100,9 @@ def tool_search_and_replace(
             errors.extend(file_errors)
 
     if errors:
-        return ToolResult(False, None, "; ".join(errors))
+        return ToolResult(
+            name="search_and_replace", success=False, error="; ".join(errors)
+        )
 
     output = {
         "total_changes_applied": total_changes_applied,
@@ -111,4 +114,4 @@ def tool_search_and_replace(
         "summary": coder_output.summary,
     }
 
-    return ToolResult(True, output, None)
+    return ToolResult(name="search_and_replace", success=True, output=output)
