@@ -115,4 +115,6 @@ def tool_search_and_replace(
         "summary": coder_output.summary,
     }
 
-    return ToolResult(name="search_and_replace", success=True, output=json.dumps(output_data))
+    return ToolResult(
+        name="search_and_replace", success=True, output=json.dumps(output_data)
+    )
