@@ -1,4 +1,5 @@
 import difflib
+import json
 from pathlib import Path
 from typing import Generator, List
 
@@ -138,14 +139,15 @@ def _apply_changes(
     """Apply search replace blocks and yield the result."""
     if final.files_to_change:
         result = tool_search_and_replace(final, project_manager.project_root)
-        if result.success and result.output and "results" in result.output:
+        if result.success and result.output:
+            output_dict = json.loads(result.output)
             files_changed = [
                 str(
                     Path(r.split(" to ")[1]).relative_to(
                         project_manager.project_root
                     )
                 )
-                for r in result.output["results"]
+                for r in output_dict["results"]
                 if "Successfully applied" in r
             ]
             yield AgentResponse(
