@@ -60,10 +60,6 @@
         sourcePreference = "wheel";
       };
 
-      editableOverlay = workspace.mkEditablePyprojectOverlay {
-        root = "$REPO_ROOT";
-      };
-
       pythonSets = forEachSystem (
         system:
         let
@@ -85,12 +81,12 @@
                     final.setuptools
                   ];
                 });
-              }) # -------------------------------------------------------
+              })
+              # -------------------------------------------------------
             ]
           )
       );
       # -------------------------------------
-
     in
     {
       # Your original devenv devShell (unchanged)
