@@ -20,7 +20,7 @@ from .globals import DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIM
 class TypeBuilder(type_builder.TypeBuilder):
     def __init__(self):
         super().__init__(classes=set(
-          ["ChatGPTOutput","CodebaseContext","CoderOutput","ContentBlock","ConversationMessage","FetchUrlTool","FileChange","FileInfo","PDFPageDocument","PageMetadata","RelatedFile","SearchReplaceBlock","SearchWebTool",]
+          ["ChatGPTOutput","CodebaseContext","CoderOutput","ContentBlock","ConversationMessage","FetchUrlTool","FileChange","FileInfo","PDFPageDocument","PageMetadata","RelatedFile","SearchReplaceBlock","SearchWebTool","ToolResult",]
         ), enums=set(
           []
         ), runtime=DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME)
@@ -31,7 +31,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
     # #########################################################################
-    # Generated classes 13
+    # Generated classes 14
     # #########################################################################
 
     @property
@@ -86,6 +86,10 @@ class TypeBuilder(type_builder.TypeBuilder):
     def SearchWebTool(self) -> "SearchWebToolViewer":
         return SearchWebToolViewer(self)
 
+    @property
+    def ToolResult(self) -> "ToolResultViewer":
+        return ToolResultViewer(self)
+
 
 
 # #########################################################################
@@ -94,7 +98,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
 # #########################################################################
-# Generated classes 13
+# Generated classes 14
 # #########################################################################
 
 class ChatGPTOutputAst:
@@ -724,6 +728,57 @@ class SearchWebToolProperties:
     @property
     def query(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("query"))
+    
+    
+
+
+class ToolResultAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ToolResult")
+        self._properties: typing.Set[str] = set([  "name",  "success",  "output",  "error",  ])
+        self._props = ToolResultProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ToolResultProperties":
+        return self._props
+
+
+class ToolResultViewer(ToolResultAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ToolResultProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def name(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("name"))
+    
+    @property
+    def success(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("success"))
+    
+    @property
+    def output(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("output"))
+    
+    @property
+    def error(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("error"))
     
     
 

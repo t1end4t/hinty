@@ -2,7 +2,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from loguru import logger
 import re
-from ..core.models import ToolResult
+from ..baml_client.types import ToolResult
 
 
 async def _fetch_general_url(url: str) -> str:
@@ -207,8 +207,10 @@ async def tool_fetch_url(url: str) -> ToolResult:
         else:
             result = await _fetch_general_url(url)
         if result:
-            return ToolResult(success=True, output=result)
+            return ToolResult(name="fetch_url", success=True, output=result)
         else:
-            return ToolResult(success=False, error="No content found")
+            return ToolResult(
+                name="fetch_url", success=False, error="No content found"
+            )
     except Exception as e:
-        return ToolResult(success=False, error=str(e))
+        return ToolResult(name="fetch_url", success=False, error=str(e))

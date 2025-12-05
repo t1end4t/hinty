@@ -14,6 +14,7 @@ from ..baml_client.types import (
     FetchUrlTool,
     SearchWebTool,
 )
+from ..core.clients import get_client_registry
 from ..core.models import ChatgptTool
 from ..tools.fetch_url import tool_fetch_url
 from ..tools.search_web import tool_search_web
@@ -27,11 +28,17 @@ def call_chatgpt(
 ) -> BamlSyncStream[StreamChatGPTOutput, ChatGPTOutput] | None:
     """Call the orchestrator agent with a user message and conversation history"""
     try:
+        # get client from config
+        cr = get_client_registry("chatgpt")
+
         resp = b.stream.ChatGPT(
             user_message,
             conversation_history,
             tool_result,
-            baml_options={"abort_controller": controller},
+            baml_options={
+                "abort_controller": controller,
+                "client_registry": cr,
+            },
         )
         return resp
     except BamlAbortError:

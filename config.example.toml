@@ -2,7 +2,17 @@
 groq_api_key = "GROQ_API_KEY"
 google_api_key = "GOOGLE_API_KEY"
 openrouter_api_key = "OPENROUTER_API_KEY"
+tavily_api_key = "TAVILY_API_KEY"
 
 [logging]
-log_level = "DEBUG"
-baml_log = "error"
+log_level = "error"
+baml_log = "warn"
+# log_level = "debug"
+# baml_log = "debug"
+
+[tools]
+web_search_provider = "gemini"
+
+[models]
+chatgpt = "groq/openai/gpt-oss-120b"
+coder = "groq/openai/gpt-oss-120b"

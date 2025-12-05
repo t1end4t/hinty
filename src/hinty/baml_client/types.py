@@ -41,7 +41,7 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 # #########################################################################
 
 # #########################################################################
-# Generated classes (13)
+# Generated classes (14)
 # #########################################################################
 
 class ChatGPTOutput(BaseModel):
@@ -113,6 +113,12 @@ class SearchReplaceBlock(BaseModel):
 class SearchWebTool(BaseModel):
     tool_name: typing_extensions.Literal['search_web']
     query: str
+
+class ToolResult(BaseModel):
+    name: str
+    success: bool
+    output: typing.Optional[typing.Union[str, typing.Dict[str, str]]] = None
+    error: typing.Optional[str] = None
 
 # #########################################################################
 # Generated type aliases (0)

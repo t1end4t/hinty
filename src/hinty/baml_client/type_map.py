@@ -55,5 +55,8 @@ type_map = {
     "types.SearchWebTool": types.SearchWebTool,
     "stream_types.SearchWebTool": stream_types.SearchWebTool,
 
+    "types.ToolResult": types.ToolResult,
+    "stream_types.ToolResult": stream_types.ToolResult,
+
 
 }

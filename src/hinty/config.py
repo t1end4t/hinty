@@ -34,7 +34,7 @@ def read_config_file(config_path: Path) -> dict:
 
 def set_environment_variables(config: dict):
     """Set environment variables from config sections."""
-    sections = ["api_keys", "logging"]
+    sections = ["api_keys", "logging", "tools", "models"]
     for section in sections:
         vars_dict = config.get(section, {})
         env_vars = {key.upper(): str(value) for key, value in vars_dict.items()}

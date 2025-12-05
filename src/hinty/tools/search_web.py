@@ -6,16 +6,18 @@ from google.genai import types
 from loguru import logger
 from tavily import TavilyClient
 
-from hinty.core.models import ToolResult
+from ..baml_client.types import ToolResult
 
 
 async def _search_with_google(query: str) -> ToolResult:
     """Perform web search using Google Gemini API."""
     logger.info(f"Starting Google Gemini web search for query: {query}")
+
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
         logger.error("GOOGLE_API_KEY environment variable not set")
         return ToolResult(
+            name="search_web",
             success=False,
             error="GOOGLE_API_KEY environment variable is required for Gemini provider",
         )
@@ -42,12 +44,12 @@ async def _search_with_google(query: str) -> ToolResult:
         logger.info(
             f"Google Gemini web search completed successfully for query: {query}"
         )
-        return ToolResult(success=True, output=response.text)
+        return ToolResult(name="search_web", success=True, output=response.text)
     except Exception as e:
         logger.error(
             f"Error during Google Gemini web search for query '{query}': {e}"
         )
-        return ToolResult(success=False, error=str(e))
+        return ToolResult(name="search_web", success=False, error=str(e))
 
 
 async def _search_with_tavily(query: str) -> ToolResult:
@@ -57,6 +59,7 @@ async def _search_with_tavily(query: str) -> ToolResult:
     if not api_key:
         logger.error("TAVILY_API_KEY environment variable not set")
         return ToolResult(
+            name="search_web",
             success=False,
             error="TAVILY_API_KEY environment variable is required",
         )
@@ -67,10 +70,10 @@ async def _search_with_tavily(query: str) -> ToolResult:
         logger.info(
             f"Tavily web search completed successfully for query: {query}"
         )
-        return ToolResult(success=True, output=response)
+        return ToolResult(name="search_web", success=True, output=response)
     except Exception as e:
         logger.error(f"Error during Tavily web search for query '{query}': {e}")
-        return ToolResult(success=False, error=str(e))
+        return ToolResult(name="search_web", success=False, error=str(e))
 
 
 async def tool_search_web(query: str) -> ToolResult:

@@ -23,7 +23,7 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (13)
+# Generated classes (14)
 # #########################################################################
 
 class ChatGPTOutput(BaseModel):
@@ -95,6 +95,12 @@ class SearchReplaceBlock(BaseModel):
 class SearchWebTool(BaseModel):
     tool_name: typing.Optional[str] = None
     query: typing.Optional[str] = None
+
+class ToolResult(BaseModel):
+    name: typing.Optional[str] = None
+    success: typing.Optional[bool] = None
+    output: typing.Optional[typing.Union[str, typing.Dict[str, str]]] = None
+    error: typing.Optional[str] = None
 
 # #########################################################################
 # Generated type aliases (0)

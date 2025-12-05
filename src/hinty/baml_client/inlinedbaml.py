@@ -20,6 +20,7 @@ _file_map = {
     "prompt_engineering.baml": "",
     "researcher.baml": "",
     "second_brain.baml": "",
+    "tools.baml": "class ToolResult {\n    name string\n    success bool\n    output string | map<string, string>?\n    error string?\n}",
     "writer.baml": "",
 }
 

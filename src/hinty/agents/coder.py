@@ -15,6 +15,7 @@ from ..baml_client.types import (
     ConversationMessage,
     FileInfo,
 )
+from ..core.clients import get_client_registry
 from ..core.project_manager import ProjectManager
 from ..tools.search_and_replace import tool_search_and_replace
 from ..utils import read_content_file
@@ -166,11 +167,17 @@ def call_coder(
 ) -> BamlSyncStream[StreamCoderOutput, CoderOutput] | None:
     """Call the coder agent with a user message, files, and conversation history"""
     try:
+        # get client from config
+        cr = get_client_registry("coder")
+
         resp = b.stream.Coder(
             user_message,
             conversation_history,
             files,
-            baml_options={"abort_controller": controller},
+            baml_options={
+                "abort_controller": controller,
+                "client_registry": cr,
+            },
         )
         return resp
     except BamlAbortError:
