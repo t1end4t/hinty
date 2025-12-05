@@ -13,6 +13,7 @@ from ..baml_client.types import (
     ConversationMessage,
     FetchUrlTool,
     SearchWebTool,
+    ToolResult,
 )
 from ..core.clients import get_client_registry
 from ..core.models import ChatgptTool
@@ -23,7 +24,7 @@ from ..tools.search_web import tool_search_web
 def call_chatgpt(
     user_message: str,
     conversation_history: List[ConversationMessage],
-    tool_result: dict[str, str] | None,
+    tool_result: ToolResult | None,
     controller: AbortController,
 ) -> BamlSyncStream[StreamChatGPTOutput, ChatGPTOutput] | None:
     """Call the orchestrator agent with a user message and conversation history"""
