@@ -9,12 +9,12 @@ def get_client_registry(agent: str) -> ClientRegistry:
         raise ValueError(
             f"Model for {agent} not found in environment variables"
         )
-    
+
     try:
         provider, model = model_str.split("/", 1)
     except ValueError:
         raise ValueError(f"Invalid model format for {agent}: {model_str}")
-    
+
     # Determine API key environment variable based on provider
     if provider == "groq":
         api_key_env = "GROQ_API_KEY"
@@ -24,13 +24,13 @@ def get_client_registry(agent: str) -> ClientRegistry:
         api_key_env = "OPENROUTER_API_KEY"
     else:
         raise ValueError(f"Unknown provider {provider} for agent {agent}")
-    
+
     api_key = os.environ.get(api_key_env)
     if not api_key:
         raise ValueError(
             f"API key for provider {provider} not found in environment variables"
         )
-    
+
     cr = ClientRegistry()
     client_name = f"{agent}_client"
     cr.add_llm_client(
