@@ -1,4 +1,5 @@
 import json
+import typing
 from collections import defaultdict
 from pathlib import Path
 
@@ -20,7 +21,7 @@ def tool_search_and_replace(
     Returns:
         ToolResult with success status, output (dict with summary), or error message.
     """
-    changes_by_file = defaultdict(list)
+    changes_by_file: typing.DefaultDict[str, typing.List[typing.Tuple[str, str]]] = defaultdict(list)
     for file_change in coder_output.files_to_change:
         file_path = file_change.file_path
         for block in file_change.blocks:
@@ -34,9 +35,9 @@ def tool_search_and_replace(
             error="No search/replace blocks found in the coder output.",
         )
 
-    results = []
-    total_changes_applied = 0
-    errors = []
+    results: typing.List[str] = []
+    total_changes_applied: int = 0
+    errors: typing.List[str] = []
 
     for file_path_str, changes in changes_by_file.items():
         file_path = Path(file_path_str)
@@ -60,8 +61,8 @@ def tool_search_and_replace(
             errors.append(error_msg)
             continue
 
-        num_changes_applied = 0
-        file_errors = []
+        num_changes_applied: int = 0
+        file_errors: typing.List[str] = []
         for search_block, replace_block in changes:
             if search_block in content:
                 content = content.replace(search_block, replace_block, 1)
@@ -105,7 +106,7 @@ def tool_search_and_replace(
             name="search_and_replace", success=False, error="; ".join(errors)
         )
 
-    output_data = {
+    output_data: typing.Dict[str, typing.Union[int, typing.List[str], str]] = {
         "total_changes_applied": total_changes_applied,
         "results": results,
         "files_processed": len(changes_by_file),
