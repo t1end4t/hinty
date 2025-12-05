@@ -116,5 +116,5 @@ def tool_search_and_replace(
     }
 
     return ToolResult(
-        name="search_and_replace", success=True, output=json.dumps(output_data)
+        name="search_and_replace", success=True, output=output_data
     )
