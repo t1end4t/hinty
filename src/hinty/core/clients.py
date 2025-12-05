@@ -4,7 +4,7 @@ from baml_py import ClientRegistry
 
 def get_client_registry(agent: str) -> ClientRegistry:
     """Create and return a ClientRegistry configured for the given agent."""
-    model_str = os.environ.get(f"{agent}")
+    model_str = os.environ.get(f"{agent}".upper())
     if not model_str:
         raise ValueError(
             f"Model for {agent} not found in environment variables"
