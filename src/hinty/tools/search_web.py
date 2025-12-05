@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 
 from google import genai
@@ -70,7 +71,9 @@ async def _search_with_tavily(query: str) -> ToolResult:
         logger.info(
             f"Tavily web search completed successfully for query: {query}"
         )
-        return ToolResult(name="search_web", success=True, output=response)
+        return ToolResult(
+            name="search_web", success=True, output=json.dumps(response)
+        )
     except Exception as e:
         logger.error(f"Error during Tavily web search for query '{query}': {e}")
         return ToolResult(name="search_web", success=False, error=str(e))

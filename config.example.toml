@@ -11,7 +11,7 @@ baml_log = "warn"
 # baml_log = "debug"
 
 [tools]
-web_search_provider = "gemini"
+web_search_provider = "google"
 
 [models]
 chatgpt = "groq/openai/gpt-oss-120b"

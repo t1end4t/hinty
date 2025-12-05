@@ -26,20 +26,20 @@ class ChatGPTOutput {
 function ChatGPT(
   message: string,
   conversation_history: ConversationMessage[]?,
-  tool_result: map<string, string>?
+  tool_result: ToolResult?
 ) -> ChatGPTOutput {
   client GroqRouter
   prompt #"
-    You are a helpful assistant that can use tools when needed.
+You are a helpful assistant that can use tools when needed.
     
-    Available tools:
-    1. search_web - Search the internet for current information
-    2. fetch_url - Retrieve content from a specific URL
+Available tools:
+1. search_web - Search the internet for current information
+2. fetch_url - Retrieve content from a specific URL
     
-    {{ ctx.output_format }}
+{{ ctx.output_format }}
     
 {% if conversation_history %}
-    CONVERSATION HISTORY:
+CONVERSATION HISTORY:
 {% for msg in conversation_history -%}
 {{ msg.role | capitalize }}: {{ msg.content }}
 {% endfor %}
@@ -47,16 +47,22 @@ function ChatGPT(
 
 {% if tool_result %}
 TOOL RESULT:
-    {{ tool_result }}
-    
-    Use the above tool result along with any provided file content to answer the question.
+{{ tool_result.name }}:
+{% if tool_result.success %}
+  {{ tool_result.output }}
+{% else %}
+  Error: {{ tool_result.error }}
 {% endif %}
-    Current Question: {{ message }}
     
-    Instructions:
-    - If you can answer the question directly with your knowledge or the provided file content, set requires_tool to false and provide a complete response
-    - If you need additional information (web search, URL fetch, RAG, or file write), set requires_tool to true, explain what you need to do, and specify the tool_call
-    - Always provide a response even if a tool is needed
+Use the above tool result along with any provided file content to answer the question.
+{% endif %}
+
+Current Question: {{ message }}
+    
+Instructions:
+- If you can answer the question directly with your knowledge or the provided file content, set requires_tool to false and provide a complete response
+- If you need additional information (web search, URL fetch, RAG, or file write), set requires_tool to true, explain what you need to do, and specify the tool_call
+- Always provide a response even if a tool is needed
   "#
 }
 

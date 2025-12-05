@@ -91,7 +91,7 @@ class BamlSyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
     
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> types.ChatGPTOutput:
         # Check if on_tick is provided
@@ -142,7 +142,7 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.ChatGPTOutput, types.ChatGPTOutput]:
         ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="ChatGPT", args={
@@ -186,7 +186,7 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ChatGPT", args={
@@ -215,7 +215,7 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional[typing.Dict[str, str]] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ChatGPT", args={
