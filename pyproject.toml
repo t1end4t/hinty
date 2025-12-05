@@ -42,3 +42,6 @@ dev = ["dotenv>=0.9.9"]
 
 [project.scripts]
 hinty = "hinty.main:cli"
+
+[tool.uv.extra-build-dependencies]
+"tree-format-0.1.2" = ["setuptools"]
