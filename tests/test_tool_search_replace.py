@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from hinty.tools.file_operations import tool_apply_search_replace
+from hinty.tools.search_and_replace import tool_search_and_replace
 
 
 def main():
@@ -11,7 +11,6 @@ def main():
 line 1
 line 2
 line 3
-new line
 =======
 line 1
 line 2 edited
@@ -32,8 +31,10 @@ new line
     print(old_content)
 
     # Apply the search/replace blocks
-    result = tool_apply_search_replace(blocks_content, base_path=Path.cwd())
-    print(f"Search/replace application {'succeeded' if result.success else 'failed'}")
+    result = tool_search_and_replace(blocks_content, base_path=Path.cwd())
+    print(
+        f"Search/replace application {'succeeded' if result.success else 'failed'}"
+    )
 
     # Read and print new content
     with open(sample_path, "r") as f:
