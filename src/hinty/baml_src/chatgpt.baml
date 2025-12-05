@@ -18,7 +18,7 @@ class FetchUrlTool {
 // Response that includes both the answer and optional tool call
 class ChatGPTOutput {
   response string @description("Your helpful response to the user. If a tool is needed, explain what you're doing. If not, provide the complete answer.")
-  tool_call SearchWebTool | FetchUrlTool | null @description("The tool to use if additional information is needed, or null if you can answer directly")
+  tool_call (SearchWebTool | FetchUrlTool)? @description("The tool to use if additional information is needed, or null if you can answer directly")
   requires_tool bool @description("True if a tool is needed to provide a complete answer, false if the response is complete")
 }
 

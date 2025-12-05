@@ -1,6 +1,6 @@
 from typing import AsyncGenerator, List
 
-from baml_py import AbortController, BamlSyncStream
+from baml_py import AbortController, BamlSyncStream, Collector
 from baml_py.errors import BamlAbortError
 from loguru import logger
 
@@ -82,6 +82,9 @@ async def handle_chatgpt_mode(
     conversation_history: List[ConversationMessage],
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
+    # track token
+    chatgpt_collector = Collector(name="chatgpt_collector")
+
     tool_result = None
     while True:
         stream = call_chatgpt(
@@ -96,6 +99,9 @@ async def handle_chatgpt_mode(
             yield AgentResponse(response=chunk.response)
         final_response = stream.get_final_response()
         yield AgentResponse(response=final_response.response)
+        if chatgpt_collector.last:
+            logger.info(f"ChatGPT mode usage: {chatgpt_collector.last.usage}")
+
         if final_response.tool_call is None:
             break
         # Execute tool and prepare result for next iteration
