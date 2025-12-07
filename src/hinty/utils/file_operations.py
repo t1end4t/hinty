@@ -25,7 +25,6 @@ def read_content_file(filepath: Path) -> str:
         ValueError: If there is an error reading the file or unsupported format.
     """
     if not filepath.exists():
-        logger.error(f"File {filepath} does not exist")
         raise FileNotFoundError(f"File {filepath} does not exist")
 
     mime_type, _ = mimetypes.guess_type(str(filepath))
@@ -44,7 +43,6 @@ def read_content_file(filepath: Path) -> str:
                     text += page.extract_text() + "\n"
                 return text.strip()
             except ImportError:
-                logger.error("pypdf library not available for PDF reading")
                 raise ValueError("pypdf library not available for PDF reading")
         elif mime_type and mime_type.startswith("image"):
             # Handle images by base64 encoding
