@@ -248,7 +248,7 @@ def copy_command(
                     console.print("No code blocks found.\n", style=YELLOW)
                     return
                 options = [
-                    (i, f"Block {i+1}: {block.split('\n')[0][:50]}...")
+                    (i, f"Block {i + 1}: {block.split('\n')[0][:50]}...")
                     for i, block in enumerate(code_blocks)
                 ]
                 if len(options) == 1:

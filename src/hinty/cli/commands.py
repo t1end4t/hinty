@@ -88,7 +88,6 @@ class CommandCompleter(Completer):
         completer = FuzzyWordCompleter(modes)
         yield from completer.get_completions(word_document, complete_event)
 
-
     def _get_object_completions(
         self, document: Document, complete_event: CompleteEvent
     ):
@@ -140,7 +139,6 @@ class CommandCompleter(Completer):
         # If typing /mode command, provide mode completions
         elif text.startswith("/mode"):
             yield from self._get_mode_completions(document, complete_event)
-
 
         # Otherwise, provide command completions
         elif text.startswith("/"):
