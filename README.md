@@ -6,9 +6,8 @@
    1. [ ] Tool functions
       1. [ ] rag -> SKIP FOR NOW
    2. [ ] Make it different than aider (not create code, just hint)
-   3. [ ] Easy to copy/paste (especially code block)
-   4. [ ] Handle common files
-   5. [ ] Handle images, PDFs, etc.
+   3. [ ] Handle common files
+   4. [ ] Handle images, PDFs, etc.
 2. [ ] Coding agent
    1. [ ] Rewrite logic
    2. [ ] add ask mode
@@ -19,7 +18,7 @@
    7. [ ] Add rule
    8. [ ] Make it different than aider (not create code, just hint)
 3. [ ] General features
-   1. [ ] Copy/paste, especially code block
+   1. [x] Copy/paste, especially code block
    2. [ ] Multiple lines
    3. [ ] Spelling when type
    4. [ ] Better display for math
