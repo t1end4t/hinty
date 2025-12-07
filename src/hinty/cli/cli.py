@@ -54,9 +54,14 @@ class BacktickLexer(Lexer):
         return lex_line
 
 
-def _setup_session(project_manager: ProjectManager, conversation_history: List[ConversationMessage]) -> PromptSession:
+def _setup_session(
+    project_manager: ProjectManager,
+    conversation_history: List[ConversationMessage],
+) -> PromptSession:
     """Set up the prompt session with completer and style."""
-    completer = CommandCompleter(commands, project_manager, conversation_history)
+    completer = CommandCompleter(
+        commands, project_manager, conversation_history
+    )
 
     style = Style.from_dict(
         {
