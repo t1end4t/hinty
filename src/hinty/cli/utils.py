@@ -32,7 +32,7 @@ from .theme import YELLOW
 console = Console()
 
 # Constants for readability
-REFRESH_RATE = 100
+REFRESH_RATE = 10
 WELCOME_MESSAGE = (
     "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
 )

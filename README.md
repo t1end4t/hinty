@@ -5,7 +5,7 @@
 1. [ ] Chatgpt agent
    1. [ ] Tool functions
       1. [ ] rag -> SKIP FOR NOW
-   2. [ ] Make it different than aider (not create code, just hint)
+   2. [ ] Make it different than chatgpt (make me not dumb)
    3. [ ] Handle common files
    4. [ ] Handle images, PDFs, etc.
 2. [ ] Coding agent
@@ -19,9 +19,8 @@
    8. [ ] Make it different than aider (not create code, just hint)
 3. [ ] General features
    1. [x] Copy/paste, especially code block
-   2. [ ] Multiple lines
-   3. [ ] Spelling when type
-   4. [ ] Better display for math
+   2. [x] Multiple lines
+   3. [ ] Better display for math
 
 # CAN NOT
 
@@ -29,7 +28,7 @@
 
 # Fix bug
 
-1. [ ] Separate between prompt and response
+1. [x] Separate line between prompt and response
 2. [ ] If added file, can not add it anymore (should not show in suggestion)
 3. [ ] logging should in file
 4. [ ] slow when startup

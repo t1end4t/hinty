@@ -86,32 +86,43 @@ async def handle_chatgpt_mode(
     chatgpt_collector = Collector(name="chatgpt_collector")
 
     tool_result = None
-    while True:
-        stream = call_chatgpt(
-            user_message,
-            conversation_history,
-            tool_result,
-            controller,
-        )
-        if not stream:
-            break
+    stream = call_chatgpt(
+        user_message,
+        conversation_history,
+        tool_result,
+        controller,
+    )
+    if stream:
         for chunk in stream:
             yield AgentResponse(response=chunk.response)
-        final_response = stream.get_final_response()
-        yield AgentResponse(response=final_response.response)
-        if chatgpt_collector.last:
-            logger.info(f"ChatGPT mode usage: {chatgpt_collector.last.usage}")
+            # print(chunk.response)
 
-        if final_response.tool_call is None:
-            break
-        # Execute tool and prepare result for next iteration
-        tool_name, param_name, input_param = get_tool_info(
-            final_response.tool_call
-        )
-        yield AgentResponse(
-            actions=[f"Executing {tool_name} with {param_name}: {input_param}"]
-        )
-        tool_result = await execute_tool(final_response.tool_call)
-        if tool_result is None or not tool_result.success:
-            break
-        yield AgentResponse(actions=[f"Executed {tool_name}"])
+    # while True:
+    #     stream = call_chatgpt(
+    #         user_message,
+    #         conversation_history,
+    #         tool_result,
+    #         controller,
+    #     )
+    #     if not stream:
+    #         break
+    #     for chunk in stream:
+    #         yield AgentResponse(response=chunk.response)
+    #     final_response = stream.get_final_response()
+    #     yield AgentResponse(response=final_response.response)
+    #     if chatgpt_collector.last:
+    #         logger.info(f"ChatGPT mode usage: {chatgpt_collector.last.usage}")
+
+    #     if final_response.tool_call is None:
+    #         break
+    #     # Execute tool and prepare result for next iteration
+    #     tool_name, param_name, input_param = get_tool_info(
+    #         final_response.tool_call
+    #     )
+    #     yield AgentResponse(
+    #         actions=[f"Executing {tool_name} with {param_name}: {input_param}"]
+    #     )
+    #     tool_result = await execute_tool(final_response.tool_call)
+    #     if tool_result is None or not tool_result.success:
+    #         break
+    #     yield AgentResponse(actions=[f"Executed {tool_name}"])
