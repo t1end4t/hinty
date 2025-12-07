@@ -108,12 +108,9 @@ async def _process_user_message(
     controller: AbortController,
 ):
     """Process a user message: append to history, stream response, update history."""
-    logger.debug("Processing user message")
     user_message = ConversationMessage(role="user", content=user_input)
     conversation_history.append(user_message)
     try:
-        logger.debug("Calling external API for router")
-
         with console.status("Thinking..."):
             responses = get_agent_response(
                 user_input,
@@ -126,7 +123,6 @@ async def _process_user_message(
             role="assistant", content=full_response
         )
         conversation_history.append(assistant_message)
-        logger.debug("User message processed")
     except KeyboardInterrupt:
         logger.warning("User interrupted LLM response")
         controller.abort()
@@ -164,7 +160,6 @@ async def _handle_input_loop(
     controller: AbortController,
 ):
     """Handle the main input loop."""
-    logger.debug("Starting input loop")
     while True:
         try:
             display_files(project_manager)
@@ -182,7 +177,6 @@ async def _handle_input_loop(
                 controller,
             )
 
-            logger.debug(f"Current mode: {project_manager.mode}")
         except KeyboardInterrupt:
             logger.info("Input loop interrupted by user")
             controller.abort()
@@ -199,27 +193,21 @@ async def _handle_input_loop(
             console.print(f"[red]Error: {e}[/red]")
             controller.abort()
             continue
-    logger.debug("Input loop ended")
 
 
 # Minimal LLM chat interface
 async def _chat():
     """Run the chat interface."""
-    start_time = time.time()
-    logger.debug("Starting chat")
     print_welcome()
-    logger.debug(f"Welcome printed in {time.time() - start_time:.2f}s")
     (
         conversation_history,
         project_manager,
         controller,
     ) = _initialize_conversation()
     session = _setup_session(project_manager)
-    logger.debug(f"Session set up in {time.time() - start_time:.2f}s")
     await _handle_input_loop(
         session, conversation_history, project_manager, controller
     )
-    logger.debug("Chat ended")
 
 
 @click.command()
