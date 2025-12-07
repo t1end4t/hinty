@@ -231,7 +231,6 @@ def clear_command(
 
 
 async def copy_command(
-    command: str,
     console: Console,
     conversation_history: List[ConversationMessage],
 ):
