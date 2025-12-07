@@ -1,11 +1,14 @@
 import os
+from loguru import logger
 from baml_py import ClientRegistry
 
 
 def get_client_registry(agent: str) -> ClientRegistry:
+    logger.debug(f"Creating client registry for agent: {agent}")
     """Create and return a ClientRegistry configured for the given agent."""
     model_str = os.environ.get(f"{agent}".upper())
     if not model_str:
+        logger.error(f"Model for {agent} not found in environment variables")
         raise ValueError(
             f"Model for {agent} not found in environment variables"
         )
@@ -13,6 +16,7 @@ def get_client_registry(agent: str) -> ClientRegistry:
     try:
         provider, model = model_str.split("/", 1)
     except ValueError:
+        logger.error(f"Invalid model format for {agent}: {model_str}")
         raise ValueError(f"Invalid model format for {agent}: {model_str}")
 
     # Handle special providers that use openai-generic
@@ -29,10 +33,14 @@ def get_client_registry(agent: str) -> ClientRegistry:
         actual_provider = provider
         api_key_env = "GOOGLE_API_KEY"
     else:
+        logger.error(f"Unknown provider {provider} for agent {agent}")
         raise ValueError(f"Unknown provider {provider} for agent {agent}")
 
     api_key = os.environ.get(api_key_env)
     if not api_key:
+        logger.error(
+            f"API key for provider {provider} not found in environment variables"
+        )
         raise ValueError(
             f"API key for provider {provider} not found in environment variables"
         )
@@ -51,4 +59,5 @@ def get_client_registry(agent: str) -> ClientRegistry:
         options=options,
     )
     cr.set_primary(client_name)
+    logger.debug(f"Client registry created successfully for agent: {agent}")
     return cr
