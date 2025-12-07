@@ -41,9 +41,10 @@ commands = [
 
 
 class CommandCompleter(Completer):
-    def __init__(self, commands, project_manager: ProjectManager):
+    def __init__(self, commands, project_manager: ProjectManager, conversation_history: List[ConversationMessage]):
         self.commands = commands
         self.project_manager = project_manager
+        self.conversation_history = conversation_history
         self.path_completer = FuzzyCompleter(PathCompleter())
 
     def _get_add_completions(
@@ -81,6 +82,27 @@ class CommandCompleter(Completer):
         word_document = Document(word, len(word))
         completer = FuzzyWordCompleter(modes)
         yield from completer.get_completions(word_document, complete_event)
+
+    def _get_copy_completions(
+        self, document: Document, complete_event: CompleteEvent
+    ):
+        text = document.text_before_cursor
+        after_copy = text[len("/copy ") :].strip() if text.startswith("/copy ") else ""
+        parts = after_copy.split()
+        if len(parts) == 0:
+            # Suggest "full" and "code"
+            yield Completion("full", start_position=0, display="full")
+            yield Completion("code", start_position=0, display="code")
+        elif len(parts) == 1 and parts[0] == "code":
+            # Suggest indices for code blocks
+            for msg in reversed(self.conversation_history):
+                if msg.role == "assistant":
+                    code_blocks = re.findall(
+                        r"```[\w]*\n(.*?)\n```", msg.content, re.DOTALL
+                    )
+                    for i in range(1, len(code_blocks) + 1):
+                        yield Completion(str(i), start_position=0, display=str(i))
+                    break
 
     def _get_object_completions(
         self, document: Document, complete_event: CompleteEvent
@@ -133,6 +155,10 @@ class CommandCompleter(Completer):
         # If typing /mode command, provide mode completions
         elif text.startswith("/mode"):
             yield from self._get_mode_completions(document, complete_event)
+
+        # If typing /copy command, provide copy completions
+        elif text.startswith("/copy"):
+            yield from self._get_copy_completions(document, complete_event)
 
         # Otherwise, provide command completions
         elif text.startswith("/"):
