@@ -31,7 +31,7 @@ def _(event):
     event.current_buffer.validate_and_handle()
 
 
-@bindings.add("shift+enter")
+@bindings.add("escape", "enter")
 def _(event):
     event.current_buffer.insert_text("\n")
 
