@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from typing import List
 
+import pyperclip
 from loguru import logger
 from prompt_toolkit.completion import (
     CompleteEvent,
@@ -26,6 +27,7 @@ from .theme import YELLOW
 commands = [
     "/add",
     "/clear",
+    "/copy",
     "/drop",
     "/exit",
     "/files",
@@ -143,6 +145,7 @@ def _help_command(console: Console):
     help_text = (
         "Available commands:\n"
         "/clear        - Clear conversation history and chat\n"
+        "/copy         - Copy the last LLM response to clipboard\n"
         "/exit         - Exit the CLI\n"
         "/files        - List current files in context\n"
         "/help         - Show this help message\n"
@@ -163,6 +166,18 @@ def _clear_command(
     conversation_history.clear()
     console.clear()
     console.print("Conversation history and chat cleared.\n", style=YELLOW)
+
+
+def _copy_command(
+    console: Console, conversation_history: List[ConversationMessage]
+):
+    """Copy the last LLM response to clipboard."""
+    for msg in reversed(conversation_history):
+        if msg.role == "assistant":
+            pyperclip.copy(msg.content)
+            console.print("Last LLM response copied to clipboard.\n", style=YELLOW)
+            return
+    console.print("No LLM response found.\n", style=YELLOW)
 
 
 def _mode_command(
@@ -294,6 +309,8 @@ def handle_command(
         _help_command(console)
     elif command == "/clear":
         _clear_command(console, conversation_history)
+    elif command == "/copy":
+        _copy_command(console, conversation_history)
     elif command.startswith("/mode"):
         _mode_command(command, console, project_manager)
     elif command.startswith("/add"):
