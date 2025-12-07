@@ -260,7 +260,8 @@ def copy_command(
                     content_to_copy = code_blocks[index]
                     pyperclip.copy(content_to_copy)
                     console.print(
-                        f"Copied code block {index + 1} to clipboard.\n", style=YELLOW
+                        f"Copied code block {index + 1} to clipboard.\n",
+                        style=YELLOW,
                     )
                 except KeyboardInterrupt:
                     console.print("Copy cancelled.\n", style=YELLOW)
