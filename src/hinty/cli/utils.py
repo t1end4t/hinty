@@ -8,6 +8,8 @@ from typing import AsyncGenerator, List
 import pyperclip
 from loguru import logger
 from prompt_toolkit import PromptSession
+from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import choice
 from pyfzf import pyfzf
 from rich.console import Console, Group
@@ -35,6 +37,31 @@ REFRESH_RATE = 100
 WELCOME_MESSAGE = (
     "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
 )
+
+
+def prompt_continuation(width, line_number, wrap_count):
+    """
+    The continuation: display line numbers and '->' before soft wraps.
+    """
+    if wrap_count > 0:
+        return " " * (width - 3) + "-> "
+    else:
+        text = ("- %i - " % (line_number + 1)).rjust(width)
+        return HTML("<strong>%s</strong>") % text
+
+
+# Custom key bindings: Enter to accept, Shift+Enter to insert newline
+bindings = KeyBindings()
+
+
+@bindings.add("enter")
+def _(event):
+    event.current_buffer.validate_and_handle()
+
+
+@bindings.add("escape", "enter")
+def _(event):
+    event.current_buffer.insert_text("\n")
 
 
 def print_welcome():
@@ -194,6 +221,9 @@ def get_user_input(
         result = session.prompt(
             prompt_text,
             style=catppuccin_mocha_style,
+            multiline=True,
+            prompt_continuation=prompt_continuation,
+            key_bindings=bindings,
         )
         logger.debug(f"User input received: {len(result)} characters")
         return result
