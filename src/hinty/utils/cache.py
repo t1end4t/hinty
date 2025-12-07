@@ -67,8 +67,6 @@ def cache_available_files(
     project_root: Path, available_files_cache: Path, max_files: int = 10000
 ) -> None:
     """Cache all project files, respecting .gitignore."""
-    logger.info(f"Caching files for {project_root}")
-
     files = _discover_project_files(project_root)
     gitignore_spec = _load_gitignore_spec(project_root)
     filtered_files = _filter_files_by_gitignore(
@@ -103,8 +101,6 @@ def _write_objects_cache(objects: set[str], cache_path: Path) -> None:
 
 def cache_objects(files: List[Path], objects_cache: Path) -> None:
     """Cache all objects for given files."""
-    logger.info(f"Caching objects from {len(files)} files")
-
     all_objects = _collect_objects_from_files(files)
     _write_objects_cache(all_objects, objects_cache)
 
