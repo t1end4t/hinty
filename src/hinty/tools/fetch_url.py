@@ -14,7 +14,6 @@ async def _fetch_general_url(url: str) -> str:
     soup = BeautifulSoup(content, "html.parser")
     text = soup.get_text()
     cleaned_text = " ".join(text.split())
-    logger.info(f"Successfully fetched and processed content from URL: {url}")
     return cleaned_text
 
 
@@ -37,9 +36,6 @@ async def _fetch_github_readme(url: str) -> str:
             async with session.get(api_url, headers=headers) as response:
                 if response.status == 200:
                     content = await response.text()
-                    logger.info(
-                        f"Successfully fetched README ({len(content)} chars) from: {url}"
-                    )
                     return content
                 elif response.status == 404:
                     logger.warning(f"No README found for repository: {url}")
@@ -113,7 +109,6 @@ async def _fetch_stackoverflow_question(url: str) -> str:
                 logger.error(f"Error fetching accepted answer: {e}")
             except Exception as e:
                 logger.error(f"Unexpected error fetching accepted answer: {e}")
-    logger.info(f"Successfully fetched StackOverflow question: {url}")
     return result
 
 
@@ -159,7 +154,6 @@ async def _fetch_reddit_post(url: str) -> str:
         all_comments = collect_comments(comments_data)
         for i, comment in enumerate(all_comments, 1):
             result += f"\n{i}. {comment}\n"
-    logger.info(f"Successfully fetched Reddit post: {url}")
     return result
 
 
@@ -188,7 +182,6 @@ async def _fetch_arxiv_abstract(url: str) -> str:
     summary_elem = entry.find("summary")
     abstract = summary_elem.text.strip() if summary_elem else ""
     result = f"Title: {title}\n\nAbstract: {abstract}"
-    logger.info(f"Successfully fetched arXiv abstract: {url}")
     return result
 
 
