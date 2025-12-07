@@ -15,6 +15,7 @@ from rich.console import Console, Group
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
+from rich_latex import LaTeX
 
 from ..baml_client.types import ConversationMessage
 from ..cli.theme import (
@@ -51,6 +52,14 @@ def _(event):
 @bindings.add("escape", "enter")
 def _(event):
     event.current_buffer.insert_text("\n")
+
+
+def render_content(content: str):
+    """Render content as Markdown or LaTeX based on presence of math delimiters."""
+    if "$" in content:
+        return LaTeX(content)
+    else:
+        return Markdown(content)
 
 
 def print_welcome():
@@ -114,7 +123,7 @@ async def display_stream_response(
                     )
                 group_items.append(
                     Panel(
-                        Markdown(current_response),
+                        render_content(current_response),
                         title="LLM",
                         border_style=agent_response_style,
                     )
@@ -137,7 +146,7 @@ async def display_stream_response(
                 if current_response:
                     group_items.append(
                         Panel(
-                            Markdown(current_response),
+                            render_content(current_response),
                             title="LLM",
                             border_style=agent_response_style,
                         )
@@ -173,7 +182,7 @@ async def display_stream_response(
         # NOTE: in final response, show thinking and action before response
         group_items.append(
             Panel(
-                Markdown(full_response),
+                render_content(full_response),
                 title="LLM",
                 border_style=agent_response_style,
             )
