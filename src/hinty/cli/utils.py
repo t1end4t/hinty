@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
 
+from loguru import logger
 from prompt_toolkit import PromptSession
 from rich.console import Console, Group
 from rich.live import Live
@@ -40,6 +41,7 @@ async def display_stream_response(
     stream: AsyncGenerator[AgentResponse, None], console: Console
 ) -> str:
     """Display streaming response and return full response."""
+    logger.info("Starting to display stream response")
     current_response = ""
     current_actions = []
     current_thinking = None
@@ -51,7 +53,8 @@ async def display_stream_response(
         refresh_per_second=REFRESH_RATE,
     )
     live.start()
-    async for partial in stream:
+    try:
+        async for partial in stream:
         # show thinking
         if partial.thinking:
             current_thinking = partial.thinking
@@ -118,10 +121,13 @@ async def display_stream_response(
                     f"[bold {agent_action_style}]{', '.join(current_actions)}[/]"
                 )
             live.update(Group(*group_items))
-
-    # Clear the live display before stopping
-    live.update("")
-    live.stop()
+    except Exception as e:
+        logger.error(f"Error during stream response display: {e}")
+        raise
+    finally:
+        # Clear the live display before stopping
+        live.update("")
+        live.stop()
 
     # Print final response normally (cursor stays at bottom)
     if full_response:
@@ -150,6 +156,7 @@ async def display_stream_response(
         # add new line
         console.print()
 
+    logger.info("Finished displaying stream response")
     return full_response
 
 
@@ -171,9 +178,15 @@ def get_user_input(
     session: PromptSession, project_manager: ProjectManager
 ) -> str:
     """Prompt for and return user input."""
-
+    logger.info("Prompting for user input")
     prompt_text = f"{project_manager.mode.value} >> "
-    return session.prompt(
-        prompt_text,
-        style=catppuccin_mocha_style,
-    )
+    try:
+        result = session.prompt(
+            prompt_text,
+            style=catppuccin_mocha_style,
+        )
+        logger.debug(f"User input received: {len(result)} characters")
+        return result
+    except Exception as e:
+        logger.error(f"Error getting user input: {e}")
+        raise
