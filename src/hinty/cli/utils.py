@@ -260,7 +260,7 @@ async def copy_command(
             preview = first_line[:50]
             if len(first_line) > 50:
                 preview += "..."
-            options.append((i, f"Code block {i + 1}: {preview}"))
+            options.append((str(i), f"Code block {i + 1}: {preview}"))
 
     # Show single choice menu
     try:
@@ -278,7 +278,7 @@ async def copy_command(
         content_to_copy = last_msg.content
     else:
         # selected is the index of the code block
-        content_to_copy = code_blocks[selected]
+        content_to_copy = code_blocks[int(selected)]
 
     pyperclip.copy(content_to_copy)
     console.print("Copied to clipboard.\n", style=YELLOW)
