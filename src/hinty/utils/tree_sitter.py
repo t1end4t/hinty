@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Dict
 from tree_sitter import Parser, Node, Language
+from loguru import logger
 import tree_sitter_python as tspython
 import tree_sitter_javascript as tsjavascript
 import tree_sitter_typescript as tstypescript
@@ -165,7 +166,11 @@ def get_all_objects(file_path: Path) -> List[str]:
 
     try:
         content = file_path.read_bytes()
-    except (FileNotFoundError, UnicodeDecodeError):
+    except FileNotFoundError:
+        logger.error(f"File {file_path} not found")
+        return []
+    except UnicodeDecodeError:
+        logger.error(f"Failed to decode file {file_path}")
         return []
 
     parser = Parser(language=language)
