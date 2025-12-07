@@ -214,7 +214,6 @@ async def _chat():
         project_manager,
         controller,
     ) = _initialize_conversation()
-    logger.debug(f"Conversation initialized in {time.time() - start_time:.2f}s")
     session = _setup_session(project_manager)
     logger.debug(f"Session set up in {time.time() - start_time:.2f}s")
     await _handle_input_loop(
