@@ -25,13 +25,15 @@ def prompt_continuation(width, line_number, wrap_count):
 # Custom key bindings: Enter to accept, Shift+Enter to insert newline
 bindings = KeyBindings()
 
-@bindings.add('enter')
+
+@bindings.add("enter")
 def _(event):
     event.current_buffer.validate_and_handle()
 
-@bindings.add('shift+enter')
+
+@bindings.add("shift+enter")
 def _(event):
-    event.current_buffer.insert_text('\n')
+    event.current_buffer.insert_text("\n")
 
 
 if __name__ == "__main__":
