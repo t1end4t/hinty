@@ -20,7 +20,7 @@ from ..core.models import AgentResponse
 console = Console()
 
 # Constants for readability
-REFRESH_RATE = 10
+REFRESH_RATE = 100
 WELCOME_MESSAGE = (
     "Welcome to the Hinty CLI! Press Enter on an empty line to quit."
 )
@@ -49,8 +49,7 @@ async def display_stream_response(
     console_height = console.height
 
     live = Live(
-        console=console,
-        refresh_per_second=REFRESH_RATE,
+        console=console, refresh_per_second=REFRESH_RATE, transient=True
     )
     live.start()
     try:

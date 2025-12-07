@@ -7,7 +7,8 @@
       1. [ ] rag -> SKIP FOR NOW
    2. [ ] Make it different than aider (not create code, just hint)
    3. [ ] Easy to copy/paste (especially code block)
-   4. [ ] Handle images, PDFs, etc.
+   4. [ ] Handle common files
+   5. [ ] Handle images, PDFs, etc.
 2. [ ] Coding agent
    1. [ ] Rewrite logic
    2. [ ] add ask mode
@@ -29,9 +30,10 @@
 
 # Fix bug
 
-1. [ ] If added file, can not add it anymore (should not show in suggestion)
-2. [ ] logging should in file
-3. [ ] slow when startup
+1. [ ] Separate between prompt and response
+2. [ ] If added file, can not add it anymore (should not show in suggestion)
+3. [ ] logging should in file
+4. [ ] slow when startup
 
 # Agents
 
