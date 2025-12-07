@@ -1,6 +1,7 @@
 import asyncio
 import re
 import threading
+import time
 from typing import List
 
 import click
@@ -204,14 +205,18 @@ async def _handle_input_loop(
 # Minimal LLM chat interface
 async def _chat():
     """Run the chat interface."""
+    start_time = time.time()
     logger.debug("Starting chat")
     print_welcome()
+    logger.debug(f"Welcome printed in {time.time() - start_time:.2f}s")
     (
         conversation_history,
         project_manager,
         controller,
     ) = _initialize_conversation()
+    logger.debug(f"Conversation initialized in {time.time() - start_time:.2f}s")
     session = _setup_session(project_manager)
+    logger.debug(f"Session set up in {time.time() - start_time:.2f}s")
     await _handle_input_loop(
         session, conversation_history, project_manager, controller
     )
