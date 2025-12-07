@@ -99,6 +99,8 @@ async def handle_chatgpt_mode(
             yield AgentResponse(response=chunk.response)
         final_response = stream.get_final_response()
         yield AgentResponse(response=final_response.response)
+        if chatgpt_collector.last:
+            logger.info(f"ChatGPT mode usage: {chatgpt_collector.last.usage}")
 
         if final_response.tool_call is None:
             break
