@@ -39,17 +39,6 @@ WELCOME_MESSAGE = (
 )
 
 
-def prompt_continuation(width, line_number, wrap_count):
-    """
-    The continuation: display line numbers and '->' before soft wraps.
-    """
-    if wrap_count > 0:
-        return " " * (width - 3) + "-> "
-    else:
-        text = ("- %i - " % (line_number + 1)).rjust(width)
-        return HTML("<strong>%s</strong>") % text
-
-
 # Custom key bindings: Enter to accept, Shift+Enter to insert newline
 bindings = KeyBindings()
 
@@ -217,6 +206,13 @@ def get_user_input(
     """Prompt for and return user input."""
     logger.info("Prompting for user input")
     prompt_text = f"{project_manager.mode.value} >> "
+
+    def prompt_continuation(width, line_number, wrap_count):
+        if wrap_count > 0:
+            return " " * len(prompt_text) + "-> "
+        else:
+            return prompt_text
+
     try:
         result = session.prompt(
             prompt_text,
