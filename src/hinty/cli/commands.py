@@ -149,7 +149,7 @@ class CommandCompleter(Completer):
             yield from self._get_object_completions(document, complete_event)
 
 
-def handle_command(
+async def handle_command(
     command: str,
     console: Console,
     conversation_history: List[ConversationMessage],
@@ -162,11 +162,11 @@ def handle_command(
     elif command == "/clear":
         clear_command(console, conversation_history)
     elif command.startswith("/copy"):
-        copy_command(command, console, conversation_history)
+        await copy_command(command, console, conversation_history)
     elif command.startswith("/mode"):
         mode_command(command, console, project_manager)
     elif command.startswith("/add"):
-        add_command(command, console, project_manager)
+        await add_command(command, console, project_manager)
     elif command == "/files":
         files_command(console, project_manager)
     elif command.startswith("/drop"):

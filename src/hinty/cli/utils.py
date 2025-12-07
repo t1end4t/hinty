@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 import threading
@@ -229,7 +230,7 @@ def clear_command(
     console.print("Conversation history and chat cleared.\n", style=YELLOW)
 
 
-def copy_command(
+async def copy_command(
     command: str,
     console: Console,
     conversation_history: List[ConversationMessage],
@@ -263,7 +264,8 @@ def copy_command(
 
     # Show single choice menu
     try:
-        selected = choice(
+        selected = await asyncio.to_thread(
+            choice,
             message="What to copy?",
             options=options,
         )
@@ -307,7 +309,7 @@ def mode_command(
         )
 
 
-def add_command(
+async def add_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Add files to context for the agent/LLM."""
@@ -330,8 +332,8 @@ def add_command(
                         project_manager.project_root
                     )
                     all_files.append(str(rel_path))
-        selected_files = fzf.prompt(
-            all_files, "--multi"
+        selected_files = await asyncio.to_thread(
+            fzf.prompt, all_files, "--multi"
         )  # Multi-select with fuzzy search
         if not selected_files:
             console.print("No files selected.\n", style=YELLOW)
