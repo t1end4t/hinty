@@ -248,10 +248,10 @@ def copy_command(
     code_blocks = re.findall(
         r"```[\w]*\n(.*?)\n```", last_msg.content, re.DOTALL
     )
-    
+
     # Build options list: full content first, then code blocks
     options = [("full", "Full content")]
-    
+
     if code_blocks:
         for i, block in enumerate(code_blocks):
             # Get first line or first 50 chars as preview
@@ -260,7 +260,7 @@ def copy_command(
             if len(first_line) > 50:
                 preview += "..."
             options.append((i, f"Code block {i + 1}: {preview}"))
-    
+
     # Show single choice menu
     try:
         selected = choice(
@@ -270,7 +270,7 @@ def copy_command(
     except KeyboardInterrupt:
         console.print("Copy cancelled.\n", style=YELLOW)
         return
-    
+
     # Determine content to copy
     if selected == "full":
         content_to_copy = last_msg.content
