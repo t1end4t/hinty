@@ -162,7 +162,7 @@ async def handle_command(
     elif command == "/clear":
         clear_command(console, conversation_history)
     elif command.startswith("/copy"):
-        await copy_command(command, console, conversation_history)
+        await copy_command(console, conversation_history)
     elif command.startswith("/mode"):
         mode_command(command, console, project_manager)
     elif command.startswith("/add"):
