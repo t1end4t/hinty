@@ -214,7 +214,7 @@ def help_command(console: Console):
         "/add   <file>              - Add file to context (or interactive selection if no files)\n"
         "/drop  <file>              - Drop file from context by name, or all if no file\n"
         "/mode  <mode>              - Change the current mode\n"
-        "/copy  <full|code `index`> - Copy last response or code blocks\n"
+        "/copy                      - Copy last response or code blocks (interactive)\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=YELLOW)
