@@ -175,7 +175,9 @@ def _copy_command(
     for msg in reversed(conversation_history):
         if msg.role == "assistant":
             pyperclip.copy(msg.content)
-            console.print("Last LLM response copied to clipboard.\n", style=YELLOW)
+            console.print(
+                "Last LLM response copied to clipboard.\n", style=YELLOW
+            )
             return
     console.print("No LLM response found.\n", style=YELLOW)
 
