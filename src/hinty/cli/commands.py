@@ -41,7 +41,12 @@ commands = [
 
 
 class CommandCompleter(Completer):
-    def __init__(self, commands, project_manager: ProjectManager, conversation_history: List[ConversationMessage]):
+    def __init__(
+        self,
+        commands,
+        project_manager: ProjectManager,
+        conversation_history: List[ConversationMessage],
+    ):
         self.commands = commands
         self.project_manager = project_manager
         self.conversation_history = conversation_history
@@ -87,7 +92,9 @@ class CommandCompleter(Completer):
         self, document: Document, complete_event: CompleteEvent
     ):
         text = document.text_before_cursor
-        after_copy = text[len("/copy ") :].strip() if text.startswith("/copy ") else ""
+        after_copy = (
+            text[len("/copy ") :].strip() if text.startswith("/copy ") else ""
+        )
         parts = after_copy.split()
         if len(parts) == 0:
             # Suggest "full" and "code"
@@ -101,7 +108,9 @@ class CommandCompleter(Completer):
                         r"```[\w]*\n(.*?)\n```", msg.content, re.DOTALL
                     )
                     for i in range(1, len(code_blocks) + 1):
-                        yield Completion(str(i), start_position=0, display=str(i))
+                        yield Completion(
+                            str(i), start_position=0, display=str(i)
+                        )
                     break
 
     def _get_object_completions(
