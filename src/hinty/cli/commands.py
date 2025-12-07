@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from typing import List
 
+from loguru import logger
 from prompt_toolkit.completion import (
     CompleteEvent,
     Completer,
@@ -179,8 +180,10 @@ def _mode_command(
     try:
         new_mode = Mode.from_string(mode_str)
         project_manager.change_mode(new_mode)
+        logger.info(f"Mode changed to {new_mode.value}")
         console.print(f"Mode changed to {new_mode.value}\n", style=YELLOW)
-    except ValueError:
+    except ValueError as e:
+        logger.error(f"Invalid mode attempted: {mode_str}, error: {e}")
         console.print(
             f"Invalid mode: {mode_str}. Available modes: {', '.join(Mode.get_values())}\n",
             style=YELLOW,
@@ -225,8 +228,10 @@ def _add_command(
         full_path = project_manager.project_root / file_path
         if full_path.is_file():
             project_manager.attach_file(full_path)
+            logger.info(f"Attached file: {file_path}")
             console.print(f"Attached file: {file_path}\n", style=YELLOW)
         else:
+            logger.warning(f"File not found: {file_path}")
             console.print(f"File not found: {file_path}\n", style=YELLOW)
 
     # Load objects for attached files
@@ -252,6 +257,7 @@ def _drop_command(
     parts = command.split()
     if len(parts) == 1:
         project_manager.detach_file(remove_all=True)
+        logger.info("All files dropped from context")
         console.print("All files dropped from context.\n", style=YELLOW)
     else:
         # File names provided: drop specific files
@@ -262,10 +268,12 @@ def _drop_command(
             ]:  # Copy to avoid modification during iteration
                 if file_path.name == file_name:
                     project_manager.detach_file(file_path)
+                    logger.info(f"Dropped file: {file_path}")
                     console.print(f"Dropped file: {file_path}\n", style=YELLOW)
                     found = True
                     break
             if not found:
+                logger.warning(f"File not found for drop: {file_name}")
                 console.print(f"File not found: {file_name}\n", style=YELLOW)
 
     # Update objects cache after detaching files
@@ -281,6 +289,7 @@ def handle_command(
     project_manager: ProjectManager,
 ):
     """Dispatch commands to their handlers."""
+    logger.debug(f"Handling command: {command}")
     if command == "/help":
         _help_command(console)
     elif command == "/clear":
@@ -294,7 +303,9 @@ def handle_command(
     elif command.startswith("/drop"):
         _drop_command(command, console, project_manager)
     elif command in ["/exit", "/quit"]:
+        logger.info("Exiting CLI")
         console.print("Exiting CLI...\n", style=YELLOW)
         raise SystemExit
     else:
+        logger.warning(f"Unknown command: {command}")
         console.print(f"Unknown command: {command}\n", style=YELLOW)
