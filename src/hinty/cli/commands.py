@@ -1,10 +1,6 @@
-import os
 import re
-import threading
-from pathlib import Path
 from typing import List
 
-import pyperclip
 from loguru import logger
 from prompt_toolkit.completion import (
     CompleteEvent,
@@ -15,23 +11,20 @@ from prompt_toolkit.completion import (
     PathCompleter,
 )
 from prompt_toolkit.document import Document
-from pyfzf import pyfzf
 from rich.console import Console
-from rich.panel import Panel
 
 from ..baml_client.types import ConversationMessage
 from ..core.models import Mode
 from ..core.project_manager import ProjectManager
-from ..utils.cache import cache_objects
 from .theme import YELLOW
 from .utils import (
-    _add_command,
-    _clear_command,
-    _copy_command,
-    _drop_command,
-    _files_command,
-    _help_command,
-    _mode_command,
+    add_command,
+    clear_command,
+    copy_command,
+    drop_command,
+    files_command,
+    help_command,
+    mode_command,
 )
 
 commands = [
@@ -159,19 +152,19 @@ def handle_command(
     """Dispatch commands to their handlers."""
     logger.debug(f"Handling command: {command}")
     if command == "/help":
-        _help_command(console)
+        help_command(console)
     elif command == "/clear":
-        _clear_command(console, conversation_history)
+        clear_command(console, conversation_history)
     elif command.startswith("/copy"):
-        _copy_command(command, console, conversation_history)
+        copy_command(command, console, conversation_history)
     elif command.startswith("/mode"):
-        _mode_command(command, console, project_manager)
+        mode_command(command, console, project_manager)
     elif command.startswith("/add"):
-        _add_command(command, console, project_manager)
+        add_command(command, console, project_manager)
     elif command == "/files":
-        _files_command(console, project_manager)
+        files_command(console, project_manager)
     elif command.startswith("/drop"):
-        _drop_command(command, console, project_manager)
+        drop_command(command, console, project_manager)
     elif command in ["/exit", "/quit"]:
         logger.info("Exiting CLI")
         console.print("Exiting CLI...\n", style=YELLOW)

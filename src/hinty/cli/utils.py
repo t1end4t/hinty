@@ -1,12 +1,19 @@
-from typing import AsyncGenerator
+import os
+import re
+import threading
+from pathlib import Path
+from typing import AsyncGenerator, List
 
+import pyperclip
 from loguru import logger
 from prompt_toolkit import PromptSession
+from pyfzf import pyfzf
 from rich.console import Console, Group
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
 
+from ..baml_client.types import ConversationMessage
 from ..cli.theme import (
     agent_action_style,
     agent_response_style,
@@ -14,19 +21,8 @@ from ..cli.theme import (
     catppuccin_mocha_style,
     context_style,
 )
-from ..core.project_manager import ProjectManager
-import os
-import re
-import threading
-from pathlib import Path
-from typing import List
-
-import pyperclip
-from pyfzf import pyfzf
-from rich.panel import Panel
-
-from ..baml_client.types import ConversationMessage
 from ..core.models import AgentResponse, Mode
+from ..core.project_manager import ProjectManager
 from ..utils.cache import cache_objects
 from .theme import YELLOW
 
@@ -204,7 +200,7 @@ def get_user_input(
         raise
 
 
-def _help_command(console: Console):
+def help_command(console: Console):
     """Display help information for CLI commands."""
     help_text = (
         "Available commands:\n"
@@ -223,7 +219,7 @@ def _help_command(console: Console):
     console.print(panel, style=YELLOW)
 
 
-def _clear_command(
+def clear_command(
     console: Console, conversation_history: List[ConversationMessage]
 ):
     """Clear conversation history and chat display."""
@@ -232,7 +228,7 @@ def _clear_command(
     console.print("Conversation history and chat cleared.\n", style=YELLOW)
 
 
-def _copy_command(
+def copy_command(
     command: str,
     console: Console,
     conversation_history: List[ConversationMessage],
@@ -275,7 +271,7 @@ def _copy_command(
     console.print("No LLM response found.\n", style=YELLOW)
 
 
-def _mode_command(
+def mode_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Change the current mode."""
@@ -300,7 +296,7 @@ def _mode_command(
         )
 
 
-def _add_command(
+def add_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Add files to context for the agent/LLM."""
@@ -354,7 +350,7 @@ def _add_command(
     ).start()
 
 
-def _files_command(console: Console, project_manager: ProjectManager):
+def files_command(console: Console, project_manager: ProjectManager):
     """List current files in context."""
     if not project_manager.get_attached_files():
         console.print("No files attached.\n", style=YELLOW)
@@ -364,7 +360,7 @@ def _files_command(console: Console, project_manager: ProjectManager):
             console.print(f"  {i}: {file_path}\n", style=YELLOW)
 
 
-def _drop_command(
+def drop_command(
     command: str, console: Console, project_manager: ProjectManager
 ):
     """Drop files from context by name, or all if no file provided."""
