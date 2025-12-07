@@ -18,6 +18,7 @@ dependencies = [
   "pydantic>=2.12.4",
   "pyfzf>=0.3.1",
   "pypdf>=6.4.0",
+  "pyperclip>=1.11.0",
   "rich>=14.2.0",
   "tavily-python>=0.7.13",
   "textual>=6.7.0",
@@ -42,6 +43,3 @@ dev = ["dotenv>=0.9.9"]
 
 [project.scripts]
 hinty = "hinty.main:cli"
-
-[tool.uv.extra-build-dependencies]
-"tree-format-0.1.2" = ["setuptools"]

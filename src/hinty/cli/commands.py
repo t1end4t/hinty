@@ -255,7 +255,10 @@ def _add_command(
     # Load objects for attached files
     threading.Thread(
         target=cache_objects,
-        args=(project_manager.get_attached_files(), project_manager.objects_cache),
+        args=(
+            project_manager.get_attached_files(),
+            project_manager.objects_cache,
+        ),
     ).start()
 
 
@@ -298,7 +301,10 @@ def _drop_command(
     # Update objects cache after detaching files
     threading.Thread(
         target=cache_objects,
-        args=(project_manager.get_attached_files(), project_manager.objects_cache),
+        args=(
+            project_manager.get_attached_files(),
+            project_manager.objects_cache,
+        ),
     ).start()
 
 
