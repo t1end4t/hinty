@@ -235,43 +235,58 @@ def copy_command(
     conversation_history: List[ConversationMessage],
 ):
     """Copy the last LLM response or parts of it to clipboard."""
-    parts = command.split()
-    copy_type = parts[1] if len(parts) > 1 else "full"
-
+    # Find the last assistant message
+    last_msg = None
     for msg in reversed(conversation_history):
         if msg.role == "assistant":
-            if copy_type == "code":
-                code_blocks = re.findall(
-                    r"```[\w]*\n(.*?)\n```", msg.content, re.DOTALL
-                )
-                if not code_blocks:
-                    console.print("No code blocks found.\n", style=YELLOW)
-                    return
-                options = [
-                    (i, f"Block {i + 1}: {block.splitlines()[0][:50]}...")
-                    for i, block in enumerate(code_blocks)
-                ]
-                if len(options) == 1:
-                    selected_index = 0
-                else:
-                    try:
-                        selected_index = choice(
-                            message="Choose a code block to copy:",
-                            options=options,
-                        )
-                    except KeyboardInterrupt:
-                        console.print("Copy cancelled.\n", style=YELLOW)
-                        return
-                content_to_copy = code_blocks[selected_index]
-            else:
-                content_to_copy = msg.content
-
-            # pyperclip.copy(content_to_copy)
-            console.print(
-                f"Copied {copy_type} content to clipboard.\n", style=YELLOW
+            last_msg = msg
+            break
+    if not last_msg:
+        console.print("No LLM response found.\n", style=YELLOW)
+        return
+    
+    code_blocks = re.findall(
+        r"```[\w]*\n(.*?)\n```", last_msg.content, re.DOTALL
+    )
+    if code_blocks:
+        # Offer choice between full and code
+        options = [
+            ("full", "Full response"),
+            ("code", "Code blocks"),
+        ]
+        try:
+            selected_type = choice(
+                message="What to copy?",
+                options=options,
             )
+        except KeyboardInterrupt:
+            console.print("Copy cancelled.\n", style=YELLOW)
             return
-    console.print("No LLM response found.\n", style=YELLOW)
+        if selected_type == "full":
+            content_to_copy = last_msg.content
+        elif selected_type == "code":
+            # Choose which block
+            block_options = [
+                (i, f"Block {i + 1}: {block.splitlines()[0][:50]}...")
+                for i, block in enumerate(code_blocks)
+            ]
+            if len(block_options) == 1:
+                selected_index = 0
+            else:
+                try:
+                    selected_index = choice(
+                        message="Choose a code block to copy:",
+                        options=block_options,
+                    )
+                except KeyboardInterrupt:
+                    console.print("Copy cancelled.\n", style=YELLOW)
+                    return
+            content_to_copy = code_blocks[selected_index]
+    else:
+        content_to_copy = last_msg.content
+    
+    pyperclip.copy(content_to_copy)
+    console.print("Copied to clipboard.\n", style=YELLOW)
 
 
 def mode_command(
