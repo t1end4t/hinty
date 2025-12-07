@@ -244,7 +244,7 @@ def copy_command(
     if not last_msg:
         console.print("No LLM response found.\n", style=YELLOW)
         return
-    
+
     code_blocks = re.findall(
         r"```[\w]*\n(.*?)\n```", last_msg.content, re.DOTALL
     )
@@ -284,7 +284,7 @@ def copy_command(
             content_to_copy = code_blocks[selected_index]
     else:
         content_to_copy = last_msg.content
-    
+
     pyperclip.copy(content_to_copy)
     console.print("Copied to clipboard.\n", style=YELLOW)
 
