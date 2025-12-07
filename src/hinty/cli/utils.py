@@ -8,7 +8,6 @@ from typing import AsyncGenerator, List
 import pyperclip
 from loguru import logger
 from prompt_toolkit import PromptSession
-from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import choice
 from pyfzf import pyfzf
@@ -39,7 +38,7 @@ WELCOME_MESSAGE = (
 )
 
 
-# Custom key bindings: Enter to accept, Shift+Enter to insert newline
+# Custom key bindings: Enter to accept, Alt+Enter to insert newline
 bindings = KeyBindings()
 
 
@@ -48,6 +47,7 @@ def _(event):
     event.current_buffer.validate_and_handle()
 
 
+# Vt100 terminals translate the alt key into a leading escape key
 @bindings.add("escape", "enter")
 def _(event):
     event.current_buffer.insert_text("\n")
