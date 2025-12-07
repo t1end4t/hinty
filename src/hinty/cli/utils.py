@@ -266,7 +266,7 @@ def copy_command(
             else:
                 content_to_copy = msg.content
 
-            pyperclip.copy(content_to_copy)
+            # pyperclip.copy(content_to_copy)
             console.print(
                 f"Copied {copy_type} content to clipboard.\n", style=YELLOW
             )
