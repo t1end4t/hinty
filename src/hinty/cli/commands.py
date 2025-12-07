@@ -145,15 +145,15 @@ def _help_command(console: Console):
     """Display help information for CLI commands."""
     help_text = (
         "Available commands:\n"
-        "/clear        - Clear conversation history and chat\n"
-        "/copy [full|code [index]] - Copy last response or code blocks\n"
-        "/exit         - Exit the CLI\n"
-        "/files        - List current files in context\n"
-        "/help         - Show this help message\n"
-        "/quit         - Quit the CLI\n"
-        "/add   <file> - Add file to context (or interactive selection if no files)\n"
-        "/drop  <file> - Drop file from context by name, or all if no file\n"
-        "/mode  <mode> - Change the current mode\n"
+        "/clear                     - Clear conversation history and chat\n"
+        "/exit                      - Exit the CLI\n"
+        "/files                     - List current files in context\n"
+        "/help                      - Show this help message\n"
+        "/quit                      - Quit the CLI\n"
+        "/add   <file>              - Add file to context (or interactive selection if no files)\n"
+        "/drop  <file>              - Drop file from context by name, or all if no file\n"
+        "/mode  <mode>              - Change the current mode\n"
+        "/copy  <full|code `index`> - Copy last response or code blocks\n"
         "Type a message to chat with Hinty. Use / to invoke commands."
     )
     panel = Panel(help_text, title="Help", border_style=YELLOW)
@@ -170,18 +170,21 @@ def _clear_command(
 
 
 def _copy_command(
-    command: str, console: Console, conversation_history: List[ConversationMessage]
+    command: str,
+    console: Console,
+    conversation_history: List[ConversationMessage],
 ):
     """Copy the last LLM response or parts of it to clipboard."""
     parts = command.split()
     copy_type = parts[1] if len(parts) > 1 else "full"
     index = int(parts[2]) - 1 if len(parts) > 2 and parts[2].isdigit() else None
-    
+
     for msg in reversed(conversation_history):
         if msg.role == "assistant":
             if copy_type == "code":
-                import re
-                code_blocks = re.findall(r'```[\w]*\n(.*?)\n```', msg.content, re.DOTALL)
+                code_blocks = re.findall(
+                    r"```[\w]*\n(.*?)\n```", msg.content, re.DOTALL
+                )
                 if not code_blocks:
                     console.print("No code blocks found.\n", style=YELLOW)
                     return
@@ -189,15 +192,22 @@ def _copy_command(
                     if 0 <= index < len(code_blocks):
                         content_to_copy = code_blocks[index]
                     else:
-                        console.print(f"Invalid code block index. Found {len(code_blocks)} blocks.\n", style=YELLOW)
+                        console.print(
+                            f"Invalid code block index. Found {len(code_blocks)} blocks.\n",
+                            style=YELLOW,
+                        )
                         return
                 else:
-                    content_to_copy = '\n\n'.join(code_blocks)  # All blocks if no index
+                    content_to_copy = "\n\n".join(
+                        code_blocks
+                    )  # All blocks if no index
             else:
                 content_to_copy = msg.content
-            
+
             pyperclip.copy(content_to_copy)
-            console.print(f"Copied {copy_type} content to clipboard.\n", style=YELLOW)
+            console.print(
+                f"Copied {copy_type} content to clipboard.\n", style=YELLOW
+            )
             return
     console.print("No LLM response found.\n", style=YELLOW)
 
