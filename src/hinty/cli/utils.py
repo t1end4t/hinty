@@ -89,7 +89,14 @@ def _build_group_items(current_thinking, current_response, current_actions):
     return group_items
 
 
-def _update_state(partial, current_response, current_actions, current_thinking, full_response, console_height):
+def _update_state(
+    partial,
+    current_response,
+    current_actions,
+    current_thinking,
+    full_response,
+    console_height,
+):
     """Update current state from partial response."""
     if partial.thinking:
         current_thinking = partial.thinking
@@ -108,7 +115,9 @@ def _update_state(partial, current_response, current_actions, current_thinking, 
     return current_response, current_actions, current_thinking, full_response
 
 
-def _print_final_response(current_thinking, current_actions, full_response, console):
+def _print_final_response(
+    current_thinking, current_actions, full_response, console
+):
     """Print the final response after streaming."""
     if full_response:
         group_items = []
@@ -151,10 +160,22 @@ async def display_stream_response(
     live.start()
     try:
         async for partial in stream:
-            current_response, current_actions, current_thinking, full_response = _update_state(
-                partial, current_response, current_actions, current_thinking, full_response, console_height
+            (
+                current_response,
+                current_actions,
+                current_thinking,
+                full_response,
+            ) = _update_state(
+                partial,
+                current_response,
+                current_actions,
+                current_thinking,
+                full_response,
+                console_height,
             )
-            group_items = _build_group_items(current_thinking, current_response, current_actions)
+            group_items = _build_group_items(
+                current_thinking, current_response, current_actions
+            )
             live.update(Group(*group_items))
     except Exception as e:
         logger.error(f"Error during stream response display: {e}")
@@ -163,7 +184,9 @@ async def display_stream_response(
         live.update("")
         live.stop()
 
-    _print_final_response(current_thinking, current_actions, full_response, console)
+    _print_final_response(
+        current_thinking, current_actions, full_response, console
+    )
 
     logger.info("Finished displaying stream response")
     return full_response
