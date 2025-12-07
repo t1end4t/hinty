@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.key_binding import KeyBindings
 
 
 def prompt_continuation(width, line_number, wrap_count):
@@ -21,11 +22,24 @@ def prompt_continuation(width, line_number, wrap_count):
         return HTML("<strong>%s</strong>") % text
 
 
+# Custom key bindings: Enter to accept, Shift+Enter to insert newline
+bindings = KeyBindings()
+
+@bindings.add('enter')
+def _(event):
+    event.current_buffer.validate_and_handle()
+
+@bindings.add('shift+enter')
+def _(event):
+    event.current_buffer.insert_text('\n')
+
+
 if __name__ == "__main__":
-    print("Press [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
+    print("Press [Enter] to accept input, [Shift+Enter] to add a new line.")
     answer = prompt(
         "Multiline input: ",
         multiline=True,
         prompt_continuation=prompt_continuation,
+        key_bindings=bindings,
     )
     print(f"You said: {answer}")
