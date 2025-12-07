@@ -42,3 +42,4 @@
 3. [ ] Researcher
 4. [ ] Writer
 5. [ ] Work with second-brain
+6. [ ] Experiment env for researcher

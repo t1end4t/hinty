@@ -146,7 +146,7 @@ def _help_command(console: Console):
     help_text = (
         "Available commands:\n"
         "/clear        - Clear conversation history and chat\n"
-        "/copy         - Copy the last LLM response to clipboard\n"
+        "/copy [full|code [index]] - Copy last response or code blocks\n"
         "/exit         - Exit the CLI\n"
         "/files        - List current files in context\n"
         "/help         - Show this help message\n"
@@ -170,15 +170,34 @@ def _clear_command(
 
 
 def _copy_command(
-    console: Console, conversation_history: List[ConversationMessage]
+    command: str, console: Console, conversation_history: List[ConversationMessage]
 ):
-    """Copy the last LLM response to clipboard."""
+    """Copy the last LLM response or parts of it to clipboard."""
+    parts = command.split()
+    copy_type = parts[1] if len(parts) > 1 else "full"
+    index = int(parts[2]) - 1 if len(parts) > 2 and parts[2].isdigit() else None
+    
     for msg in reversed(conversation_history):
         if msg.role == "assistant":
-            pyperclip.copy(msg.content)
-            console.print(
-                "Last LLM response copied to clipboard.\n", style=YELLOW
-            )
+            if copy_type == "code":
+                import re
+                code_blocks = re.findall(r'```[\w]*\n(.*?)\n```', msg.content, re.DOTALL)
+                if not code_blocks:
+                    console.print("No code blocks found.\n", style=YELLOW)
+                    return
+                if index is not None:
+                    if 0 <= index < len(code_blocks):
+                        content_to_copy = code_blocks[index]
+                    else:
+                        console.print(f"Invalid code block index. Found {len(code_blocks)} blocks.\n", style=YELLOW)
+                        return
+                else:
+                    content_to_copy = '\n\n'.join(code_blocks)  # All blocks if no index
+            else:
+                content_to_copy = msg.content
+            
+            pyperclip.copy(content_to_copy)
+            console.print(f"Copied {copy_type} content to clipboard.\n", style=YELLOW)
             return
     console.print("No LLM response found.\n", style=YELLOW)
 
@@ -320,8 +339,8 @@ def handle_command(
         _help_command(console)
     elif command == "/clear":
         _clear_command(console, conversation_history)
-    elif command == "/copy":
-        _copy_command(console, conversation_history)
+    elif command.startswith("/copy"):
+        _copy_command(command, console, conversation_history)
     elif command.startswith("/mode"):
         _mode_command(command, console, project_manager)
     elif command.startswith("/add"):
