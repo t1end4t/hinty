@@ -78,8 +78,6 @@ def cache_available_files(
 
     _write_file_cache(filtered_files, project_root, available_files_cache)
 
-    logger.info(f"Cached {len(filtered_files)} files")
-
 
 def _collect_objects_from_files(files: List[Path]) -> set[str]:
     """Collect all unique objects from given files."""
@@ -103,5 +101,3 @@ def cache_objects(files: List[Path], objects_cache: Path) -> None:
     """Cache all objects for given files."""
     all_objects = _collect_objects_from_files(files)
     _write_objects_cache(all_objects, objects_cache)
-
-    logger.info(f"Cached {len(all_objects)} unique objects")
