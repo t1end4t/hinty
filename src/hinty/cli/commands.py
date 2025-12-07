@@ -1,5 +1,6 @@
 import os
 import re
+import threading
 from pathlib import Path
 from typing import List
 
@@ -252,9 +253,10 @@ def _add_command(
             console.print(f"File not found: {file_path}\n", style=YELLOW)
 
     # Load objects for attached files
-    cache_objects(
-        project_manager.get_attached_files(), project_manager.objects_cache
-    )
+    threading.Thread(
+        target=cache_objects,
+        args=(project_manager.get_attached_files(), project_manager.objects_cache),
+    ).start()
 
 
 def _files_command(console: Console, project_manager: ProjectManager):
@@ -294,9 +296,10 @@ def _drop_command(
                 console.print(f"File not found: {file_name}\n", style=YELLOW)
 
     # Update objects cache after detaching files
-    cache_objects(
-        project_manager.get_attached_files(), project_manager.objects_cache
-    )
+    threading.Thread(
+        target=cache_objects,
+        args=(project_manager.get_attached_files(), project_manager.objects_cache),
+    ).start()
 
 
 def handle_command(
