@@ -7,6 +7,7 @@ from typing import AsyncGenerator, List
 import pyperclip
 from loguru import logger
 from prompt_toolkit import PromptSession
+from prompt_toolkit.shortcuts import choice
 from pyfzf import pyfzf
 from rich.console import Console, Group
 from rich.live import Live
@@ -236,7 +237,6 @@ def copy_command(
     """Copy the last LLM response or parts of it to clipboard."""
     parts = command.split()
     copy_type = parts[1] if len(parts) > 1 else "full"
-    index = int(parts[2]) - 1 if len(parts) > 2 and parts[2].isdigit() else None
 
     for msg in reversed(conversation_history):
         if msg.role == "assistant":
@@ -247,19 +247,22 @@ def copy_command(
                 if not code_blocks:
                     console.print("No code blocks found.\n", style=YELLOW)
                     return
-                if index is not None:
-                    if 0 <= index < len(code_blocks):
-                        content_to_copy = code_blocks[index]
-                    else:
-                        console.print(
-                            f"Invalid code block index. Found {len(code_blocks)} blocks.\n",
-                            style=YELLOW,
-                        )
-                        return
+                options = [
+                    (i, f"Block {i+1}: {block.split('\n')[0][:50]}...")
+                    for i, block in enumerate(code_blocks)
+                ]
+                if len(options) == 1:
+                    selected_index = 0
                 else:
-                    content_to_copy = "\n\n".join(
-                        code_blocks
-                    )  # All blocks if no index
+                    try:
+                        selected_index = choice(
+                            message="Choose a code block to copy:",
+                            options=options,
+                        )
+                    except KeyboardInterrupt:
+                        console.print("Copy cancelled.\n", style=YELLOW)
+                        return
+                content_to_copy = code_blocks[selected_index]
             else:
                 content_to_copy = msg.content
 
