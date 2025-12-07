@@ -80,9 +80,6 @@ def tool_search_and_replace(
                 results.append(
                     f"Successfully applied {num_changes_applied} change(s) to {file_path}"
                 )
-                logger.info(
-                    f"Successfully applied {num_changes_applied} change(s) to {file_path}"
-                )
             except Exception as e:
                 error_msg = f"Error writing to file {file_path}: {e}"
                 logger.error(error_msg)
@@ -95,7 +92,6 @@ def tool_search_and_replace(
                 results.append(warning_msg)
             else:
                 info_msg = f"No changes applied to {file_path} as content was already compliant or no valid search blocks found."
-                logger.info(info_msg)
                 results.append(info_msg)
 
         if file_errors:
