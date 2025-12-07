@@ -248,42 +248,35 @@ def copy_command(
     code_blocks = re.findall(
         r"```[\w]*\n(.*?)\n```", last_msg.content, re.DOTALL
     )
+    
+    # Build options list: full content first, then code blocks
+    options = [("full", "Full content")]
+    
     if code_blocks:
-        # Offer choice between full and code
-        options = [
-            ("full", "Full response"),
-            ("code", "Code blocks"),
-        ]
-        try:
-            selected_type = choice(
-                message="What to copy?",
-                options=options,
-            )
-        except KeyboardInterrupt:
-            console.print("Copy cancelled.\n", style=YELLOW)
-            return
-        if selected_type == "full":
-            content_to_copy = last_msg.content
-        elif selected_type == "code":
-            # Choose which block
-            block_options = [
-                (i, f"Block {i + 1}: {block.splitlines()[0][:50]}...")
-                for i, block in enumerate(code_blocks)
-            ]
-            if len(block_options) == 1:
-                selected_index = 0
-            else:
-                try:
-                    selected_index = choice(
-                        message="Choose a code block to copy:",
-                        options=block_options,
-                    )
-                except KeyboardInterrupt:
-                    console.print("Copy cancelled.\n", style=YELLOW)
-                    return
-            content_to_copy = code_blocks[selected_index]
-    else:
+        for i, block in enumerate(code_blocks):
+            # Get first line or first 50 chars as preview
+            first_line = block.splitlines()[0] if block.splitlines() else block
+            preview = first_line[:50]
+            if len(first_line) > 50:
+                preview += "..."
+            options.append((i, f"Code block {i + 1}: {preview}"))
+    
+    # Show single choice menu
+    try:
+        selected = choice(
+            message="What to copy?",
+            options=options,
+        )
+    except KeyboardInterrupt:
+        console.print("Copy cancelled.\n", style=YELLOW)
+        return
+    
+    # Determine content to copy
+    if selected == "full":
         content_to_copy = last_msg.content
+    else:
+        # selected is the index of the code block
+        content_to_copy = code_blocks[selected]
 
     pyperclip.copy(content_to_copy)
     console.print("Copied to clipboard.\n", style=YELLOW)
