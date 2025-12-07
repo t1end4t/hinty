@@ -150,7 +150,6 @@ class CommandCompleter(Completer):
             yield from self._get_object_completions(document, complete_event)
 
 
-
 def handle_command(
     command: str,
     console: Console,
