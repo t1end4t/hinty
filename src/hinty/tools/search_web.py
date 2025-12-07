@@ -42,9 +42,6 @@ async def _search_with_google(query: str) -> ToolResult:
             contents=contents,  # type: ignore
             config=config,
         )
-        logger.info(
-            f"Google Gemini web search completed successfully for query: {query}"
-        )
         return ToolResult(name="search_web", success=True, output=response.text)
     except Exception as e:
         logger.error(
@@ -68,9 +65,6 @@ async def _search_with_tavily(query: str) -> ToolResult:
     try:
         client = TavilyClient(api_key=api_key)
         response = await asyncio.to_thread(client.search, query=query)
-        logger.info(
-            f"Tavily web search completed successfully for query: {query}"
-        )
         return ToolResult(
             name="search_web", success=True, output=json.dumps(response)
         )
