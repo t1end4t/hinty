@@ -40,10 +40,10 @@ def call_chatgpt(
         resp = b.stream.ChatGPT(
             user_message,
             conversation_history,
-            additional_files=additional_files,
-            additional_images=additional_images,
-            additional_docs=additional_docs,
-            tool_result=tool_result,
+            additional_files,
+            additional_images,
+            additional_docs,
+            tool_result,
             baml_options={
                 "abort_controller": controller,
                 "client_registry": cr,
@@ -106,7 +106,7 @@ async def handle_chatgpt_mode(
                     {"file_path": str(file_path), "content": content}
                 )
             elif file_type == "pdf":
-                additional_docs.append(Pdf(uri=content))
+                additional_docs.append(Pdf.from_base64(content))
             # Skip images for now
         except Exception as e:
             logger.error(f"Error reading attached file {file_path}: {e}")
