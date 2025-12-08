@@ -36,6 +36,10 @@ class ProjectManager:
                 file_path.touch()
                 logger.info(f"Created metadata file: {file_path}")
 
+        # Ensure images directory exists
+        self.images_directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured images directory exists: {self.images_directory}")
+
     @property
     def mode(self) -> Mode:
         """Get the current mode."""
@@ -65,6 +69,11 @@ class ProjectManager:
     def objects_cache(self) -> Path:
         """Get the path to the objects cache."""
         return self.metadata_directory / "objects.txt"
+
+    @property
+    def images_directory(self) -> Path:
+        """Get the path to the images directory."""
+        return self.metadata_directory / "images"
 
     def get_pdf_cache_path(self, pdf_path: Path) -> Path:
         """Get the cache path for a PDF file."""

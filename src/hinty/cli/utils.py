@@ -12,20 +12,6 @@ from loguru import logger
 
 console = Console()
 
-# Custom key bindings: Enter to accept, Alt+Enter to insert newline
-bindings = KeyBindings()
-
-
-@bindings.add("enter")
-def _(event):
-    event.current_buffer.validate_and_handle()
-
-
-# Vt100 terminals translate the alt key into a leading escape key
-@bindings.add("escape", "enter")
-def _(event):
-    event.current_buffer.insert_text("\n")
-
 
 def _get_clipboard_image():
     """Get image from clipboard if available (supports both Wayland and X11)."""
@@ -56,16 +42,6 @@ def _get_clipboard_image():
         return None
 
 
-@bindings.add("c-v")  # Ctrl+V to paste image from clipboard
-def _(event):
-    img = _get_clipboard_image()
-    if img:
-        img.save("pasted_image.png")
-        event.current_buffer.insert_text("[Image pasted: pasted_image.png]\n")
-    else:
-        event.current_buffer.insert_text("[No image in clipboard]\n")
-
-
 def get_user_input(
     session: PromptSession, project_manager: ProjectManager
 ) -> str:
@@ -78,6 +54,28 @@ def get_user_input(
             return " " * len(prompt_text) + "-> "
         else:
             return prompt_text
+
+    # Custom key bindings: Enter to accept, Alt+Enter to insert newline
+    bindings = KeyBindings()
+
+    @bindings.add("enter")
+    def _(event):
+        event.current_buffer.validate_and_handle()
+
+    # Vt100 terminals translate the alt key into a leading escape key
+    @bindings.add("escape", "enter")
+    def _(event):
+        event.current_buffer.insert_text("\n")
+
+    @bindings.add("c-v")  # Ctrl+V to paste image from clipboard
+    def _(event):
+        img = _get_clipboard_image()
+        if img:
+            img_path = project_manager.images_directory / "pasted_image.png"
+            img.save(img_path)
+            event.current_buffer.insert_text(f"[Image pasted: {img_path}]\n")
+        else:
+            event.current_buffer.insert_text("[No image in clipboard]\n")
 
     try:
         result = session.prompt(
