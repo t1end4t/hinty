@@ -1,15 +1,16 @@
-import subprocess
-from PIL import Image
 import io
 import shutil
+import subprocess
 from datetime import datetime
+
+from loguru import logger
+from PIL import Image
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 
 from ..cli.theme import catppuccin_mocha_style
 from ..core.project_manager import ProjectManager
-from loguru import logger
 
 console = Console()
 
