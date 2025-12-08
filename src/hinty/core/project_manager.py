@@ -24,9 +24,15 @@ class ProjectManager:
     def ensure_metadata_exists(self):
         """Ensure the metadata directory and necessary files exist."""
         self._metadata_directory.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured metadata directory exists: {self._metadata_directory}")
+        logger.info(
+            f"Ensured metadata directory exists: {self._metadata_directory}"
+        )
         # Ensure files exist
-        for file_path in [self.history_file, self.available_files_cache, self.objects_cache]:
+        for file_path in [
+            self.history_file,
+            self.available_files_cache,
+            self.objects_cache,
+        ]:
             if not file_path.exists():
                 file_path.touch()
                 logger.info(f"Created metadata file: {file_path}")
