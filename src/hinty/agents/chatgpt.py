@@ -107,7 +107,8 @@ async def handle_chatgpt_mode(
                 )
             elif file_type == "pdf":
                 additional_docs.append(Pdf.from_base64(content))
-            # Skip images for now
+            elif file_type == "image":
+                additional_images.append(Image.from_base64(content))
         except Exception as e:
             logger.error(f"Error reading attached file {file_path}: {e}")
 
