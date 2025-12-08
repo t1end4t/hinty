@@ -1,6 +1,6 @@
-from typing import AsyncGenerator, List
+from typing import AsyncGenerator, Dict, List
 
-from baml_py import AbortController, BamlSyncStream, Collector
+from baml_py import AbortController, BamlSyncStream, Collector, Image, Pdf
 from baml_py.errors import BamlAbortError
 from loguru import logger
 
@@ -19,11 +19,16 @@ from ..core.clients import get_client_registry
 from ..core.models import ChatgptTool
 from ..tools.fetch_url import tool_fetch_url
 from ..tools.search_web import tool_search_web
+from ..utils.file_operations import read_content_file
+from ..core.project_manager import ProjectManager
 
 
 def call_chatgpt(
     user_message: str,
     conversation_history: List[ConversationMessage],
+    additional_files: List[Dict[str, str]] | None,
+    additional_images: List[Image] | None,
+    additional_docs: List[Pdf] | None,
     tool_result: ToolResult | None,
     controller: AbortController,
 ) -> BamlSyncStream[StreamChatGPTOutput, ChatGPTOutput] | None:
@@ -35,7 +40,10 @@ def call_chatgpt(
         resp = b.stream.ChatGPT(
             user_message,
             conversation_history,
-            tool_result,
+            additional_files=additional_files,
+            additional_images=additional_images,
+            additional_docs=additional_docs,
+            tool_result=tool_result,
             baml_options={
                 "abort_controller": controller,
                 "client_registry": cr,
@@ -80,18 +88,13 @@ def get_tool_info(tool_call: ChatgptTool) -> tuple[str, str, str]:
 async def handle_chatgpt_mode(
     user_message: str,
     conversation_history: List[ConversationMessage],
+    project_manager: ProjectManager,
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
     # track token
     chatgpt_collector = Collector(name="chatgpt_collector")
 
     tool_result = None
-    stream = call_chatgpt(
-        user_message,
-        conversation_history,
-        tool_result,
-        controller,
-    )
 
     while True:
         stream = call_chatgpt(
