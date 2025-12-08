@@ -30,7 +30,7 @@ def _get_clipboard_image() -> Image.Image | None:
                 )
                 if result.returncode == 0 and result.stdout:
                     return Image.open(io.BytesIO(result.stdout))
-  
+
             # Fallback to X11 (xclip)
             if shutil.which("xclip"):
                 result = subprocess.run(
@@ -46,24 +46,29 @@ def _get_clipboard_image() -> Image.Image | None:
                 )
                 if result.returncode == 0 and result.stdout:
                     return Image.open(io.BytesIO(result.stdout))
-  
+
             return None
     except Exception as e:
         logger.error(f"Failed to retrieve clipboard image: {e}")
         return None
 
 
-def _create_prompt_continuation(prompt_text: str) -> Callable[[int, int, int], str]:
+def _create_prompt_continuation(
+    prompt_text: str,
+) -> Callable[[int, int, int], str]:
     """Generate continuation prompt for multiline input."""
+
     def continuation(width: int, line_number: int, wrap_count: int) -> str:
         if wrap_count > 0:
             return " " * len(prompt_text) + "-> "
         return prompt_text
+
     return continuation
 
 
 def _handle_clipboard_paste(project_manager: ProjectManager) -> Callable:
     """Create handler for pasting images from clipboard."""
+
     def paste_handler(event):
         img = _get_clipboard_image()
         if img:
@@ -75,25 +80,26 @@ def _handle_clipboard_paste(project_manager: ProjectManager) -> Callable:
             logger.info(f"Image attached from clipboard: {img_path}")
         else:
             event.current_buffer.insert_text("[No image in clipboard]\n")
+
     return paste_handler
 
 
 def _create_key_bindings(project_manager: ProjectManager) -> KeyBindings:
     """Set up custom key bindings for the prompt session."""
     bindings = KeyBindings()
-  
+
     @bindings.add("enter")
     def _(event):
         event.current_buffer.validate_and_handle()
-  
+
     @bindings.add("escape", "enter")  # Alt+Enter for newline
     def _(event):
         event.current_buffer.insert_text("\n")
-  
+
     @bindings.add("c-v")  # Ctrl+V for clipboard paste
     def _(event):
         _handle_clipboard_paste(project_manager)(event)
-  
+
     return bindings
 
 
@@ -105,7 +111,7 @@ def get_user_input(
     prompt_text = f"{project_manager.mode.value} >> "
     continuation = _create_prompt_continuation(prompt_text)
     bindings = _create_key_bindings(project_manager)
-  
+
     try:
         result = session.prompt(
             prompt_text,
