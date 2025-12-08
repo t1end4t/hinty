@@ -29,7 +29,7 @@
 # Fix bug
 
 1. [x] Separate line between prompt and response
-2. [ ] Run on home without error
+2. [x] Run on home without error
 3. [ ] If added file, can not add it anymore (should not show in suggestion)
 4. [ ] logging should in file
 5. [ ] slow when startup
