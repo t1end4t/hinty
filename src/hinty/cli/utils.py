@@ -4,16 +4,6 @@ from rich.console import Console
 
 from ..cli.theme import catppuccin_mocha_style
 from ..core.project_manager import ProjectManager
-from .command_handlers import (
-    add_command,
-    clear_command,
-    copy_command,
-    drop_command,
-    files_command,
-    help_command,
-    mode_command,
-)
-from .display_utils import display_files, display_stream_response, print_welcome
 from loguru import logger
 
 console = Console()
