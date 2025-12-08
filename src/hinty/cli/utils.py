@@ -27,7 +27,7 @@ def _(event):
     event.current_buffer.insert_text("\n")
 
 
-def get_clipboard_image():
+def _get_clipboard_image():
     """Get image from clipboard if available (supports both Wayland and X11)."""
     try:
         # Try Wayland first (wl-paste)
@@ -58,7 +58,7 @@ def get_clipboard_image():
 
 @bindings.add("c-v")  # Ctrl+V to paste image from clipboard
 def _(event):
-    img = get_clipboard_image()
+    img = _get_clipboard_image()
     if img:
         img.save("pasted_image.png")
         event.current_buffer.insert_text("[Image pasted: pasted_image.png]\n")
