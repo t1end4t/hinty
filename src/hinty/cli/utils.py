@@ -37,7 +37,14 @@ def _get_clipboard_image():
             # Fallback to X11 (xclip)
             elif shutil.which("xclip"):
                 result = subprocess.run(
-                    ["xclip", "-selection", "clipboard", "-t", "image/png", "-o"],
+                    [
+                        "xclip",
+                        "-selection",
+                        "clipboard",
+                        "-t",
+                        "image/png",
+                        "-o",
+                    ],
                     capture_output=True,
                 )
                 if result.returncode == 0 and result.stdout:
