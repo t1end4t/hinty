@@ -17,7 +17,7 @@ async def get_agent_response(
     """Get a response from the LLM"""
     if project_manager.mode == Mode.CHATGPT:
         async for item in handle_chatgpt_mode(
-            user_message, conversation_history, controller
+            user_message, conversation_history, project_manager, controller
         ):
             yield item
     # elif project_manager.mode == Mode.CODER:

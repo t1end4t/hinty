@@ -15,12 +15,12 @@ from rich.console import Console
 
 from ..baml_client.types import ConversationMessage
 from ..cli.commands import CommandCompleter, commands, handle_command
-from ..cli.utils import (
+from ..cli.display_utils import (
     display_files,
     display_stream_response,
-    get_user_input,
     print_welcome,
 )
+from ..cli.utils import get_user_input
 from ..core.llm import get_agent_response
 from ..core.project_manager import ProjectManager
 from ..utils import cache_available_files

@@ -1,5 +1,4 @@
-import asyncio
-from typing import AsyncGenerator, List
+from typing import AsyncGenerator
 
 from loguru import logger
 from rich.console import Console, Group
@@ -7,7 +6,6 @@ from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
 
-from ..baml_client.types import ConversationMessage
 from ..cli.theme import (
     agent_action_style,
     agent_response_style,

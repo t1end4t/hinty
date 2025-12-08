@@ -5,18 +5,12 @@ import io
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.key_binding import KeyBindings
+import shutil
 
 
 def prompt_continuation(width, line_number, wrap_count):
     """
     The continuation: display line numbers and '->' before soft wraps.
-
-    Notice that we can return any kind of formatted text from here.
-
-    The prompt continuation doesn't have to be the same width as the prompt
-    which is displayed before the first line, but in this example we choose to
-    align them. The `width` input that we receive here represents the width of
-    the prompt.
     """
     if wrap_count > 0:
         return " " * (width - 3) + "-> "
@@ -26,18 +20,31 @@ def prompt_continuation(width, line_number, wrap_count):
 
 
 def get_clipboard_image():
-    """Get image from clipboard if available."""
+    """Get image from clipboard if available (supports both Wayland and X11)."""
     try:
-        result = subprocess.run(
-            ["xclip", "-selection", "clipboard", "-t", "image/png", "-o"],
-            capture_output=True,
-        )
-        if result.returncode == 0:
-            img = Image.open(io.BytesIO(result.stdout))
-            return img
-        else:
-            return None
-    except Exception:
+        # Try Wayland first (wl-paste)
+        if shutil.which("wl-paste"):
+            result = subprocess.run(
+                ["wl-paste", "--type", "image/png"],
+                capture_output=True,
+            )
+            if result.returncode == 0 and result.stdout:
+                img = Image.open(io.BytesIO(result.stdout))
+                return img
+
+        # Fallback to X11 (xclip)
+        elif shutil.which("xclip"):
+            result = subprocess.run(
+                ["xclip", "-selection", "clipboard", "-t", "image/png", "-o"],
+                capture_output=True,
+            )
+            if result.returncode == 0 and result.stdout:
+                img = Image.open(io.BytesIO(result.stdout))
+                return img
+
+        return None
+    except Exception as e:
+        print(f"Error getting clipboard image: {e}")
         return None
 
 
@@ -55,7 +62,7 @@ def _(event):
     event.current_buffer.insert_text("\n")
 
 
-@bindings.add("c-i")  # Ctrl+I to paste image from clipboard
+@bindings.add("c-v")  # Ctrl+I to paste image from clipboard
 def _(event):
     img = get_clipboard_image()
     if img:
@@ -67,7 +74,7 @@ def _(event):
 
 if __name__ == "__main__":
     print(
-        "Press [Enter] to accept input, [Shift+Enter] to add a new line, [Ctrl+I] to paste image."
+        "Press [Enter] to accept input, [Escape+Enter] to add a new line, [Ctrl+I] to paste image."
     )
     answer = prompt(
         "Multiline input: ",

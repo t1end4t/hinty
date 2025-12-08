@@ -91,7 +91,7 @@ async def handle_chatgpt_mode(
     project_manager: ProjectManager,
     controller: AbortController,
 ) -> AsyncGenerator[AgentResponse, None]:
-    # track token
+    # Track token
     chatgpt_collector = Collector(name="chatgpt_collector")
 
     # Read additional files
@@ -114,7 +114,7 @@ async def handle_chatgpt_mode(
     tool_result = None
 
     while True:
-        # Loop to handle chained tool calls: stream LLM response, yield chunks, execute tool if requested, and repeat.
+        # Loop to handle chained tool calls
         stream = call_chatgpt(
             user_message,
             conversation_history,

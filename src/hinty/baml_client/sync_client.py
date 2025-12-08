@@ -91,18 +91,18 @@ class BamlSyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
     
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,additional_files: typing.Optional[typing.List[typing.Dict[str, str]]] = None,additional_images: typing.Optional[typing.List[baml_py.Image]] = None,additional_docs: typing.Optional[typing.List[baml_py.Pdf]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> types.ChatGPTOutput:
         # Check if on_tick is provided
         if 'on_tick' in baml_options:
-            stream = self.stream.ChatGPT(message=message,conversation_history=conversation_history,tool_result=tool_result,
+            stream = self.stream.ChatGPT(message=message,conversation_history=conversation_history,additional_files=additional_files,additional_images=additional_images,additional_docs=additional_docs,tool_result=tool_result,
                 baml_options=baml_options)
             return stream.get_final_response()
         else:
             # Original non-streaming code
             result = self.__options.merge_options(baml_options).call_function_sync(function_name="ChatGPT", args={
-                "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
+                "message": message,"conversation_history": conversation_history,"additional_files": additional_files,"additional_images": additional_images,"additional_docs": additional_docs,"tool_result": tool_result,
             })
             return typing.cast(types.ChatGPTOutput, result.cast_to(types, types, stream_types, False, __runtime__))
     def Coder(self, user_message: str,conversation_history: typing.List["types.ConversationMessage"],files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"] = None,
@@ -142,11 +142,11 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,additional_files: typing.Optional[typing.List[typing.Dict[str, str]]] = None,additional_images: typing.Optional[typing.List[baml_py.Image]] = None,additional_docs: typing.Optional[typing.List[baml_py.Pdf]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.ChatGPTOutput, types.ChatGPTOutput]:
         ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="ChatGPT", args={
-            "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
+            "message": message,"conversation_history": conversation_history,"additional_files": additional_files,"additional_images": additional_images,"additional_docs": additional_docs,"tool_result": tool_result,
         })
         return baml_py.BamlSyncStream[stream_types.ChatGPTOutput, types.ChatGPTOutput](
           result,
@@ -186,11 +186,11 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,additional_files: typing.Optional[typing.List[typing.Dict[str, str]]] = None,additional_images: typing.Optional[typing.List[baml_py.Image]] = None,additional_docs: typing.Optional[typing.List[baml_py.Pdf]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ChatGPT", args={
-            "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
+            "message": message,"conversation_history": conversation_history,"additional_files": additional_files,"additional_images": additional_images,"additional_docs": additional_docs,"tool_result": tool_result,
         }, mode="request")
         return result
     def Coder(self, user_message: str,conversation_history: typing.List["types.ConversationMessage"],files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"] = None,
@@ -215,11 +215,11 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
+    def ChatGPT(self, message: str,conversation_history: typing.Optional[typing.List["types.ConversationMessage"]] = None,additional_files: typing.Optional[typing.List[typing.Dict[str, str]]] = None,additional_images: typing.Optional[typing.List[baml_py.Image]] = None,additional_docs: typing.Optional[typing.List[baml_py.Pdf]] = None,tool_result: typing.Optional["types.ToolResult"] = None,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ChatGPT", args={
-            "message": message,"conversation_history": conversation_history,"tool_result": tool_result,
+            "message": message,"conversation_history": conversation_history,"additional_files": additional_files,"additional_images": additional_images,"additional_docs": additional_docs,"tool_result": tool_result,
         }, mode="stream")
         return result
     def Coder(self, user_message: str,conversation_history: typing.List["types.ConversationMessage"],files: typing.List["types.FileInfo"],codebase_context: typing.Optional["types.CodebaseContext"] = None,

@@ -6,8 +6,10 @@
    1. [ ] Tool functions
       1. [ ] rag -> SKIP FOR NOW
    2. [ ] Make it different than chatgpt (make me not dumb)
-   3. [ ] Handle common files
+   3. [x] Handle common files
    4. [ ] Handle images, PDFs, etc.
+      1. [ ] Drop command will remove clipboard images
+      2. [ ] Show attached file when c-v
 2. [ ] Coding agent
    1. [ ] Rewrite logic
    2. [ ] add ask mode

@@ -17,7 +17,7 @@ from ..baml_client.types import ConversationMessage
 from ..core.models import Mode
 from ..core.project_manager import ProjectManager
 from .theme import YELLOW
-from .utils import (
+from .command_handlers import (
     add_command,
     clear_command,
     copy_command,
