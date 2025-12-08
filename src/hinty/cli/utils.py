@@ -12,8 +12,7 @@ from rich.console import Console
 
 from ..cli.theme import catppuccin_mocha_style
 from ..core.project_manager import ProjectManager
-
-console = Console()
+from ..cli.display_utils import display_files
 
 
 def _get_clipboard_image():
@@ -58,7 +57,7 @@ def _get_clipboard_image():
 
 
 def get_user_input(
-    session: PromptSession, project_manager: ProjectManager
+    session: PromptSession, project_manager: ProjectManager, console: Console
 ) -> str:
     """Prompt for and return user input."""
     logger.info("Prompting for user input")
