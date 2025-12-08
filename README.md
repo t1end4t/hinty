@@ -6,8 +6,9 @@
    1. [ ] Tool functions
       1. [ ] rag -> SKIP FOR NOW
    2. [ ] Make it different than chatgpt (make me not dumb)
-   3. [x] Handle common files
-   4. [x] Handle images, PDFs, etc.
+   3. [x] Switch model when get multi-modal inputs
+   4. [x] Handle common files
+   5. [x] Handle images, PDFs, etc.
       1. [x] Drop command will remove clipboard images
       2. [x] Show attached file when c-v
 2. [ ] Coding agent
