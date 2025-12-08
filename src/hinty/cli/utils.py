@@ -1,10 +1,11 @@
 import io
 import shutil
 import subprocess
+import sys
 from datetime import datetime
 
 from loguru import logger
-from PIL import Image
+from PIL import Image, ImageGrab
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
@@ -16,29 +17,34 @@ console = Console()
 
 
 def _get_clipboard_image():
-    """Get image from clipboard if available (supports both Wayland and X11)."""
+    """Get image from clipboard if available (cross-platform support)."""
     try:
-        # Try Wayland first (wl-paste)
-        if shutil.which("wl-paste"):
-            result = subprocess.run(
-                ["wl-paste", "--type", "image/png"],
-                capture_output=True,
-            )
-            if result.returncode == 0 and result.stdout:
-                img = Image.open(io.BytesIO(result.stdout))
-                return img
+        if sys.platform in ("win32", "darwin"):
+            # Use PIL's ImageGrab for Windows and macOS
+            img = ImageGrab.grabclipboard()
+            return img if isinstance(img, Image.Image) else None
+        else:
+            # Linux: Try Wayland first (wl-paste)
+            if shutil.which("wl-paste"):
+                result = subprocess.run(
+                    ["wl-paste", "--type", "image/png"],
+                    capture_output=True,
+                )
+                if result.returncode == 0 and result.stdout:
+                    img = Image.open(io.BytesIO(result.stdout))
+                    return img
 
-        # Fallback to X11 (xclip)
-        elif shutil.which("xclip"):
-            result = subprocess.run(
-                ["xclip", "-selection", "clipboard", "-t", "image/png", "-o"],
-                capture_output=True,
-            )
-            if result.returncode == 0 and result.stdout:
-                img = Image.open(io.BytesIO(result.stdout))
-                return img
+            # Fallback to X11 (xclip)
+            elif shutil.which("xclip"):
+                result = subprocess.run(
+                    ["xclip", "-selection", "clipboard", "-t", "image/png", "-o"],
+                    capture_output=True,
+                )
+                if result.returncode == 0 and result.stdout:
+                    img = Image.open(io.BytesIO(result.stdout))
+                    return img
 
-        return None
+            return None
     except Exception as e:
         logger.error(f"Error getting clipboard image: {e}")
         return None
