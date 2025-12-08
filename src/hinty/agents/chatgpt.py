@@ -102,7 +102,9 @@ async def handle_chatgpt_mode(
         try:
             content, file_type = read_content_file(file_path)
             if file_type == "text":
-                additional_files.append({"file_path": str(file_path), "content": content})
+                additional_files.append(
+                    {"file_path": str(file_path), "content": content}
+                )
             elif file_type == "pdf":
                 additional_docs.append(Pdf(uri=content))
             # Skip images for now
