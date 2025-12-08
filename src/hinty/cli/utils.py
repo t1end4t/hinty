@@ -1,3 +1,7 @@
+import subprocess
+from PIL import Image
+import io
+import shutil
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
@@ -21,6 +25,45 @@ def _(event):
 @bindings.add("escape", "enter")
 def _(event):
     event.current_buffer.insert_text("\n")
+
+
+def get_clipboard_image():
+    """Get image from clipboard if available (supports both Wayland and X11)."""
+    try:
+        # Try Wayland first (wl-paste)
+        if shutil.which("wl-paste"):
+            result = subprocess.run(
+                ["wl-paste", "--type", "image/png"],
+                capture_output=True,
+            )
+            if result.returncode == 0 and result.stdout:
+                img = Image.open(io.BytesIO(result.stdout))
+                return img
+
+        # Fallback to X11 (xclip)
+        elif shutil.which("xclip"):
+            result = subprocess.run(
+                ["xclip", "-selection", "clipboard", "-t", "image/png", "-o"],
+                capture_output=True,
+            )
+            if result.returncode == 0 and result.stdout:
+                img = Image.open(io.BytesIO(result.stdout))
+                return img
+
+        return None
+    except Exception as e:
+        logger.error(f"Error getting clipboard image: {e}")
+        return None
+
+
+@bindings.add("c-v")  # Ctrl+V to paste image from clipboard
+def _(event):
+    img = get_clipboard_image()
+    if img:
+        img.save("pasted_image.png")
+        event.current_buffer.insert_text("[Image pasted: pasted_image.png]\n")
+    else:
+        event.current_buffer.insert_text("[No image in clipboard]\n")
 
 
 def get_user_input(
