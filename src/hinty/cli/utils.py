@@ -12,7 +12,6 @@ from rich.console import Console
 
 from ..cli.theme import catppuccin_mocha_style
 from ..core.project_manager import ProjectManager
-from ..cli.display_utils import display_files
 
 
 def _get_clipboard_image():
