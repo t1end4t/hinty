@@ -7,9 +7,9 @@
       1. [ ] rag -> SKIP FOR NOW
    2. [ ] Make it different than chatgpt (make me not dumb)
    3. [x] Handle common files
-   4. [ ] Handle images, PDFs, etc.
-      1. [ ] Drop command will remove clipboard images
-      2. [ ] Show attached file when c-v
+   4. [x] Handle images, PDFs, etc.
+      1. [x] Drop command will remove clipboard images
+      2. [x] Show attached file when c-v
 2. [ ] Coding agent
    1. [ ] Rewrite logic
    2. [ ] add ask mode

@@ -172,10 +172,9 @@ async def _handle_input_loop(
             user_input = await asyncio.to_thread(
                 get_user_input, session, project_manager, console
             )
-            if user_input is None:
-                continue  # After Ctrl+V paste, pass and restart loop
             if not user_input:
-                break
+                console.print("")  # add new line
+                continue  # After Ctrl+V paste, pass and restart loop
 
             await _process_input(
                 console,
