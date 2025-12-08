@@ -89,6 +89,9 @@ def _initialize_conversation() -> tuple[
     project_manager = ProjectManager()
     controller = AbortController()
 
+    # ensure metadata file exists
+    project_manager.ensure_metadata_exists()
+
     console.print(f"Current directory: {project_manager.project_root}")
 
     cache_thread = threading.Thread(

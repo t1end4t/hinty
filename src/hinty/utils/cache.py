@@ -56,7 +56,6 @@ def _write_file_cache(
     files: List[Path], project_root: Path, cache_path: Path
 ) -> None:
     """Write relative file paths to cache file."""
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
     relative_paths = [str(f.relative_to(project_root)) for f in files]
 
     with open(cache_path, "w") as f:
@@ -90,7 +89,6 @@ def _collect_objects_from_files(files: List[Path]) -> set[str]:
 
 def _write_objects_cache(objects: set[str], cache_path: Path) -> None:
     """Write sorted objects to cache file."""
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
     sorted_objects = sorted(objects)
 
     with open(cache_path, "w") as f:

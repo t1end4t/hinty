@@ -19,7 +19,6 @@ class ProjectManager:
         self._project_root = project_root
         self._attached_files: List[Path] = []
         self._metadata_directory = project_root / ".hinty"
-        self.ensure_metadata_exists()
 
     def ensure_metadata_exists(self):
         """Ensure the metadata directory and necessary files exist."""
