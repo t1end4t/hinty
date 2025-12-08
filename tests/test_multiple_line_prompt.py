@@ -29,8 +29,8 @@ def get_clipboard_image():
     """Get image from clipboard if available."""
     try:
         result = subprocess.run(
-            ['xclip', '-selection', 'clipboard', '-t', 'image/png', '-o'],
-            capture_output=True
+            ["xclip", "-selection", "clipboard", "-t", "image/png", "-o"],
+            capture_output=True,
         )
         if result.returncode == 0:
             img = Image.open(io.BytesIO(result.stdout))
@@ -59,14 +59,16 @@ def _(event):
 def _(event):
     img = get_clipboard_image()
     if img:
-        img.save('pasted_image.png')
-        event.current_buffer.insert_text('[Image pasted: pasted_image.png]\n')
+        img.save("pasted_image.png")
+        event.current_buffer.insert_text("[Image pasted: pasted_image.png]\n")
     else:
-        event.current_buffer.insert_text('[No image in clipboard]\n')
+        event.current_buffer.insert_text("[No image in clipboard]\n")
 
 
 if __name__ == "__main__":
-    print("Press [Enter] to accept input, [Shift+Enter] to add a new line, [Ctrl+I] to paste image.")
+    print(
+        "Press [Enter] to accept input, [Shift+Enter] to add a new line, [Ctrl+I] to paste image."
+    )
     answer = prompt(
         "Multiline input: ",
         multiline=True,
