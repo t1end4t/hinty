@@ -25,8 +25,6 @@ from ..core.llm import get_agent_response
 from ..core.project_manager import ProjectManager
 from ..utils import cache_available_files
 
-console = Console()
-
 
 class BacktickLexer(Lexer):
     """Lexer to apply bold italic style to text between backticks."""
@@ -81,9 +79,9 @@ def _setup_session(
     return session
 
 
-def _initialize_conversation() -> tuple[
-    List[ConversationMessage], ProjectManager, AbortController
-]:
+def _initialize_conversation(
+    console: Console,
+) -> tuple[List[ConversationMessage], ProjectManager, AbortController]:
     """Initialize conversation history and context manager."""
     conversation_history: List[ConversationMessage] = []
     project_manager = ProjectManager()
@@ -165,13 +163,14 @@ async def _handle_input_loop(
     conversation_history: List[ConversationMessage],
     project_manager: ProjectManager,
     controller: AbortController,
+    console: Console,
 ):
     """Handle the main input loop."""
     while True:
         try:
-            display_files(project_manager)
+            display_files(project_manager, console)
             user_input = await asyncio.to_thread(
-                get_user_input, session, project_manager
+                get_user_input, session, project_manager, console
             )
             if not user_input:
                 break
@@ -203,21 +202,22 @@ async def _handle_input_loop(
 
 
 # Minimal LLM chat interface
-async def _chat():
+async def _chat(console: Console):
     """Run the chat interface."""
-    print_welcome()
+    print_welcome(console)
     (
         conversation_history,
         project_manager,
         controller,
-    ) = _initialize_conversation()
+    ) = _initialize_conversation(console)
     session = _setup_session(project_manager, conversation_history)
     await _handle_input_loop(
-        session, conversation_history, project_manager, controller
+        session, conversation_history, project_manager, controller, console
     )
 
 
 @click.command()
 def create_cli():
     """Create and run the CLI."""
-    asyncio.run(_chat())
+    console = Console()
+    asyncio.run(_chat(console))

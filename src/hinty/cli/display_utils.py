@@ -10,11 +10,11 @@ from ..cli.theme import (
     agent_action_style,
     agent_response_style,
     agent_thinking_style,
+    context_style,
 )
 from ..core.models import AgentResponse
 from ..core.project_manager import ProjectManager
 
-console = Console()
 
 # Constants for readability
 REFRESH_RATE = 10
@@ -23,7 +23,7 @@ WELCOME_MESSAGE = (
 )
 
 
-def print_welcome():
+def print_welcome(console: Console):
     """Print the welcome panel."""
     console.print(
         Panel.fit(
@@ -162,9 +162,8 @@ async def display_stream_response(
     return full_response
 
 
-def display_files(project_manager: ProjectManager):
+def display_files(project_manager: ProjectManager, console: Console):
     """Display files panel if the file list is not empty."""
-    from ..cli.theme import context_style
 
     files_str = (
         " ".join(

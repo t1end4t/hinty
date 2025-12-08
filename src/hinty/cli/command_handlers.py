@@ -17,8 +17,6 @@ from ..core.project_manager import ProjectManager
 from ..utils.cache import cache_objects
 from .theme import YELLOW
 
-console = Console()
-
 
 def help_command(console: Console):
     """Display help information for CLI commands."""
