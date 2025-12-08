@@ -77,6 +77,7 @@ def get_user_input(
             img_filename = f"pasted_image_{timestamp}.png"
             img_path = project_manager.images_directory / img_filename
             img.save(img_path)
+            project_manager.attach_file(img_path)
             event.current_buffer.insert_text(f"[Image pasted: {img_path}]\n")
         else:
             event.current_buffer.insert_text("[No image in clipboard]\n")
