@@ -99,6 +99,7 @@ def _create_key_bindings(project_manager: ProjectManager) -> KeyBindings:
     @bindings.add("c-v")  # Ctrl+V for clipboard paste
     def _(event):
         _handle_clipboard_paste(project_manager)(event)
+        event.app.exit(result=None)  # Exit prompt immediately after paste, returning None
 
     return bindings
 
