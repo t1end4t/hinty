@@ -94,12 +94,30 @@ async def handle_chatgpt_mode(
     # track token
     chatgpt_collector = Collector(name="chatgpt_collector")
 
+    # Read additional files
+    additional_files = []
+    additional_images = []
+    additional_docs = []
+    for file_path in project_manager.get_attached_files():
+        try:
+            content, file_type = read_content_file(file_path)
+            if file_type == "text":
+                additional_files.append({"file_path": str(file_path), "content": content})
+            elif file_type == "pdf":
+                additional_docs.append(Pdf(uri=content))
+            # Skip images for now
+        except Exception as e:
+            logger.error(f"Error reading attached file {file_path}: {e}")
+
     tool_result = None
 
     while True:
         stream = call_chatgpt(
             user_message,
             conversation_history,
+            additional_files,
+            additional_images,
+            additional_docs,
             tool_result,
             controller,
         )
