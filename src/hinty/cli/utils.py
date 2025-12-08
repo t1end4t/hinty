@@ -108,7 +108,7 @@ def _create_key_bindings(project_manager: ProjectManager) -> KeyBindings:
 
 def get_user_input(
     session: PromptSession, project_manager: ProjectManager, console: Console
-) -> str:
+) -> str | None:
     """Prompt for and return user input with custom bindings."""
     logger.info("Prompting for user input")
     prompt_text = f"{project_manager.mode.value} >> "
@@ -123,7 +123,10 @@ def get_user_input(
             prompt_continuation=continuation,
             key_bindings=bindings,
         )
-        logger.debug(f"User input received: {len(result)} characters")
+        if result is None:
+            logger.debug("User input received: None (prompt exited early)")
+        else:
+            logger.debug(f"User input received: {len(result)} characters")
         return result
     except Exception as e:
         logger.error(f"Error during user input prompt: {e}")
