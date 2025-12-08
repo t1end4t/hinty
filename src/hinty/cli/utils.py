@@ -2,6 +2,7 @@ import subprocess
 from PIL import Image
 import io
 import shutil
+from datetime import datetime
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
@@ -71,7 +72,9 @@ def get_user_input(
     def _(event):
         img = _get_clipboard_image()
         if img:
-            img_path = project_manager.images_directory / "pasted_image.png"
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            img_filename = f"pasted_image_{timestamp}.png"
+            img_path = project_manager.images_directory / img_filename
             img.save(img_path)
             event.current_buffer.insert_text(f"[Image pasted: {img_path}]\n")
         else:
