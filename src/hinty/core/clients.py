@@ -3,21 +3,26 @@ from loguru import logger
 from baml_py import ClientRegistry
 
 
-def get_client_registry(agent: str) -> ClientRegistry:
-    logger.debug(f"Creating client registry for agent: {agent}")
-    """Create and return a ClientRegistry configured for the given agent."""
-    model_str = os.environ.get(f"{agent}".upper())
+def get_client_registry(agent: str, multimodal: bool = False) -> ClientRegistry:
+    logger.debug(f"Creating client registry for agent: {agent}, multimodal: {multimodal}")
+    """Create and return a ClientRegistry configured for the given agent.
+    
+    If multimodal is True, uses a model that supports multimodal input by checking
+    an environment variable suffixed with '_MULTIMODAL' (e.g., 'CODER_MULTIMODAL').
+    """
+    env_key = f"{agent}_MULTIMODAL".upper() if multimodal else f"{agent}".upper()
+    model_str = os.environ.get(env_key)
     if not model_str:
-        logger.error(f"Model for {agent} not found in environment variables")
+        logger.error(f"Model for {agent} (multimodal={multimodal}) not found in environment variables")
         raise ValueError(
-            f"Model for {agent} not found in environment variables"
+            f"Model for {agent} (multimodal={multimodal}) not found in environment variables"
         )
 
     try:
         provider, model = model_str.split("/", 1)
     except ValueError:
-        logger.error(f"Invalid model format for {agent}: {model_str}")
-        raise ValueError(f"Invalid model format for {agent}: {model_str}")
+        logger.error(f"Invalid model format for {agent} (multimodal={multimodal}): {model_str}")
+        raise ValueError(f"Invalid model format for {agent} (multimodal={multimodal}): {model_str}")
 
     # Handle special providers that use openai-generic
     base_url = None
@@ -33,16 +38,16 @@ def get_client_registry(agent: str) -> ClientRegistry:
         actual_provider = "google-ai"
         api_key_env = "GOOGLE_API_KEY"
     else:
-        logger.error(f"Unknown provider {provider} for agent {agent}")
-        raise ValueError(f"Unknown provider {provider} for agent {agent}")
+        logger.error(f"Unknown provider {provider} for agent {agent} (multimodal={multimodal})")
+        raise ValueError(f"Unknown provider {provider} for agent {agent} (multimodal={multimodal})")
 
     api_key = os.environ.get(api_key_env)
     if not api_key:
         logger.error(
-            f"API key for provider {provider} not found in environment variables"
+            f"API key for provider {provider} (agent {agent}, multimodal={multimodal}) not found in environment variables"
         )
         raise ValueError(
-            f"API key for provider {provider} not found in environment variables"
+            f"API key for provider {provider} (agent {agent}, multimodal={multimodal}) not found in environment variables"
         )
 
     cr = ClientRegistry()
@@ -59,5 +64,5 @@ def get_client_registry(agent: str) -> ClientRegistry:
         options=options,
     )
     cr.set_primary(client_name)
-    logger.debug(f"Client registry created successfully for agent: {agent}")
+    logger.debug(f"Client registry created successfully for agent: {agent}, multimodal: {multimodal}")
     return cr
