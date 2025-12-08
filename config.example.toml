@@ -14,5 +14,6 @@ baml_log = "warn"
 web_search_provider = "google"
 
 [models]
+multimodal = "google/gemini-flash-latest"
 chatgpt = "groq/openai/gpt-oss-120b"
 coder = "groq/openai/gpt-oss-120b"
