@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import List
 
+from loguru import logger
+
 from .models import Mode
 
 
@@ -17,6 +19,17 @@ class ProjectManager:
         self._project_root = project_root
         self._attached_files: List[Path] = []
         self._metadata_directory = project_root / ".hinty"
+        self.ensure_metadata_exists()
+
+    def ensure_metadata_exists(self):
+        """Ensure the metadata directory and necessary files exist."""
+        self._metadata_directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured metadata directory exists: {self._metadata_directory}")
+        # Ensure files exist
+        for file_path in [self.history_file, self.available_files_cache, self.objects_cache]:
+            if not file_path.exists():
+                file_path.touch()
+                logger.info(f"Created metadata file: {file_path}")
 
     @property
     def mode(self) -> Mode:
