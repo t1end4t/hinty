@@ -114,6 +114,7 @@ async def handle_chatgpt_mode(
     tool_result = None
 
     while True:
+        # Loop to handle chained tool calls: stream LLM response, yield chunks, execute tool if requested, and repeat.
         stream = call_chatgpt(
             user_message,
             conversation_history,
