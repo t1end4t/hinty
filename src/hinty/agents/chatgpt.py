@@ -31,11 +31,12 @@ def call_chatgpt(
     additional_docs: List[Pdf] | None,
     tool_result: ToolResult | None,
     controller: AbortController,
+    multimodal: bool = False,
 ) -> BamlSyncStream[StreamChatGPTOutput, ChatGPTOutput] | None:
     """Call the orchestrator agent with a user message and conversation history"""
     try:
         # get client from config
-        cr = get_client_registry("chatgpt")
+        cr = get_client_registry("chatgpt", multimodal)
 
         resp = b.stream.ChatGPT(
             user_message,
@@ -115,6 +116,7 @@ async def handle_chatgpt_mode(
         except Exception as e:
             logger.error(f"Error reading attached file {file_path}: {e}")
 
+    multimodal = bool(additional_images or additional_docs)
     tool_result = None
 
     while True:
@@ -127,6 +129,7 @@ async def handle_chatgpt_mode(
             additional_docs,
             tool_result,
             controller,
+            multimodal,
         )
         if not stream:
             break
