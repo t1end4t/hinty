@@ -4,7 +4,7 @@ from typing import List
 import pathspec
 from loguru import logger
 
-from .objects import get_all_objects
+from ..context.objects import get_all_objects
 
 
 def _discover_project_files(project_root: Path) -> List[Path]:

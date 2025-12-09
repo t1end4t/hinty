@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.console import Console
-from hinty.agents.router import handle_smart_mode
 from hinty.baml_client.types import ConversationMessage
 from hinty.core.project_manager import ProjectManager
 from hinty.core.models import AgentResponse

@@ -23,7 +23,7 @@ from ..cli.display_utils import (
 from ..cli.helpers import get_user_input
 from ..core.llm import get_agent_response
 from ..core.project_manager import ProjectManager
-from ..utils import cache_available_files
+from ..utils.cache import cache_available_files
 
 
 class BacktickLexer(Lexer):

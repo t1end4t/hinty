@@ -15,11 +15,14 @@ from ..baml_client.types import (
     CoderOutput,
     ConversationMessage,
     FileInfo,
+    CodebaseContext,
 )
 from ..core.clients import get_client_registry
 from ..core.project_manager import ProjectManager
 from ..tools.search_and_replace import tool_search_and_replace
-from ..utils import read_content_file
+from ..utils.file_operations import read_content_file
+from ..context.tree import get_tree
+from ..context.language import get_primary_language
 
 
 def _format_diff_block(search: str, replace: str) -> List[str]:
@@ -162,8 +165,9 @@ def _apply_changes(
 # BUG: change this
 def call_coder(
     user_message: str,
-    files: List[FileInfo],
     conversation_history: List[ConversationMessage],
+    files: List[FileInfo],
+    codebase_context: CodebaseContext,
     controller: AbortController,
 ) -> BamlSyncStream[StreamCoderOutput, CoderOutput] | None:
     """Call the coder agent with a user message, files, and conversation history"""
@@ -175,6 +179,7 @@ def call_coder(
             user_message,
             conversation_history,
             files,
+            codebase_context,
             baml_options={
                 "abort_controller": controller,
                 "client_registry": cr,
@@ -185,22 +190,35 @@ def call_coder(
         logger.error("Operation was cancelled")
 
 
-def handle_coder_mode(
-    user_message: str,
-    conversation_history: List[ConversationMessage],
-    project_manager: ProjectManager,
-    controller: AbortController,
-) -> Generator[AgentResponse, None, None]:
-    files_info, actions = _prepare_files_info(project_manager)
+# def handle_coder_mode(
+#     user_message: str,
+#     conversation_history: List[ConversationMessage],
+#     project_manager: ProjectManager,
+#     controller: AbortController,
+# ) -> Generator[AgentResponse, None, None]:
+#     files_info, actions = _prepare_files_info(project_manager)
 
-    yield AgentResponse(actions=actions)
+#     tree = get_tree(project_root=project_manager.project_root)
+#     project_language = get_primary_language(
+#         project_root=project_manager.project_root
+#     )
 
-    stream = call_coder(
-        user_message, files_info, conversation_history, controller
-    )
-    if stream:
-        for response in _handle_streaming_response(stream):
-            yield response
-        final = stream.get_final_response()
-        for response in _apply_changes(final, project_manager):
-            yield response
+#     codebase_context = CodebaseContext(
+#         file_tree=tree, project_language=project_language
+#     )
+
+#     yield AgentResponse(actions=actions)
+
+#     stream = call_coder(
+#         user_message,
+#         conversation_history,
+#         files=files_info,
+#         codebase_context,
+#         controller,
+#     )
+#     if stream:
+#         for response in _handle_streaming_response(stream):
+#             yield response
+#         final = stream.get_final_response()
+#         for response in _apply_changes(final, project_manager):
+#             yield response
