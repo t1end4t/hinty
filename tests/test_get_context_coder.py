@@ -144,7 +144,11 @@ def get_primary_framework(directory="."):
     primary_lang = get_primary_language(directory)
 
     if primary_lang != "Python":
-        return f"{primary_lang} (Generic)" if primary_lang != "Unknown" else "Unknown"
+        return (
+            f"{primary_lang} (Generic)"
+            if primary_lang != "Unknown"
+            else "Unknown"
+        )
 
     # Framework indicators for Python
     framework_indicators = {
@@ -175,7 +179,11 @@ def get_primary_framework(directory="."):
                 try:
                     with open(path / file, "rb") as f:
                         data = tomllib.load(f)
-                        deps = data.get("tool", {}).get("poetry", {}).get("dependencies", {})
+                        deps = (
+                            data.get("tool", {})
+                            .get("poetry", {})
+                            .get("dependencies", {})
+                        )
                         if "django" in str(deps).lower():
                             return "Python (Django)"
                         elif "flask" in str(deps).lower():
