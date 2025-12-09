@@ -125,3 +125,17 @@ def import_to_file(import_str: str, root: Path) -> Path | None:
     if path.exists():
         return path
     return None
+
+
+def main():
+    """Main function to run the file relationship extraction."""
+    # Specific input: target file
+    target_file = Path("src/hinty/core/project_manager.py")
+    result = extract_related_files(target_file)
+    print("Related files for", target_file)
+    for key, files in result.items():
+        print(f"{key}: {[str(f) for f in files]}")
+
+
+if __name__ == "__main__":
+    main()
