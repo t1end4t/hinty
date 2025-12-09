@@ -81,7 +81,9 @@ def get_tree_with_library(project_root: Path):
 
 def get_primary_language(project_root: Path):
     """Determine the primary programming language of the project in the given directory."""
-    logger.info("Determining primary language for project root: {}", project_root)
+    logger.info(
+        "Determining primary language for project root: {}", project_root
+    )
     path = project_root.resolve()
     spec = load_gitignore_spec(project_root)
 
