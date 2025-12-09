@@ -76,15 +76,11 @@ def _update_state(
     if partial.actions:
         current_actions = partial.actions
     if partial.response:
-        # if isinstance(partial.response, str):
-        current_response = partial.response
-        full_response = current_response
-        # else:
-        #     for chunk in partial.response:
-        #         full_response = chunk
-        #         lines = chunk.split("\n")
-        #         last_lines = lines[-console_height:]
-        #         current_response = "\n".join(last_lines)
+        chunk = partial.response
+        full_response = chunk
+        lines = chunk.split("\n")
+        last_lines = lines[-console_height:]
+        current_response = "\n".join(last_lines)
     return current_response, current_actions, current_thinking, full_response
 
 
