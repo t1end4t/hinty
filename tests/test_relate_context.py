@@ -43,12 +43,15 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     tree = parser.parse(bytes(code, "utf-8"))
 
     # Tree-sitter query for import statements
-    query = Query(PY_LANGUAGE, """
+    query = Query(
+        PY_LANGUAGE,
+        """
     (import_statement
       name: (dotted_name) @import_name)
     (import_from_statement
       module_name: (dotted_name) @module_name)
-    """)
+    """,
+    )
 
     query_cursor = QueryCursor(query)
     captures = query_cursor.captures(tree.root_node)
