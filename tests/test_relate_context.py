@@ -105,13 +105,20 @@ def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
         """,
     )
 
-    # Query to find function definitions in other files
+    # Query to find function definitions and identifiers in other files
     func_query = Query(
         PY_LANGUAGE,
         """
         (function_definition
           name: (identifier) @func_name
           body: (block) @func_body)
+        """,
+    )
+    # Query to find all identifiers
+    identifier_query = Query(
+        PY_LANGUAGE,
+        """
+        (identifier) @identifier
         """,
     )
 
@@ -134,6 +141,7 @@ def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
     # Now, for each class, find usages in functions in other files
     usages = {cls: [] for cls in classes}
     func_cursor = QueryCursor(func_query)
+    id_cursor = QueryCursor(identifier_query)
 
     for file in all_py_files:
         if file.resolve() == target_file.resolve():
@@ -152,11 +160,16 @@ def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
             for i, func_node in enumerate(func_captures["func_name"]):
                 func_name = code[func_node.start_byte : func_node.end_byte]
                 body_node = func_captures["func_body"][i]
-                body_text = code[body_node.start_byte : body_node.end_byte]
-                for cls in classes:
-                    if cls in body_text:
-                        usages[cls].append(f"{file}:{func_name}")
-                        break  # Avoid duplicates for the same function
+                # Find all identifiers in the function body
+                id_captures = id_cursor.captures(body_node)
+                used_classes = set()
+                if "identifier" in id_captures:
+                    for id_node in id_captures["identifier"]:
+                        id_text = code[id_node.start_byte : id_node.end_byte]
+                        if id_text in classes:
+                            used_classes.add(id_text)
+                for cls in used_classes:
+                    usages[cls].append(f"{file}:{func_name}")
 
     return usages
 
