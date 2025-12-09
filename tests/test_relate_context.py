@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from tree_sitter import Language, Parser, Query, QueryCursor
+from tree_sitter import Language, Parser, Query
 import tree_sitter_python
 
 # Set up tree-sitter parser for Python
@@ -15,8 +15,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     Relationships include:
     - imports_from: Files that the target imports from.
     - imported_by: Files that import from the target.
-    - uses: Files used by the target (for now, same as imports_from).
-    - used_by: Files that use the target (for now, same as imported_by).
     - tests: Test files related to the target.
 
     Uses tree-sitter to parse Python code for import analysis.
@@ -28,8 +26,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     result = {
         "imports_from": [],
         "imported_by": [],
-        "uses": [],
-        "used_by": [],
         "tests": [],
     }
 
@@ -38,6 +34,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
         with open(target_file, "r", encoding="utf-8") as f:
             code = f.read()
     except FileNotFoundError:
+        print(f"Error: Target file not found: {target_file}")
         return result  # Return empty if file not found
 
     tree = parser.parse(bytes(code, "utf-8"))
@@ -46,26 +43,26 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     query = Query(
         PY_LANGUAGE,
         """
-    (import_statement
-      name: (dotted_name) @import_name)
-    (import_from_statement
-      module_name: (dotted_name) @module_name)
-    """,
+        (import_statement
+          name: (dotted_name) @import_name)
+        (import_from_statement
+          module_name: (dotted_name) @module_name)
+        """,
     )
 
-    query_cursor = QueryCursor(query)
-    captures = query_cursor.captures(tree.root_node)
-    for capture_name in captures:
+    # FIXED: Correct usage of captures - it returns list of (node, capture_name) tuples
+    captures = query.captures(tree.root_node)
+
+    for node, capture_name in captures:
         if capture_name in ("import_name", "module_name"):
-            for node in captures[capture_name]:
-                import_str = code[node.start_byte : node.end_byte]
-                file_path = import_to_file(import_str, project_root)
-                if (
-                    file_path
-                    and file_path.exists()
-                    and file_path not in result["imports_from"]
-                ):
-                    result["imports_from"].append(file_path)
+            import_str = code[node.start_byte : node.end_byte]
+            file_path = import_to_file(import_str, project_root)
+            if (
+                file_path
+                and file_path.exists()
+                and file_path not in result["imports_from"]
+            ):
+                result["imports_from"].append(file_path)
 
     # Find imported_by: scan other files for imports of target_module
     for file in all_py_files:
@@ -76,19 +73,20 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
                 code = f.read()
         except (FileNotFoundError, UnicodeDecodeError):
             continue
+
         tree = parser.parse(bytes(code, "utf-8"))
-        query_cursor = QueryCursor(query)
-        captures = query_cursor.captures(tree.root_node)
-        for capture_name in captures:
+        captures = query.captures(tree.root_node)
+
+        # FIXED: Correct iteration over captures
+        for node, capture_name in captures:
             if capture_name in ("import_name", "module_name"):
-                for node in captures[capture_name]:
-                    import_str = code[node.start_byte : node.end_byte]
-                    if import_str == target_module or import_str.startswith(
-                        target_module + "."
-                    ):
-                        if file not in result["imported_by"]:
-                            result["imported_by"].append(file)
-                        break  # No need to check further in this file
+                import_str = code[node.start_byte : node.end_byte]
+                if import_str == target_module or import_str.startswith(
+                    target_module + "."
+                ):
+                    if file not in result["imported_by"]:
+                        result["imported_by"].append(file)
+                    break  # No need to check further in this file
 
     # For now, uses and used_by are the same as imports_from and imported_by
     result["uses"] = result["imports_from"][:]
@@ -106,16 +104,24 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
 
 def find_project_root(path: Path) -> Path:
     """Find the project root by looking for .git directory."""
-    current = path.parent
+    current = path.resolve().parent  # FIXED: Use resolve() to get absolute path
     while current != current.parent:
         if (current / ".git").exists():
             return current
         current = current.parent
-    return path.parent  # Fallback to parent if no .git found
+    # Fallback: go up until we find src/ or project structure
+    current = path.resolve().parent
+    while current != current.parent:
+        if (current / "src").exists() or (current / "tests").exists():
+            return current
+        current = current.parent
+    return path.resolve().parent
 
 
 def get_module_name(file: Path, root: Path) -> str:
     """Convert file path to module name relative to root."""
+    file = file.resolve()
+    root = root.resolve()
     rel = file.relative_to(root)
     return str(rel.with_suffix("")).replace(os.sep, ".")
 
@@ -136,12 +142,41 @@ def import_to_file(import_str: str, root: Path) -> Path | None:
 
 def main():
     """Main function to run the file relationship extraction."""
-    # Specific input: target file
-    target_file = Path("src/hinty/core/project_manager.py")
+    # FIXED: Use relative path that works when run from project root or tests/
+    import sys
+
+    if len(sys.argv) > 1:
+        target_file = Path(sys.argv[1])
+    else:
+        # Default target - adjust this to your actual file
+        target_file = Path("src/hinty/core/project_manager.py")
+
+    # Make path absolute if needed
+    if not target_file.is_absolute():
+        target_file = Path.cwd() / target_file
+
+    if not target_file.exists():
+        print(f"Error: File not found: {target_file}")
+        print(f"Current working directory: {Path.cwd()}")
+        print(f"Resolved path: {target_file.resolve()}")
+        return
+
+    print(f"Analyzing file: {target_file}")
+    print(f"Current working directory: {Path.cwd()}")
+
     result = extract_related_files(target_file)
-    print("Related files for", target_file)
+
+    print("\n=== Related files for", target_file, "===")
     for key, files in result.items():
-        print(f"{key}: {[str(f) for f in files]}")
+        print(f"\n{key} ({len(files)} files):")
+        for f in files:
+            print(f"  - {f}")
+
+    if not any(result.values()):
+        print("\nNo related files found. This could mean:")
+        print("  - The file has no imports")
+        print("  - The imports point to external packages")
+        print("  - The project structure couldn't be detected")
 
 
 if __name__ == "__main__":
