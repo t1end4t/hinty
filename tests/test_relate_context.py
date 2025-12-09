@@ -54,15 +54,16 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     captures = query_cursor.captures(tree.root_node)
 
     for capture_name in ("import_name", "module_name"):
-        for node in captures[capture_name]:
-            import_str = code[node.start_byte : node.end_byte]
-            file_path = import_to_file(import_str, project_root)
-            if (
-                file_path
-                and file_path.exists()
-                and file_path not in result["imports_from"]
-            ):
-                result["imports_from"].append(file_path)
+        if capture_name in captures:
+            for node in captures[capture_name]:
+                import_str = code[node.start_byte : node.end_byte]
+                file_path = import_to_file(import_str, project_root)
+                if (
+                    file_path
+                    and file_path.exists()
+                    and file_path not in result["imports_from"]
+                ):
+                    result["imports_from"].append(file_path)
 
     # Find imported_by: scan other files for imports of target_module
     for file in all_py_files:
@@ -78,14 +79,15 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
         captures = query_cursor.captures(tree.root_node)
 
         for capture_name in ("import_name", "module_name"):
-            for node in captures[capture_name]:
-                import_str = code[node.start_byte : node.end_byte]
-                if import_str == target_module or import_str.startswith(
-                    target_module + "."
-                ):
-                    if file not in result["imported_by"]:
-                        result["imported_by"].append(file)
-                    break  # No need to check further in this file
+            if capture_name in captures:
+                for node in captures[capture_name]:
+                    import_str = code[node.start_byte : node.end_byte]
+                    if import_str == target_module or import_str.startswith(
+                        target_module + "."
+                    ):
+                        if file not in result["imported_by"]:
+                            result["imported_by"].append(file)
+                        break  # No need to check further in this file
 
     # For now, uses and used_by are the same as imports_from and imported_by
     result["uses"] = result["imports_from"][:]
