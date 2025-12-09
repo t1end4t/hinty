@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from tree_sitter import Language, Parser, Query
+from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_python
 
 # Set up tree-sitter parser for Python
@@ -50,11 +50,11 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
         """,
     )
 
-    # FIXED: Correct usage of captures - it returns list of (node, capture_name) tuples
-    captures = query.captures(tree.root_node)
+    query_cursor = QueryCursor(query)
+    captures = query_cursor.captures(tree.root_node)
 
-    for node, capture_name in captures:
-        if capture_name in ("import_name", "module_name"):
+    for capture_name in ("import_name", "module_name"):
+        for node in captures[capture_name]:
             import_str = code[node.start_byte : node.end_byte]
             file_path = import_to_file(import_str, project_root)
             if (
@@ -75,11 +75,10 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
             continue
 
         tree = parser.parse(bytes(code, "utf-8"))
-        captures = query.captures(tree.root_node)
+        captures = query_cursor.captures(tree.root_node)
 
-        # FIXED: Correct iteration over captures
-        for node, capture_name in captures:
-            if capture_name in ("import_name", "module_name"):
+        for capture_name in ("import_name", "module_name"):
+            for node in captures[capture_name]:
                 import_str = code[node.start_byte : node.end_byte]
                 if import_str == target_module or import_str.startswith(
                     target_module + "."
