@@ -5,13 +5,13 @@ from tree_format import format_tree
 import pathspec
 
 
-def get_tree_with_library(directory="."):
+def get_tree_with_library(project_root: Path):
     """Generate tree using tree-format library, respecting .gitignore"""
-    path = Path(directory).resolve()
+    path = project_root.resolve()
 
     # Load .gitignore patterns
     gitignore_spec = None
-    gitignore_path = Path(directory) / ".gitignore"
+    gitignore_path = project_root / ".gitignore"
     if gitignore_path.exists():
         with open(gitignore_path, "r") as f:
             patterns = f.read().splitlines()
@@ -68,13 +68,13 @@ def get_tree_with_library(directory="."):
     )
 
 
-def get_primary_language(directory="."):
+def get_primary_language(project_root: Path):
     """Determine the primary programming language of the project in the given directory."""
-    path = Path(directory).resolve()
+    path = project_root.resolve()
 
     # Load .gitignore patterns
     gitignore_spec = None
-    gitignore_path = Path(directory) / ".gitignore"
+    gitignore_path = project_root / ".gitignore"
     if gitignore_path.exists():
         with open(gitignore_path, "r") as f:
             patterns = f.read().splitlines()
