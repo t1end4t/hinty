@@ -183,7 +183,10 @@ def get_primary_framework(directory="."):
                 except (json.JSONDecodeError, FileNotFoundError):
                     pass
             # For Python, check requirements.txt or pyproject.toml for frameworks
-            elif file in ["requirements.txt", "pyproject.toml"] and primary_lang == "Python":
+            elif (
+                file in ["requirements.txt", "pyproject.toml"]
+                and primary_lang == "Python"
+            ):
                 if file == "requirements.txt":
                     try:
                         with open(path / file, "r") as f:
@@ -199,9 +202,14 @@ def get_primary_framework(directory="."):
                 elif file == "pyproject.toml":
                     try:
                         import tomllib
+
                         with open(path / file, "rb") as f:
                             data = tomllib.load(f)
-                            deps = data.get("tool", {}).get("poetry", {}).get("dependencies", {})
+                            deps = (
+                                data.get("tool", {})
+                                .get("poetry", {})
+                                .get("dependencies", {})
+                            )
                             if "django" in str(deps).lower():
                                 return "Python (Django)"
                             elif "flask" in str(deps).lower():
@@ -221,7 +229,11 @@ def get_primary_framework(directory="."):
     elif primary_lang == "TypeScript":
         return "Node.js (TypeScript)"
     else:
-        return f"{primary_lang} (Generic)" if primary_lang != "Unknown" else "Unknown"
+        return (
+            f"{primary_lang} (Generic)"
+            if primary_lang != "Unknown"
+            else "Unknown"
+        )
 
 
 if __name__ == "__main__":
