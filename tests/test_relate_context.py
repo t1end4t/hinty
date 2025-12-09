@@ -92,8 +92,6 @@ def get_module_name(file: Path, root: Path) -> str:
     return rel_str.replace(os.sep, ".")
 
 
-
-
 def main():
     """Main function to run the file relationship extraction."""
     # FIXED: Use relative path that works when run from project root or tests/
