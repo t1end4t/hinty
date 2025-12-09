@@ -115,22 +115,22 @@ def get_primary_language(directory="."):
     most_common_ext = ext_counter.most_common(1)[0][0]
 
     lang_map = {
-        '.py': 'Python',
-        '.js': 'JavaScript',
-        '.ts': 'TypeScript',
-        '.java': 'Java',
-        '.cpp': 'C++',
-        '.cc': 'C++',
-        '.cxx': 'C++',
-        '.c': 'C',
-        '.h': 'C',
-        '.rb': 'Ruby',
-        '.php': 'PHP',
-        '.go': 'Go',
-        '.rs': 'Rust',
-        '.swift': 'Swift',
-        '.kt': 'Kotlin',
-        '.scala': 'Scala',
+        ".py": "Python",
+        ".js": "JavaScript",
+        ".ts": "TypeScript",
+        ".java": "Java",
+        ".cpp": "C++",
+        ".cc": "C++",
+        ".cxx": "C++",
+        ".c": "C",
+        ".h": "C",
+        ".rb": "Ruby",
+        ".php": "PHP",
+        ".go": "Go",
+        ".rs": "Rust",
+        ".swift": "Swift",
+        ".kt": "Kotlin",
+        ".scala": "Scala",
     }
 
     return lang_map.get(most_common_ext, f"Unknown ({most_common_ext})")
