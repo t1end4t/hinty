@@ -57,7 +57,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
         if capture_name in captures:
             for node in captures[capture_name]:
                 import_str = code[node.start_byte : node.end_byte]
-                file_path = import_to_file(import_str, project_root)
+                file_path = import_to_file(import_str, project_root, target_file)
                 if (
                     file_path
                     and file_path.exists()
@@ -130,20 +130,47 @@ def get_module_name(file: Path, root: Path) -> str:
     return rel_str.replace(os.sep, ".")
 
 
-def import_to_file(import_str: str, root: Path) -> Path | None:
-    """Convert import string to file path."""
-    if not import_str.startswith("hinty."):
-        return None  # Only handle internal imports
-    parts = import_str.split(".")
-    # Try direct .py file under src/
-    path = root / "src" / Path(*parts).with_suffix(".py")
-    if path.exists():
-        return path
-    # Try package __init__.py under src/
-    path = root / "src" / Path(*parts) / "__init__.py"
-    if path.exists():
-        return path
-    return None
+def import_to_file(import_str: str, root: Path, current_file: Path) -> Path | None:
+    """Convert import string to file path, handling absolute and relative imports."""
+    if import_str.startswith("hinty."):
+        # Absolute import
+        parts = import_str.split(".")
+        # Try direct .py file under src/
+        path = root / "src" / Path(*parts).with_suffix(".py")
+        if path.exists():
+            return path
+        # Try package __init__.py under src/
+        path = root / "src" / Path(*parts) / "__init__.py"
+        if path.exists():
+            return path
+        return None
+    elif import_str.startswith("."):
+        # Relative import
+        current_module = get_module_name(current_file, root)
+        current_parts = current_module.split(".")
+        # Count leading dots
+        dots = 0
+        temp_str = import_str
+        while temp_str.startswith("."):
+            dots += 1
+            temp_str = temp_str[1:]
+        # Go up (dots - 1) levels if dots > 0, else stay at current
+        if dots > len(current_parts):
+            return None
+        base_parts = current_parts[: -dots] if dots > 0 else current_parts
+        import_parts = temp_str.split(".") if temp_str else []
+        full_parts = base_parts + import_parts
+        # Try direct .py file under src/
+        path = root / "src" / Path(*full_parts).with_suffix(".py")
+        if path.exists():
+            return path
+        # Try package __init__.py under src/
+        path = root / "src" / Path(*full_parts) / "__init__.py"
+        if path.exists():
+            return path
+        return None
+    else:
+        return None  # External import
 
 
 def main():
