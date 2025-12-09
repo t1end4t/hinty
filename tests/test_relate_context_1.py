@@ -181,7 +181,20 @@ def extract_related_files(
                         if enclosing.type == "class_definition"
                         else "function"
                     )
-                    usage_str = f"{imported_type} {name} -> {enclosing_type} {enclosing_name}"
+                    # Check if this function is inside a class
+                    class_name = None
+                    if enclosing.type == "function_definition":
+                        parent = enclosing.parent
+                        while parent:
+                            if parent.type == "class_definition":
+                                class_name = get_name_from_node(parent, code)
+                                break
+                            parent = parent.parent
+                    if class_name:
+                        enclosing_str = f"{class_name}.{enclosing_name}"
+                    else:
+                        enclosing_str = f"{enclosing_type} {enclosing_name}"
+                    usage_str = f"{imported_type} {name} -> {enclosing_str}"
                     usage_set.add(usage_str)
 
     result["usages"] = list(usage_set)
