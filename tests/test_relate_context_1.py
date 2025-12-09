@@ -27,6 +27,29 @@ def get_name_from_node(node, code):
     return "unknown"
 
 
+def extract_import_from(node, code):
+    """Extract module_name and list of names from an import_from_statement node."""
+    sub_query = Query(
+        PY_LANGUAGE,
+        """
+        (import_from_statement
+          module_name: [
+            (dotted_name)
+            (relative_import)
+          ] @module_name
+          name: (dotted_name) @name)
+        """,
+    )
+    sub_cursor = QueryCursor(sub_query)
+    sub_captures = sub_cursor.captures(node)
+    module_names = [
+        code[n.start_byte : n.end_byte] for n in sub_captures.get("module_name", [])
+    ]
+    names = [code[n.start_byte : n.end_byte] for n in sub_captures.get("name", [])]
+    module_name = module_names[0] if module_names else ""
+    return module_name, names
+
+
 def module_to_file(module: str, root: Path) -> Path | None:
     """Convert module name to file path relative to root."""
     if not module:
@@ -59,21 +82,11 @@ def extract_related_files(
     }
 
     # UPDATED QUERY:
-    # 1. Capture `relative_import` (e.g., ..core)
-    # 2. Capture `dotted_name` (e.g., hinty.core)
-    # 3. Capture imported names from import_from_statement
+    # Capture import_from_statement nodes
     query = Query(
         PY_LANGUAGE,
         """
-        (import_statement
-          name: (dotted_name) @import_name)
-          
-        (import_from_statement
-          module_name: [
-            (dotted_name) 
-            (relative_import)
-          ] @module_name
-          name: (dotted_name) @imported_name)
+        (import_from_statement) @import_from
         """,
     )
 
@@ -93,27 +106,15 @@ def extract_related_files(
     current_file_module = get_module_name(target_file, project_root)
     imported_names = set()
 
-    for capture_name in ("import_name", "module_name", "imported_name"):
-        if capture_name in captures:
-            for node in captures[capture_name]:
-                import_str = code[node.start_byte : node.end_byte]
-
-                if capture_name == "imported_name":
-                    # Collect imported names from import_from_statement
-                    imported_names.add(import_str)
-                elif capture_name in ("import_name", "module_name"):
-                    resolved_import = resolve_relative_import(
-                        import_str, current_file_module
-                    )
-
-                    # Convert resolved_import to file path
-                    file_path = module_to_file(resolved_import, project_root)
-                    if (
-                        file_path
-                        and file_path.exists()
-                        and file_path not in result["imported_from"]
-                    ):
-                        result["imported_from"].append(file_path)
+    for node in captures.get("import_from", []):
+        module_str, names = extract_import_from(node, code)
+        resolved_import = resolve_relative_import(module_str, current_file_module)
+        file_path = module_to_file(resolved_import, project_root)
+        if file_path and file_path.exists():
+            if file_path not in result["imported_from"]:
+                result["imported_from"].append(file_path)
+            # Add imported names since they are from project files
+            imported_names.update(names)
 
     # Now, find usages of imported names
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
