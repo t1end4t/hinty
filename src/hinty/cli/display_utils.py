@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, List
 
 from loguru import logger
 from rich.console import Console, Group
@@ -14,7 +14,6 @@ from ..cli.theme import (
 )
 from ..core.models import AgentResponse
 from ..core.project_manager import ProjectManager
-
 
 # Constants for readability
 REFRESH_RATE = 10
@@ -34,7 +33,11 @@ def print_welcome(console: Console):
     )
 
 
-def _build_group_items(current_thinking, current_response, current_actions):
+def _build_group_items(
+    current_thinking: str | None,
+    current_response: str | None,
+    current_actions: List[str] | None,
+):
     """Build group items for live display."""
     group_items = []
     if current_thinking:
@@ -60,11 +63,11 @@ def _build_group_items(current_thinking, current_response, current_actions):
 
 
 def _update_state(
-    partial,
-    current_response,
-    current_actions,
-    current_thinking,
-    full_response,
+    partial: AgentResponse,
+    current_response: str | None,
+    current_actions: List[str] | None,
+    current_thinking: str | None,
+    full_response: str,
     console_height,
 ):
     """Update current state from partial response."""
@@ -73,20 +76,20 @@ def _update_state(
     if partial.actions:
         current_actions = partial.actions
     if partial.response:
-        if isinstance(partial.response, str):
-            current_response = partial.response
-            full_response = current_response
-        else:
-            for chunk in partial.response:
-                full_response = chunk
-                lines = chunk.split("\n")
-                last_lines = lines[-console_height:]
-                current_response = "\n".join(last_lines)
+        # if isinstance(partial.response, str):
+        current_response = partial.response
+        full_response = current_response
+        # else:
+        #     for chunk in partial.response:
+        #         full_response = chunk
+        #         lines = chunk.split("\n")
+        #         last_lines = lines[-console_height:]
+        #         current_response = "\n".join(last_lines)
     return current_response, current_actions, current_thinking, full_response
 
 
 def _print_final_response(
-    current_thinking, current_actions, full_response, console
+    current_thinking, current_actions, full_response, console: Console
 ):
     """Print the final response after streaming."""
     if full_response:
