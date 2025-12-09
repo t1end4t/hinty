@@ -57,7 +57,9 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
         if capture_name in captures:
             for node in captures[capture_name]:
                 import_str = code[node.start_byte : node.end_byte]
-                file_path = import_to_file(import_str, project_root, target_file)
+                file_path = import_to_file(
+                    import_str, project_root, target_file
+                )
                 if (
                     file_path
                     and file_path.exists()
@@ -130,7 +132,9 @@ def get_module_name(file: Path, root: Path) -> str:
     return rel_str.replace(os.sep, ".")
 
 
-def import_to_file(import_str: str, root: Path, current_file: Path) -> Path | None:
+def import_to_file(
+    import_str: str, root: Path, current_file: Path
+) -> Path | None:
     """Convert import string to file path, handling absolute and relative imports."""
     if import_str.startswith("hinty."):
         # Absolute import
@@ -157,7 +161,7 @@ def import_to_file(import_str: str, root: Path, current_file: Path) -> Path | No
         # Go up (dots - 1) levels if dots > 0, else stay at current
         if dots > len(current_parts):
             return None
-        base_parts = current_parts[: -dots] if dots > 0 else current_parts
+        base_parts = current_parts[:-dots] if dots > 0 else current_parts
         import_parts = temp_str.split(".") if temp_str else []
         full_parts = base_parts + import_parts
         # Try direct .py file under src/
