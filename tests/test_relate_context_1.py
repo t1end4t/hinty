@@ -42,7 +42,9 @@ def module_to_file(module: str, root: Path) -> Path | None:
     return None
 
 
-def extract_related_files(target_file: Path) -> dict[str, list[Path] | list[str]]:
+def extract_related_files(
+    target_file: Path,
+) -> dict[str, list[Path] | list[str]]:
     """
     Extract file paths that have relationships with the target Python file.
     Handles both absolute and relative imports.
@@ -108,7 +110,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path] | list[str]
                     result["imported_from"].append(file_path)
 
                 # Collect imported names (split by '.' and take the last part for usage matching)
-                imported_names.add(import_str.split('.')[-1])
+                imported_names.add(import_str.split(".")[-1])
 
     # Now, find usages of imported names
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
@@ -123,8 +125,14 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path] | list[str]
                 enclosing = find_enclosing_class_or_function(node)
                 if enclosing:
                     enclosing_name = get_name_from_node(enclosing, code)
-                    enclosing_type = "class" if enclosing.type == "class_definition" else "function"
-                    imported_type = "class"  # Assume imported names are classes for now
+                    enclosing_type = (
+                        "class"
+                        if enclosing.type == "class_definition"
+                        else "function"
+                    )
+                    imported_type = (
+                        "class"  # Assume imported names are classes for now
+                    )
                     usage_str = f"{imported_type} {name} -> {enclosing_type} {enclosing_name}"
                     usage_set.add(usage_str)
 
