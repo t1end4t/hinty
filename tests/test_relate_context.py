@@ -9,21 +9,6 @@ PY_LANGUAGE = Language(tree_sitter_python.language())
 parser = Parser(PY_LANGUAGE)
 
 
-def module_to_file(module: str, root: Path) -> Path | None:
-    """Convert module name to file path relative to root."""
-    if not module:
-        return None
-    rel_path = module.replace(".", os.sep) + ".py"
-    candidates = [
-        root / "src" / rel_path,
-        root / rel_path,
-    ]
-    for cand in candidates:
-        if cand.exists():
-            return cand
-    return None
-
-
 def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     """
     Extract file paths that have relationships with the target Python file.
@@ -37,7 +22,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
 
     result = {
         "imported_by": [],
-        "imported_from": [],
     }
 
     # UPDATED QUERY:
@@ -100,36 +84,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
                         break
             if found_match:
                 break
-
-    # Now, find files imported by target_file
-    try:
-        with open(target_file, "r", encoding="utf-8") as f:
-            code = f.read()
-    except (FileNotFoundError, UnicodeDecodeError):
-        pass  # already checked exists
-
-    tree = parser.parse(bytes(code, "utf-8"))
-    captures = query_cursor.captures(tree.root_node)
-
-    current_file_module = target_module
-
-    for capture_name in ("import_name", "module_name"):
-        if capture_name in captures:
-            for node in captures[capture_name]:
-                import_str = code[node.start_byte : node.end_byte]
-
-                resolved_import = resolve_relative_import(
-                    import_str, current_file_module
-                )
-
-                # Convert resolved_import to file path
-                file_path = module_to_file(resolved_import, project_root)
-                if (
-                    file_path
-                    and file_path.exists()
-                    and file_path not in result["imported_from"]
-                ):
-                    result["imported_from"].append(file_path)
 
     return result
 
