@@ -50,8 +50,10 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
       module_name: (dotted_name) @module_name)
     """)
 
-    captures = query.captures(tree.root_node)
-    for node, name in captures:
+    captures = query.matches(tree.root_node)
+    for pattern_index, capture_dict in captures:
+        for capture_name, node in capture_dict.items():
+            name = capture_name
         if name in ("import_name", "module_name"):
             import_str = code[node.start_byte : node.end_byte]
             file_path = import_to_file(import_str, project_root)
@@ -72,8 +74,10 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
         except (FileNotFoundError, UnicodeDecodeError):
             continue
         tree = parser.parse(bytes(code, "utf-8"))
-        captures = query.captures(tree.root_node)
-        for node, name in captures:
+        captures = query.matches(tree.root_node)
+        for pattern_index, capture_dict in captures:
+            for capture_name, node in capture_dict.items():
+                name = capture_name
             if name in ("import_name", "module_name"):
                 import_str = code[node.start_byte : node.end_byte]
                 if import_str == target_module or import_str.startswith(
