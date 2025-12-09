@@ -151,7 +151,7 @@ def extract_file_relationships(
     target_file: Path, project_root: Path
 ) -> List[FileRelationship]:
     """Extract relationships for a target file using tree-sitter.
-    
+
     Analyzes imports, function calls, and test relationships.
     """
     if not target_file.exists() or not target_file.is_file():
@@ -250,13 +250,11 @@ def extract_file_relationships(
 if __name__ == "__main__":
     print(get_tree_with_library())
     print(get_primary_language())
-    
+
     # Test relationship extraction
     test_file = Path("tests/test_get_context_coder.py")
     if test_file.exists():
-        relationships = extract_file_relationships(
-            test_file, Path(".")
-        )
+        relationships = extract_file_relationships(test_file, Path("."))
         print("\nFile Relationships:")
         for rel in relationships:
             print(f"  {rel.relationship}: {rel.file_path}")
