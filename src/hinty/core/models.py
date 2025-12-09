@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List
-from baml_py import BamlSyncStream
-from typing import Union
-from ..baml_client.types import FetchUrlTool, SearchWebTool
+from typing import Any, Dict, List, Union
 
+from ..baml_client.types import FetchUrlTool, SearchWebTool
 
 # Type alias for chatgpt tools
 ChatgptTool = Union[FetchUrlTool, SearchWebTool]
@@ -14,7 +12,7 @@ ChatgptTool = Union[FetchUrlTool, SearchWebTool]
 class AgentResponse:
     """Unified response structure for all agents."""
 
-    response: BamlSyncStream[str, str] | str | None = None
+    response: str | None = None
     metadata: Dict[str, Any] | None = None
     actions: List[str] | None = None
     thinking: str | None = None

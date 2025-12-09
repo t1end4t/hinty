@@ -75,17 +75,22 @@ def _update_state(
         current_thinking = partial.thinking
     if partial.actions:
         current_actions = partial.actions
+
     if partial.response:
         chunk = partial.response
         full_response = chunk
         lines = chunk.split("\n")
         last_lines = lines[-console_height:]
         current_response = "\n".join(last_lines)
+
     return current_response, current_actions, current_thinking, full_response
 
 
 def _print_final_response(
-    current_thinking, current_actions, full_response, console: Console
+    current_thinking: str | None,
+    current_actions: List[str] | None,
+    full_response: str | None,
+    console: Console,
 ):
     """Print the final response after streaming."""
     if full_response:
