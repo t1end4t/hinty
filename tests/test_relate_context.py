@@ -1,6 +1,10 @@
-import ast
+import tree_sitter_python
 from pathlib import Path
+from tree_sitter import Language, Parser
 from typing import Dict, List
+
+PY_LANGUAGE = Language(tree_sitter_python.language())
+parser = Parser(PY_LANGUAGE)
 
 
 def get_related_filepaths(
@@ -38,21 +42,29 @@ def get_related_filepaths(
                 return path
         return None
 
-    # Parse target file for imports
+    # Parse target file for imports using tree-sitter
     try:
         with open(target_file, "r", encoding="utf-8") as f:
-            tree = ast.parse(f.read())
+            code = f.read()
+        tree = parser.parse(code.encode("utf-8"))
+        root = tree.root_node
     except Exception:
         return result  # If can't parse, return empty
 
+    query = PY_LANGUAGE.query(
+        """
+        (import_statement
+          name: (dotted_name) @module
+        )
+        (import_from_statement
+          module_name: (dotted_name) @module
+        )
+        """
+    )
+    captures = query.captures(root)
     imports = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                imports.add(alias.name)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.add(node.module)
+    for capture, _ in captures:
+        imports.add(capture.text.decode("utf-8"))
 
     # Resolve imports to filepaths
     for imp in imports:
