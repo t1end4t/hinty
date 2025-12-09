@@ -9,6 +9,39 @@ PY_LANGUAGE = Language(tree_sitter_python.language())
 parser = Parser(PY_LANGUAGE)
 
 
+def get_definitions(file_path: Path) -> dict[str, str]:
+    """Extract class and function definitions from a Python file."""
+    code = ""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            code = f.read()
+    except (FileNotFoundError, UnicodeDecodeError):
+        return {}
+    
+    tree = parser.parse(bytes(code, "utf-8"))
+    defs = {}
+    
+    def_query = Query(
+        PY_LANGUAGE,
+        """
+        (class_definition name: (identifier) @class_name)
+        (function_definition name: (identifier) @func_name)
+        """,
+    )
+    def_cursor = QueryCursor(def_query)
+    captures = def_cursor.captures(tree.root_node)
+    
+    for node in captures.get("class_name", []):
+        name = code[node.start_byte : node.end_byte]
+        defs[name] = "class"
+    
+    for node in captures.get("func_name", []):
+        name = code[node.start_byte : node.end_byte]
+        defs[name] = "function"
+    
+    return defs
+
+
 def find_enclosing_class_or_function(node):
     """Find the nearest enclosing class or function definition."""
     current = node.parent
@@ -107,7 +140,7 @@ def extract_related_files(
     captures = query_cursor.captures(tree.root_node)
 
     current_file_module = get_module_name(target_file, project_root)
-    imported_names = set()
+    imported_names = {}  # name -> file_path
 
     for node in captures.get("import_from", []):
         module_str, names = extract_import_from(node, code)
@@ -118,8 +151,14 @@ def extract_related_files(
         if file_path and file_path.exists():
             if file_path not in result["imported_from"]:
                 result["imported_from"].append(file_path)
-            # Add imported names since they are from project files
-            imported_names.update(names)
+            # Add imported names with their file_path
+            for name in names:
+                imported_names[name] = file_path
+
+    # Collect definitions from imported files
+    definitions = {}
+    for file_path in result["imported_from"]:
+        definitions[file_path] = get_definitions(file_path)
 
     # Now, find usages of imported names
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
@@ -131,6 +170,9 @@ def extract_related_files(
         for node in usage_captures["usage"]:
             name = code[node.start_byte : node.end_byte]
             if name in imported_names:
+                file_path = imported_names[name]
+                def_dict = definitions[file_path]
+                imported_type = def_dict.get(name, "unknown")
                 enclosing = find_enclosing_class_or_function(node)
                 if enclosing:
                     enclosing_name = get_name_from_node(enclosing, code)
@@ -138,9 +180,6 @@ def extract_related_files(
                         "class"
                         if enclosing.type == "class_definition"
                         else "function"
-                    )
-                    imported_type = (
-                        "class"  # Assume imported names are classes for now
                     )
                     usage_str = f"{imported_type} {name} -> {enclosing_type} {enclosing_name}"
                     usage_set.add(usage_str)
