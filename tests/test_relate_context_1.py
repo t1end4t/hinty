@@ -17,10 +17,10 @@ def get_definitions(file_path: Path) -> dict[str, str]:
             code = f.read()
     except (FileNotFoundError, UnicodeDecodeError):
         return {}
-    
+
     tree = parser.parse(bytes(code, "utf-8"))
     defs = {}
-    
+
     def_query = Query(
         PY_LANGUAGE,
         """
@@ -30,15 +30,15 @@ def get_definitions(file_path: Path) -> dict[str, str]:
     )
     def_cursor = QueryCursor(def_query)
     captures = def_cursor.captures(tree.root_node)
-    
+
     for node in captures.get("class_name", []):
         name = code[node.start_byte : node.end_byte]
         defs[name] = "class"
-    
+
     for node in captures.get("func_name", []):
         name = code[node.start_byte : node.end_byte]
         defs[name] = "function"
-    
+
     return defs
 
 
