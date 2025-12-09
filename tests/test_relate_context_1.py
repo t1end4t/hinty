@@ -43,9 +43,12 @@ def extract_import_from(node, code):
     sub_cursor = QueryCursor(sub_query)
     sub_captures = sub_cursor.captures(node)
     module_names = [
-        code[n.start_byte : n.end_byte] for n in sub_captures.get("module_name", [])
+        code[n.start_byte : n.end_byte]
+        for n in sub_captures.get("module_name", [])
     ]
-    names = [code[n.start_byte : n.end_byte] for n in sub_captures.get("name", [])]
+    names = [
+        code[n.start_byte : n.end_byte] for n in sub_captures.get("name", [])
+    ]
     module_name = module_names[0] if module_names else ""
     return module_name, names
 
@@ -108,7 +111,9 @@ def extract_related_files(
 
     for node in captures.get("import_from", []):
         module_str, names = extract_import_from(node, code)
-        resolved_import = resolve_relative_import(module_str, current_file_module)
+        resolved_import = resolve_relative_import(
+            module_str, current_file_module
+        )
         file_path = module_to_file(resolved_import, project_root)
         if file_path and file_path.exists():
             if file_path not in result["imported_from"]:
