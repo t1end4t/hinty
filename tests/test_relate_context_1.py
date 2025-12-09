@@ -48,10 +48,10 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
         """
         (import_statement
           name: (dotted_name) @import_name)
-          
+
         (import_from_statement
           module_name: [
-            (dotted_name) 
+            (dotted_name)
             (relative_import)
           ] @module_name)
         """,
@@ -132,6 +132,87 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
                     result["imported_from"].append(file_path)
 
     return result
+
+
+def extract_import_usages(target_file: Path) -> dict[str, list[str]]:
+    """
+    Extract usages of imported functions and classes in the target file.
+    Returns a dict where keys are imported items (e.g., 'Mode') and values are lists of classes/functions in the target file that use them.
+    """
+    try:
+        with open(target_file, "r", encoding="utf-8") as f:
+            code = f.read()
+    except (FileNotFoundError, UnicodeDecodeError):
+        return {}
+
+    tree = parser.parse(bytes(code, "utf-8"))
+
+    # Query to find imported names from import_from_statement
+    import_query = Query(
+        PY_LANGUAGE,
+        """
+        (import_from_statement
+          name: (identifier) @import_name)
+        (import_from_statement
+          name: (aliased_import
+            name: (identifier) @import_name))
+        """,
+    )
+
+    import_cursor = QueryCursor(import_query)
+    import_captures = import_cursor.captures(tree.root_node)
+
+    imported_names = set()
+    if "import_name" in import_captures:
+        for node in import_captures["import_name"]:
+            name = code[node.start_byte : node.end_byte]
+            imported_names.add(name)
+
+    usages = {name: [] for name in imported_names}
+
+    # Query to find function and class definitions
+    def_query = Query(
+        PY_LANGUAGE,
+        """
+        (function_definition
+          name: (identifier) @def_name
+          body: (block) @def_body)
+        (class_definition
+          name: (identifier) @def_name
+          body: (block) @def_body)
+        """,
+    )
+
+    def_cursor = QueryCursor(def_query)
+    def_captures = def_cursor.captures(tree.root_node)
+
+    if "def_name" not in def_captures or "def_body" not in def_captures:
+        return usages
+
+    def_names = []
+    def_bodies = []
+    for i, node in enumerate(def_captures["def_name"]):
+        def_names.append(code[node.start_byte : node.end_byte])
+        def_bodies.append(def_captures["def_body"][i])
+
+    # For each definition body, find usages of imported names
+    for i, body in enumerate(def_bodies):
+        def_name = def_names[i]
+        id_query = Query(PY_LANGUAGE, "(identifier) @id")
+        id_cursor = QueryCursor(id_query)
+        id_captures = id_cursor.captures(body)
+
+        if "id" in id_captures:
+            used = set()
+            for id_node in id_captures["id"]:
+                identifier = code[id_node.start_byte : id_node.end_byte]
+                if identifier in imported_names:
+                    used.add(identifier)
+            for item in used:
+                if def_name not in usages[item]:
+                    usages[item].append(def_name)
+
+    return usages
 
 
 def resolve_relative_import(import_str: str, current_module: str) -> str:
@@ -230,12 +311,18 @@ def main():
 
     print(f"Analyzing file: {target_file}")
     result = extract_related_files(target_file)
+    usages = extract_import_usages(target_file)
 
     print("\n=== Related files for", target_file.name, "===")
     for key, files in result.items():
         print(f"\n{key} ({len(files)} files):")
         for f in files:
             print(f"  - {f}")
+
+    print("\n=== Import usages in", target_file.name, "===")
+    for item, users in usages.items():
+        if users:
+            print(f"{item} -> {', '.join(users)}")
 
 
 if __name__ == "__main__":
