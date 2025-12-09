@@ -88,6 +88,79 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     return result
 
 
+def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
+    """
+    Extract key classes from the target file and their usages in functions across the project.
+    Returns a dict where keys are class names and values are lists of "file:function" strings.
+    """
+    project_root = find_project_root(target_file)
+    all_py_files = list(project_root.rglob("*.py"))
+
+    # Query to find class definitions in the target file
+    class_query = Query(
+        PY_LANGUAGE,
+        """
+        (class_definition
+          name: (identifier) @class_name)
+        """,
+    )
+
+    # Query to find function definitions in other files
+    func_query = Query(
+        PY_LANGUAGE,
+        """
+        (function_definition
+          name: (identifier) @func_name
+          body: (block) @func_body)
+        """,
+    )
+
+    # Parse target file to get classes
+    try:
+        with open(target_file, "r", encoding="utf-8") as f:
+            target_code = f.read()
+    except (FileNotFoundError, UnicodeDecodeError):
+        return {}
+
+    target_tree = parser.parse(bytes(target_code, "utf-8"))
+    class_cursor = QueryCursor(class_query)
+    class_captures = class_cursor.captures(target_tree.root_node)
+    classes = []
+    if "class_name" in class_captures:
+        for node in class_captures["class_name"]:
+            class_name = target_code[node.start_byte : node.end_byte]
+            classes.append(class_name)
+
+    # Now, for each class, find usages in functions in other files
+    usages = {cls: [] for cls in classes}
+    func_cursor = QueryCursor(func_query)
+
+    for file in all_py_files:
+        if file.resolve() == target_file.resolve():
+            continue
+
+        try:
+            with open(file, "r", encoding="utf-8") as f:
+                code = f.read()
+        except (FileNotFoundError, UnicodeDecodeError):
+            continue
+
+        tree = parser.parse(bytes(code, "utf-8"))
+        func_captures = func_cursor.captures(tree.root_node)
+
+        if "func_name" in func_captures and "func_body" in func_captures:
+            for i, func_node in enumerate(func_captures["func_name"]):
+                func_name = code[func_node.start_byte : func_node.end_byte]
+                body_node = func_captures["func_body"][i]
+                body_text = code[body_node.start_byte : body_node.end_byte]
+                for cls in classes:
+                    if cls in body_text:
+                        usages[cls].append(f"{file}:{func_name}")
+                        break  # Avoid duplicates for the same function
+
+    return usages
+
+
 def resolve_relative_import(import_str: str, current_module: str) -> str:
     """
     Resolves a relative import string (e.g., '..utils') to an absolute
@@ -184,12 +257,18 @@ def main():
 
     print(f"Analyzing file: {target_file}")
     result = extract_related_files(target_file)
+    usages = extract_key_relationships(target_file)
 
     print("\n=== Related files for", target_file.name, "===")
     for key, files in result.items():
         print(f"\n{key} ({len(files)} files):")
         for f in files:
             print(f"  - {f}")
+
+    print("\n=== Key class usages ===")
+    for cls, funcs in usages.items():
+        for func in funcs:
+            print(f"[{cls} -> {func}]")
 
 
 if __name__ == "__main__":
