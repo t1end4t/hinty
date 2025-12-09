@@ -5,7 +5,6 @@ from tree_format import format_tree
 import pathspec
 from dataclasses import dataclass
 from typing import List
-from tree_sitter import Language, Parser
 from tree_sitter_languages import get_language, get_parser
 
 
@@ -140,122 +139,6 @@ def get_primary_language(directory="."):
     return lang_map.get(most_common_ext, f"Unknown ({most_common_ext})")
 
 
-@dataclass
-class FileRelationship:
-    file_path: str
-    relationship: str
-    relevant_excerpt: str
-
-
-def extract_file_relationships(
-    target_file: Path, project_root: Path
-) -> List[FileRelationship]:
-    """Extract relationships for a target file using tree-sitter.
-
-    Analyzes imports, function calls, and test relationships.
-    """
-    if not target_file.exists() or not target_file.is_file():
-        return []
-
-    # Only handle Python files for now
-    if target_file.suffix != ".py":
-        return []
-
-    try:
-        parser = get_parser("python")
-        with open(target_file, "rb") as f:
-            content = f.read()
-        tree = parser.parse(content)
-    except Exception:
-        return []
-
-    relationships = []
-    root_node = tree.root_node
-
-    # Extract imports (imports_from relationship)
-    import_query = """
-    (import_statement
-      name: (dotted_name) @import_name)
-    (import_from_statement
-      module_name: (dotted_name) @module_name)
-    (import_from_statement
-      module_name: (relative_import) @relative_import)
-    """
-
-    try:
-        language = get_language("python")
-        query = language.query(import_query)
-        captures = query.captures(root_node)
-
-        for node, capture_name in captures:
-            import_text = node.text.decode("utf-8")
-            # Convert module path to file path
-            module_parts = import_text.replace(".", "/")
-            possible_paths = [
-                project_root / f"{module_parts}.py",
-                project_root / module_parts / "__init__.py",
-            ]
-
-            for possible_path in possible_paths:
-                if possible_path.exists():
-                    relationships.append(
-                        FileRelationship(
-                            file_path=str(
-                                possible_path.relative_to(project_root)
-                            ),
-                            relationship="imports_from",
-                            relevant_excerpt=f"import {import_text}",
-                        )
-                    )
-                    break
-    except Exception:
-        pass
-
-    # Extract function and class definitions for context
-    def_query = """
-    (function_definition
-      name: (identifier) @func_name) @func_def
-    (class_definition
-      name: (identifier) @class_name) @class_def
-    """
-
-    try:
-        query = language.query(def_query)
-        captures = query.captures(root_node)
-
-        definitions = []
-        for node, capture_name in captures:
-            if capture_name in ["func_name", "class_name"]:
-                definitions.append(node.text.decode("utf-8"))
-
-        # Check if this is a test file
-        if "test_" in target_file.name or target_file.parent.name == "tests":
-            # Look for tested modules
-            for definition in definitions:
-                if definition.startswith("test_"):
-                    tested_name = definition[5:]  # Remove 'test_' prefix
-                    relationships.append(
-                        FileRelationship(
-                            file_path="",  # Would need more context
-                            relationship="tests",
-                            relevant_excerpt=f"def {definition}()",
-                        )
-                    )
-    except Exception:
-        pass
-
-    return relationships
-
-
 if __name__ == "__main__":
     print(get_tree_with_library())
     print(get_primary_language())
-
-    # Test relationship extraction
-    test_file = Path("tests/test_get_context_coder.py")
-    if test_file.exists():
-        relationships = extract_file_relationships(test_file, Path("."))
-        print("\nFile Relationships:")
-        for rel in relationships:
-            print(f"  {rel.relationship}: {rel.file_path}")
-            print(f"    {rel.relevant_excerpt}")
