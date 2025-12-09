@@ -146,21 +146,25 @@ class RelatedFile:
     relevant_excerpt: str
 
 
-def resolve_module_to_file(module: str, project_root: Path, current_dir: Path) -> Path | None:
-    parts = module.split('.')
+def resolve_module_to_file(
+    module: str, project_root: Path, current_dir: Path
+) -> Path | None:
+    parts = module.split(".")
     for root in [current_dir, project_root]:
         path = root
         for part in parts[:-1]:
             path = path / part
-        if (path / '__init__.py').exists():
-            return path / '__init__.py'
-        elif (path / parts[-1]).with_suffix('.py').exists():
-            return (path / parts[-1]).with_suffix('.py')
+        if (path / "__init__.py").exists():
+            return path / "__init__.py"
+        elif (path / parts[-1]).with_suffix(".py").exists():
+            return (path / parts[-1]).with_suffix(".py")
     return None
 
 
-def extract_related_files(target_file: Path, project_root: Path) -> List[RelatedFile]:
-    with open(target_file, 'r') as f:
+def extract_related_files(
+    target_file: Path, project_root: Path
+) -> List[RelatedFile]:
+    with open(target_file, "r") as f:
         code = f.read()
     tree = ast.parse(code)
     related = []
@@ -168,24 +172,32 @@ def extract_related_files(target_file: Path, project_root: Path) -> List[Related
         if isinstance(node, ast.Import):
             for alias in node.names:
                 module = alias.name
-                file_path = resolve_module_to_file(module, project_root, target_file.parent)
+                file_path = resolve_module_to_file(
+                    module, project_root, target_file.parent
+                )
                 if file_path:
-                    related.append(RelatedFile(
-                        file_path=str(file_path.relative_to(project_root)),
-                        relationship="imports_from",
-                        relevant_excerpt=alias.asname or alias.name
-                    ))
+                    related.append(
+                        RelatedFile(
+                            file_path=str(file_path.relative_to(project_root)),
+                            relationship="imports_from",
+                            relevant_excerpt=alias.asname or alias.name,
+                        )
+                    )
         elif isinstance(node, ast.ImportFrom):
             if node.module:
                 module = node.module
-                file_path = resolve_module_to_file(module, project_root, target_file.parent)
+                file_path = resolve_module_to_file(
+                    module, project_root, target_file.parent
+                )
                 if file_path:
-                    names = ', '.join(alias.name for alias in node.names)
-                    related.append(RelatedFile(
-                        file_path=str(file_path.relative_to(project_root)),
-                        relationship="imports_from",
-                        relevant_excerpt=names
-                    ))
+                    names = ", ".join(alias.name for alias in node.names)
+                    related.append(
+                        RelatedFile(
+                            file_path=str(file_path.relative_to(project_root)),
+                            relationship="imports_from",
+                            relevant_excerpt=names,
+                        )
+                    )
     return related
 
 
