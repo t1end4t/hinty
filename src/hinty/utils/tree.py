@@ -3,7 +3,6 @@ from collections import Counter
 from pathlib import Path
 from tree_format import format_tree
 import pathspec
-from typing import List
 
 
 def get_tree_with_library(directory="."):
