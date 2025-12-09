@@ -148,14 +148,8 @@ def _module_to_path(module: str, project_root: Path) -> Path | None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print(
-            "Usage: python test_relate_context.py <target_file> <project_root>"
-        )
-        sys.exit(1)
-
-    target_file = Path(sys.argv[1])
-    project_root = Path(sys.argv[2])
+    target_file = Path("src/hinty/core/project_manager.py")
+    project_root = Path(".")
 
     related = extract_related_filepaths(target_file, project_root)
 
