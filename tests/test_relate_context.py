@@ -126,8 +126,10 @@ def _check_imports_and_uses(
                 ):
                     related["imported_by"].append(file_path)
         elif isinstance(node, ast.ImportFrom):
-            if node.module == target_module or node.module.startswith(
-                target_module + "."
+            if node.module and (
+                node.module == target_module or node.module.startswith(
+                    target_module + "."
+                )
             ):
                 related["imported_by"].append(file_path)
         # For used_by, similar simplistic check
