@@ -9,6 +9,21 @@ PY_LANGUAGE = Language(tree_sitter_python.language())
 parser = Parser(PY_LANGUAGE)
 
 
+def module_to_file(module: str, root: Path) -> Path | None:
+    """Convert module name to file path relative to root."""
+    if not module:
+        return None
+    rel_path = module.replace(".", os.sep) + ".py"
+    candidates = [
+        root / "src" / rel_path,
+        root / rel_path,
+    ]
+    for cand in candidates:
+        if cand.exists():
+            return cand
+    return None
+
+
 def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     """
     Extract file paths that have relationships with the target Python file.
@@ -22,9 +37,12 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
 
     result = {
         "imported_by": [],
+        "imported_from": [],
     }
 
-    # Query to capture imports
+    # UPDATED QUERY:
+    # 1. Capture `relative_import` (e.g., ..core)
+    # 2. Capture `dotted_name` (e.g., hinty.core)
     query = Query(
         PY_LANGUAGE,
         """
@@ -52,6 +70,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
             continue
 
         # Get the module name of the CURRENT file being scanned
+        # We need this to resolve relative imports (e.g. from .. import)
         current_file_module = get_module_name(file, project_root)
 
         tree = parser.parse(bytes(code, "utf-8"))
@@ -70,6 +89,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
                     )
 
                     # Check for exact match or submodule match
+                    # e.g. "hinty.core.project_manager" matches target
                     if (
                         resolved_import == target_module
                         or resolved_import.startswith(target_module + ".")
@@ -81,135 +101,37 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
             if found_match:
                 break
 
-    return result
-
-
-def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
-    """
-    Extract key classes and functions from the target file and their usages across the project.
-    Returns a dict where keys are class or function names and values are lists of "file:function" strings.
-
-    This improved version:
-    1. Only checks files that actually import from the target file
-    2. Uses AST to find actual identifier usage, not string matching
-    3. Tracks usage in function/method bodies properly
-    """
-    project_root = find_project_root(target_file)
-
-    # First, get all files that import from our target
-    related_files = extract_related_files(target_file)
-    importing_files = related_files["imported_by"]
-
-    # Query to find class definitions in the target file
-    class_query = Query(
-        PY_LANGUAGE,
-        """
-        (class_definition
-          name: (identifier) @class_name)
-        """,
-    )
-
-    # Query to find function definitions in the target file
-    function_query = Query(
-        PY_LANGUAGE,
-        """
-        (function_definition
-          name: (identifier) @function_name)
-        """,
-    )
-
-    # Query to find ALL identifiers used in the code
-    # This captures actual variable/class references
-    usage_query = Query(
-        PY_LANGUAGE,
-        """
-        (function_definition
-          name: (identifier) @func_name
-          body: (block) @func_body)
-        
-        (identifier) @identifier
-        """,
-    )
-
-    # Parse target file to get classes and functions
+    # Now, find files imported by target_file
     try:
         with open(target_file, "r", encoding="utf-8") as f:
-            target_code = f.read()
+            code = f.read()
     except (FileNotFoundError, UnicodeDecodeError):
-        return {}
+        pass  # already checked exists
 
-    target_tree = parser.parse(bytes(target_code, "utf-8"))
-    class_cursor = QueryCursor(class_query)
-    class_captures = class_cursor.captures(target_tree.root_node)
+    tree = parser.parse(bytes(code, "utf-8"))
+    captures = query_cursor.captures(tree.root_node)
 
-    classes = []
-    if "class_name" in class_captures:
-        for node in class_captures["class_name"]:
-            class_name = target_code[node.start_byte : node.end_byte]
-            classes.append(class_name)
+    current_file_module = target_module
 
-    function_cursor = QueryCursor(function_query)
-    function_captures = function_cursor.captures(target_tree.root_node)
+    for capture_name in ("import_name", "module_name"):
+        if capture_name in captures:
+            for node in captures[capture_name]:
+                import_str = code[node.start_byte : node.end_byte]
 
-    functions = []
-    if "function_name" in function_captures:
-        for node in function_captures["function_name"]:
-            function_name = target_code[node.start_byte : node.end_byte]
-            functions.append(function_name)
+                resolved_import = resolve_relative_import(
+                    import_str, current_file_module
+                )
 
-    # Now, find usages in files that import from our target
-    usages = {item: [] for item in classes + functions}
+                # Convert resolved_import to file path
+                file_path = module_to_file(resolved_import, project_root)
+                if (
+                    file_path
+                    and file_path.exists()
+                    and file_path not in result["imported_from"]
+                ):
+                    result["imported_from"].append(file_path)
 
-    for file in importing_files:
-        try:
-            with open(file, "r", encoding="utf-8") as f:
-                code = f.read()
-        except (FileNotFoundError, UnicodeDecodeError):
-            continue
-
-        tree = parser.parse(bytes(code, "utf-8"))
-
-        # Find all function definitions
-        func_query = Query(
-            PY_LANGUAGE,
-            """
-            (function_definition
-              name: (identifier) @func_name
-              body: (block) @func_body)
-            """,
-        )
-
-        func_cursor = QueryCursor(func_query)
-        func_captures = func_cursor.captures(tree.root_node)
-
-        if "func_name" not in func_captures or "func_body" not in func_captures:
-            continue
-
-        # For each function, check if it uses our classes
-        for i, func_node in enumerate(func_captures["func_name"]):
-            func_name = code[func_node.start_byte : func_node.end_byte]
-            body_node = func_captures["func_body"][i]
-
-            # Now search for identifiers within this function body
-            identifier_query = Query(PY_LANGUAGE, "(identifier) @id")
-
-            id_cursor = QueryCursor(identifier_query)
-            id_captures = id_cursor.captures(body_node)
-
-            if "id" in id_captures:
-                used_items = set()
-                for id_node in id_captures["id"]:
-                    identifier = code[id_node.start_byte : id_node.end_byte]
-                    if identifier in classes or identifier in functions:
-                        used_items.add(identifier)
-
-                # Add usage for each item found
-                for item in used_items:
-                    usage_str = f"{file}:{func_name}"
-                    if usage_str not in usages[item]:
-                        usages[item].append(usage_str)
-
-    return usages
+    return result
 
 
 def resolve_relative_import(import_str: str, current_module: str) -> str:
@@ -232,12 +154,24 @@ def resolve_relative_import(import_str: str, current_module: str) -> str:
     suffix = import_str[dot_count:]
 
     # Get the parent package of the current module
+    # If current_module is 'hinty.services.api':
+    # dot_count=1 (from . import) -> stays in 'hinty.services'
+    # dot_count=2 (from .. import) -> goes to 'hinty'
+
     parts = current_module.split(".")
 
+    # If the file is a module (not __init__), the first dot means "current package".
+    # So we essentially remove 'dot_count' number of segments from the end.
+    # Note: This logic assumes standard file-to-module mapping.
     if dot_count > len(parts):
+        # Scan went too far up (error in code or logic), fallback to original
         return import_str
 
+    # Python relative import logic:
+    # 1 dot = current package (remove filename component)
+    # 2 dots = parent of current package (remove filename + parent)
     base_parts = parts[:-dot_count]
+
     base_path = ".".join(base_parts)
 
     if base_path and suffix:
@@ -285,7 +219,7 @@ def main():
     if len(sys.argv) > 1:
         target_file = Path(sys.argv[1])
     else:
-        target_file = Path("src/hinty/core/llm.py")
+        target_file = Path("src/hinty/core/project_manager.py")
 
     if not target_file.is_absolute():
         target_file = Path.cwd() / target_file
@@ -296,22 +230,12 @@ def main():
 
     print(f"Analyzing file: {target_file}")
     result = extract_related_files(target_file)
-    usages = extract_key_relationships(target_file)
 
-    print(f"\n=== Related files for {target_file.name} ===")
+    print("\n=== Related files for", target_file.name, "===")
     for key, files in result.items():
         print(f"\n{key} ({len(files)} files):")
         for f in files:
             print(f"  - {f}")
-
-    print("\n=== Key class and function usages ===")
-    for item, funcs in usages.items():
-        if funcs:
-            print(f"\n{item}:")
-            for func in funcs:
-                print(f"  -> {func}")
-        else:
-            print(f"\n{item}: (no usages found in functions)")
 
 
 if __name__ == "__main__":
