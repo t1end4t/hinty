@@ -118,11 +118,17 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
             for node in captures[capture_name]:
                 import_str = code[node.start_byte : node.end_byte]
 
-                resolved_import = resolve_relative_import(import_str, current_file_module)
+                resolved_import = resolve_relative_import(
+                    import_str, current_file_module
+                )
 
                 # Convert resolved_import to file path
                 file_path = module_to_file(resolved_import, project_root)
-                if file_path and file_path.exists() and file_path not in result["imported_from"]:
+                if (
+                    file_path
+                    and file_path.exists()
+                    and file_path not in result["imported_from"]
+                ):
                     result["imported_from"].append(file_path)
 
     return result
