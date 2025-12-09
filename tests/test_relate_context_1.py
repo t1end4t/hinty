@@ -55,7 +55,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
 
     query_cursor = QueryCursor(query)
 
-
     # Now, find files imported by target_file
     try:
         with open(target_file, "r", encoding="utf-8") as f:
