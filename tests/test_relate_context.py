@@ -13,9 +13,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     Extract file paths that have relationships with the target Python file.
 
     Relationships include:
-    - imports_from: Files that the target imports from.
     - imported_by: Files that import from the target.
-    - tests: Test files related to the target.
 
     Uses tree-sitter to parse Python code for import analysis.
     """
@@ -24,20 +22,8 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     target_module = get_module_name(target_file, project_root)
 
     result = {
-        "imports_from": [],
         "imported_by": [],
-        "tests": [],
     }
-
-    # Parse target file to get imports_from
-    try:
-        with open(target_file, "r", encoding="utf-8") as f:
-            code = f.read()
-    except FileNotFoundError:
-        print(f"Error: Target file not found: {target_file}")
-        return result  # Return empty if file not found
-
-    tree = parser.parse(bytes(code, "utf-8"))
 
     # Tree-sitter query for import statements
     query = Query(
@@ -51,21 +37,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     )
 
     query_cursor = QueryCursor(query)
-    captures = query_cursor.captures(tree.root_node)
-
-    for capture_name in ("import_name", "module_name"):
-        if capture_name in captures:
-            for node in captures[capture_name]:
-                import_str = code[node.start_byte : node.end_byte]
-                file_path = import_to_file(
-                    import_str, project_root, target_file
-                )
-                if (
-                    file_path
-                    and file_path.exists()
-                    and file_path not in result["imports_from"]
-                ):
-                    result["imports_from"].append(file_path)
 
     # Find imported_by: scan other files for imports of target_module
     for file in all_py_files:
@@ -90,17 +61,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
                         if file not in result["imported_by"]:
                             result["imported_by"].append(file)
                         break  # No need to check further in this file
-
-    # For now, uses and used_by are the same as imports_from and imported_by
-    result["uses"] = result["imports_from"][:]
-    result["used_by"] = result["imported_by"][:]
-
-    # Find tests: files in tests/ directory with similar name
-    target_name = target_file.stem.lower()
-    for file in all_py_files:
-        if "test" in str(file).lower() and target_name in file.stem.lower():
-            if file not in result["tests"]:
-                result["tests"].append(file)
 
     return result
 
@@ -132,49 +92,6 @@ def get_module_name(file: Path, root: Path) -> str:
     return rel_str.replace(os.sep, ".")
 
 
-def import_to_file(
-    import_str: str, root: Path, current_file: Path
-) -> Path | None:
-    """Convert import string to file path, handling absolute and relative imports."""
-    if import_str.startswith("hinty."):
-        # Absolute import
-        parts = import_str.split(".")
-        # Try direct .py file under src/
-        path = root / "src" / Path(*parts).with_suffix(".py")
-        if path.exists():
-            return path
-        # Try package __init__.py under src/
-        path = root / "src" / Path(*parts) / "__init__.py"
-        if path.exists():
-            return path
-        return None
-    elif import_str.startswith("."):
-        # Relative import
-        current_module = get_module_name(current_file, root)
-        current_parts = current_module.split(".")
-        # Count leading dots
-        dots = 0
-        temp_str = import_str
-        while temp_str.startswith("."):
-            dots += 1
-            temp_str = temp_str[1:]
-        # Go up (dots - 1) levels if dots > 0, else stay at current
-        if dots > len(current_parts):
-            return None
-        base_parts = current_parts[:-dots] if dots > 0 else current_parts
-        import_parts = temp_str.split(".") if temp_str else []
-        full_parts = base_parts + import_parts
-        # Try direct .py file under src/
-        path = root / "src" / Path(*full_parts).with_suffix(".py")
-        if path.exists():
-            return path
-        # Try package __init__.py under src/
-        path = root / "src" / Path(*full_parts) / "__init__.py"
-        if path.exists():
-            return path
-        return None
-    else:
-        return None  # External import
 
 
 def main():
