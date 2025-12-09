@@ -108,12 +108,11 @@ def _prepare_files_info(
     for file_path in project_manager.get_attached_files():
         relative_path = file_path.relative_to(project_manager.project_root)
         try:
-            file_content = read_content_file(file_path)
-            files_info.append(
-                FileInfo(
-                    file_path=str(relative_path), file_content=file_content
+            content, file_type = read_content_file(file_path)
+            if file_type == "text":
+                files_info.append(
+                    FileInfo(file_path=str(relative_path), file_content=content)
                 )
-            )
             logger.info(f"Add file: {file_path}")
             actions.append(f"Read file: {relative_path}")
         except (FileNotFoundError, ValueError) as e:

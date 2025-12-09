@@ -35,7 +35,6 @@ class CodebaseContext(BaseModel):
     file_tree: typing.Optional[str] = None
     related_files: typing.List["RelatedFile"]
     project_language: typing.Optional[str] = None
-    project_framework: typing.Optional[str] = None
 
 class CoderOutput(BaseModel):
     thinking: typing.Optional[str] = None

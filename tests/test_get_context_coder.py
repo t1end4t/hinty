@@ -1,10 +1,8 @@
-import json
 import os
 from collections import Counter
 from pathlib import Path
 from tree_format import format_tree
 import pathspec
-import tomllib
 
 
 def get_tree_with_library(directory="."):
@@ -138,68 +136,6 @@ def get_primary_language(directory="."):
     return lang_map.get(most_common_ext, f"Unknown ({most_common_ext})")
 
 
-def get_primary_framework(directory="."):
-    """Determine the primary framework of the project in the given directory, focusing on Python."""
-    path = Path(directory).resolve()
-    primary_lang = get_primary_language(directory)
-
-    if primary_lang != "Python":
-        return (
-            f"{primary_lang} (Generic)"
-            if primary_lang != "Unknown"
-            else "Unknown"
-        )
-
-    # Framework indicators for Python
-    framework_indicators = {
-        "requirements.txt": "Python (pip)",
-        "pyproject.toml": "Python (Poetry)",
-        "setup.py": "Python (setuptools)",
-        "Pipfile": "Python (Pipenv)",
-        "app.py": "Python (Flask)",
-        "manage.py": "Python (Django)",
-    }
-
-    # Check for framework-specific files
-    for file, framework in framework_indicators.items():
-        if (path / file).exists():
-            if file == "requirements.txt":
-                try:
-                    with open(path / file, "r") as f:
-                        content = f.read().lower()
-                        if "django" in content:
-                            return "Python (Django)"
-                        elif "flask" in content:
-                            return "Python (Flask)"
-                        elif "fastapi" in content:
-                            return "Python (FastAPI)"
-                except FileNotFoundError:
-                    pass
-            elif file == "pyproject.toml":
-                try:
-                    with open(path / file, "rb") as f:
-                        data = tomllib.load(f)
-                        deps = (
-                            data.get("tool", {})
-                            .get("poetry", {})
-                            .get("dependencies", {})
-                        )
-                        if "django" in str(deps).lower():
-                            return "Python (Django)"
-                        elif "flask" in str(deps).lower():
-                            return "Python (Flask)"
-                        elif "fastapi" in str(deps).lower():
-                            return "Python (FastAPI)"
-                except (FileNotFoundError, KeyError):
-                    pass
-            else:
-                return framework
-
-    # If no specific framework detected, return generic Python
-    return "Python (Generic)"
-
-
 if __name__ == "__main__":
     print(get_tree_with_library())
     print(get_primary_language())
-    print(get_primary_framework())

@@ -32,7 +32,6 @@ class CodebaseContext {
   file_tree string @description("Tree structure of the project")
   related_files RelatedFile[] @description("Files connected to the ones being edited")
   project_language string @description("Primary language: python, javascript, typescript, etc.")
-  project_framework string? @description("Framework if applicable: React, Flask, Express, Django, etc.")
 }
 
 function Coder(
@@ -48,7 +47,7 @@ You are an expert developer working on a codebase. Think and communicate like a 
 {% if codebase_context %}
 PROJECT OVERVIEW:
 {% if codebase_context.project_language %}
-Language: {{ codebase_context.project_language }}{% if codebase_context.project_framework %} | Framework: {{ codebase_context.project_framework }}{% endif %}
+Language: {{ codebase_context.project_language }}
 {% endif %}
 
 PROJECT STRUCTURE:

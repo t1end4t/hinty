@@ -152,7 +152,7 @@ class CodebaseContextAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
         self._bldr = _tb.class_("CodebaseContext")
-        self._properties: typing.Set[str] = set([  "file_tree",  "related_files",  "project_language",  "project_framework",  ])
+        self._properties: typing.Set[str] = set([  "file_tree",  "related_files",  "project_language",  ])
         self._props = CodebaseContextProperties(self._bldr, self._properties)
 
     def type(self) -> baml_py.FieldType:
@@ -191,10 +191,6 @@ class CodebaseContextProperties:
     @property
     def project_language(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("project_language"))
-    
-    @property
-    def project_framework(self) -> type_builder.ClassPropertyViewer:
-        return type_builder.ClassPropertyViewer(self.__bldr.property("project_framework"))
     
     
 
