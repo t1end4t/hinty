@@ -235,7 +235,9 @@ def main():
     if len(sys.argv) > 1:
         target_file = Path(sys.argv[1])
     else:
-        target_file = Path("src/hinty/core/project_manager.py")
+        # target_file = Path("src/hinty/core/project_manager.py")
+        # target_file = Path("src/hinty/cli/display_utils.py")
+        target_file = Path("src/hinty/cli/commands.py")
 
     if not target_file.is_absolute():
         target_file = Path.cwd() / target_file
