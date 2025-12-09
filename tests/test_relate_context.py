@@ -1,5 +1,6 @@
 import ast
 import os
+import sys
 from pathlib import Path
 from typing import Dict, List, Set
 
@@ -144,3 +145,20 @@ def _module_to_path(module: str, project_root: Path) -> Path | None:
         if path.exists():
             return path
     return None
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: python test_relate_context.py <target_file> <project_root>")
+        sys.exit(1)
+    
+    target_file = Path(sys.argv[1])
+    project_root = Path(sys.argv[2])
+    
+    related = extract_related_filepaths(target_file, project_root)
+    
+    for key, paths in related.items():
+        print(f"{key}:")
+        for path in paths:
+            print(f"  {path}")
+        print()
