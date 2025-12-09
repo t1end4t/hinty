@@ -32,11 +32,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     project_root = find_project_root(target_file)
     all_py_files = list(project_root.rglob("*.py"))
 
-    # The absolute module name of our target (e.g., "hinty.core.project_manager")
-    target_module = get_module_name(target_file, project_root)
-
     result = {
-        "imported_by": [],
         "imported_from": [],
     }
 
@@ -59,47 +55,6 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
 
     query_cursor = QueryCursor(query)
 
-    for file in all_py_files:
-        if file.resolve() == target_file.resolve():
-            continue
-
-        try:
-            with open(file, "r", encoding="utf-8") as f:
-                code = f.read()
-        except (FileNotFoundError, UnicodeDecodeError):
-            continue
-
-        # Get the module name of the CURRENT file being scanned
-        # We need this to resolve relative imports (e.g. from .. import)
-        current_file_module = get_module_name(file, project_root)
-
-        tree = parser.parse(bytes(code, "utf-8"))
-        captures = query_cursor.captures(tree.root_node)
-
-        found_match = False
-
-        for capture_name in ("import_name", "module_name"):
-            if capture_name in captures:
-                for node in captures[capture_name]:
-                    import_str = code[node.start_byte : node.end_byte]
-
-                    # Resolve the import string to an absolute module path
-                    resolved_import = resolve_relative_import(
-                        import_str, current_file_module
-                    )
-
-                    # Check for exact match or submodule match
-                    # e.g. "hinty.core.project_manager" matches target
-                    if (
-                        resolved_import == target_module
-                        or resolved_import.startswith(target_module + ".")
-                    ):
-                        if file not in result["imported_by"]:
-                            result["imported_by"].append(file)
-                        found_match = True
-                        break
-            if found_match:
-                break
 
     # Now, find files imported by target_file
     try:
@@ -111,7 +66,7 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
     tree = parser.parse(bytes(code, "utf-8"))
     captures = query_cursor.captures(tree.root_node)
 
-    current_file_module = target_module
+    current_file_module = get_module_name(target_file, project_root)
 
     for capture_name in ("import_name", "module_name"):
         if capture_name in captures:
