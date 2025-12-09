@@ -124,18 +124,23 @@ def get_module_name(file: Path, root: Path) -> str:
     file = file.resolve()
     root = root.resolve()
     rel = file.relative_to(root)
-    return str(rel.with_suffix("")).replace(os.sep, ".")
+    rel_str = str(rel.with_suffix(""))
+    if rel_str.startswith("src/"):
+        rel_str = rel_str[4:]  # Strip "src/" to get the module name
+    return rel_str.replace(os.sep, ".")
 
 
 def import_to_file(import_str: str, root: Path) -> Path | None:
     """Convert import string to file path."""
+    if not import_str.startswith("hinty."):
+        return None  # Only handle internal imports
     parts = import_str.split(".")
-    # Try direct .py file
-    path = root / Path(*parts).with_suffix(".py")
+    # Try direct .py file under src/
+    path = root / "src" / Path(*parts).with_suffix(".py")
     if path.exists():
         return path
-    # Try package __init__.py
-    path = root / Path(*parts) / "__init__.py"
+    # Try package __init__.py under src/
+    path = root / "src" / Path(*parts) / "__init__.py"
     if path.exists():
         return path
     return None
