@@ -1,3 +1,4 @@
+import json
 import os
 from collections import Counter
 from pathlib import Path
@@ -136,6 +137,94 @@ def get_primary_language(directory="."):
     return lang_map.get(most_common_ext, f"Unknown ({most_common_ext})")
 
 
+def get_primary_framework(directory="."):
+    """Determine the primary framework of the project in the given directory."""
+    path = Path(directory).resolve()
+    primary_lang = get_primary_language(directory)
+
+    # Framework indicators based on common files
+    framework_indicators = {
+        "requirements.txt": "Python (pip)",
+        "pyproject.toml": "Python (Poetry)",
+        "setup.py": "Python (setuptools)",
+        "Pipfile": "Python (Pipenv)",
+        "package.json": "Node.js",
+        "composer.json": "PHP (Composer)",
+        "Gemfile": "Ruby (Bundler)",
+        "Cargo.toml": "Rust (Cargo)",
+        "go.mod": "Go (Go Modules)",
+        "build.gradle": "Java (Gradle)",
+        "pom.xml": "Java (Maven)",
+        "app.py": "Flask" if primary_lang == "Python" else None,
+        "manage.py": "Django" if primary_lang == "Python" else None,
+    }
+
+    # Check for framework-specific files
+    for file, framework in framework_indicators.items():
+        if framework and (path / file).exists():
+            # For Node.js, check package.json for specific frameworks
+            if file == "package.json":
+                try:
+                    with open(path / file, "r") as f:
+                        data = json.load(f)
+                        deps = data.get("dependencies", {})
+                        dev_deps = data.get("devDependencies", {})
+                        all_deps = {**deps, **dev_deps}
+                        if "express" in all_deps:
+                            return "Node.js (Express)"
+                        elif "react" in all_deps:
+                            return "Node.js (React)"
+                        elif "vue" in all_deps:
+                            return "Node.js (Vue)"
+                        elif "angular" in all_deps:
+                            return "Node.js (Angular)"
+                        else:
+                            return "Node.js"
+                except (json.JSONDecodeError, FileNotFoundError):
+                    pass
+            # For Python, check requirements.txt or pyproject.toml for frameworks
+            elif file in ["requirements.txt", "pyproject.toml"] and primary_lang == "Python":
+                if file == "requirements.txt":
+                    try:
+                        with open(path / file, "r") as f:
+                            content = f.read().lower()
+                            if "django" in content:
+                                return "Python (Django)"
+                            elif "flask" in content:
+                                return "Python (Flask)"
+                            elif "fastapi" in content:
+                                return "Python (FastAPI)"
+                    except FileNotFoundError:
+                        pass
+                elif file == "pyproject.toml":
+                    try:
+                        import tomllib
+                        with open(path / file, "rb") as f:
+                            data = tomllib.load(f)
+                            deps = data.get("tool", {}).get("poetry", {}).get("dependencies", {})
+                            if "django" in str(deps).lower():
+                                return "Python (Django)"
+                            elif "flask" in str(deps).lower():
+                                return "Python (Flask)"
+                            elif "fastapi" in str(deps).lower():
+                                return "Python (FastAPI)"
+                    except (ImportError, FileNotFoundError, KeyError):
+                        pass
+            else:
+                return framework
+
+    # If no specific framework detected, return based on language
+    if primary_lang == "Python":
+        return "Python (Generic)"
+    elif primary_lang == "JavaScript":
+        return "Node.js (Generic)"
+    elif primary_lang == "TypeScript":
+        return "Node.js (TypeScript)"
+    else:
+        return f"{primary_lang} (Generic)" if primary_lang != "Unknown" else "Unknown"
+
+
 if __name__ == "__main__":
     print(get_tree_with_library())
     print(get_primary_language())
+    print(get_primary_framework())
