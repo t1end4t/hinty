@@ -37,7 +37,7 @@ def is_ignored(path: Path, root: Path, spec: pathspec.PathSpec | None) -> bool:
     return False
 
 
-def get_tree(project_root: Path):
+def get_tree(project_root: Path) -> str:
     """Generate tree using tree-format library, respecting .gitignore"""
     logger.info("Generating tree for project root: {}", project_root)
     path = project_root.resolve()
@@ -79,7 +79,7 @@ def get_tree(project_root: Path):
     )
 
 
-def get_primary_language(project_root: Path):
+def get_primary_language(project_root: Path) -> str:
     """Determine the primary programming language of the project in the given directory."""
     logger.info(
         "Determining primary language for project root: {}", project_root
