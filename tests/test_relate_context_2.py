@@ -86,8 +86,8 @@ def extract_related_files(target_file: Path) -> dict[str, list[Path]]:
 
 def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
     """
-    Extract key classes from the target file and their usages across the project.
-    Returns a dict where keys are class names and values are lists of "file:function" strings.
+    Extract key classes and functions from the target file and their usages across the project.
+    Returns a dict where keys are class or function names and values are lists of "file:function" strings.
 
     This improved version:
     1. Only checks files that actually import from the target file
@@ -109,6 +109,15 @@ def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
         """,
     )
 
+    # Query to find function definitions in the target file
+    function_query = Query(
+        PY_LANGUAGE,
+        """
+        (function_definition
+          name: (identifier) @function_name)
+        """,
+    )
+
     # Query to find ALL identifiers used in the code
     # This captures actual variable/class references
     usage_query = Query(
@@ -122,7 +131,7 @@ def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
         """,
     )
 
-    # Parse target file to get classes
+    # Parse target file to get classes and functions
     try:
         with open(target_file, "r", encoding="utf-8") as f:
             target_code = f.read()
@@ -139,8 +148,17 @@ def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
             class_name = target_code[node.start_byte : node.end_byte]
             classes.append(class_name)
 
+    function_cursor = QueryCursor(function_query)
+    function_captures = function_cursor.captures(target_tree.root_node)
+
+    functions = []
+    if "function_name" in function_captures:
+        for node in function_captures["function_name"]:
+            function_name = target_code[node.start_byte : node.end_byte]
+            functions.append(function_name)
+
     # Now, find usages in files that import from our target
-    usages = {cls: [] for cls in classes}
+    usages = {item: [] for item in classes + functions}
 
     for file in importing_files:
         try:
@@ -179,17 +197,17 @@ def extract_key_relationships(target_file: Path) -> dict[str, list[str]]:
             id_captures = id_cursor.captures(body_node)
 
             if "id" in id_captures:
-                used_classes = set()
+                used_items = set()
                 for id_node in id_captures["id"]:
                     identifier = code[id_node.start_byte : id_node.end_byte]
-                    if identifier in classes:
-                        used_classes.add(identifier)
+                    if identifier in classes or identifier in functions:
+                        used_items.add(identifier)
 
-                # Add usage for each class found
-                for cls in used_classes:
+                # Add usage for each item found
+                for item in used_items:
                     usage_str = f"{file}:{func_name}"
-                    if usage_str not in usages[cls]:
-                        usages[cls].append(usage_str)
+                    if usage_str not in usages[item]:
+                        usages[item].append(usage_str)
 
     return usages
 
@@ -286,14 +304,14 @@ def main():
         for f in files:
             print(f"  - {f}")
 
-    print("\n=== Key class usages ===")
-    for cls, funcs in usages.items():
+    print("\n=== Key class and function usages ===")
+    for item, funcs in usages.items():
         if funcs:
-            print(f"\n{cls}:")
+            print(f"\n{item}:")
             for func in funcs:
                 print(f"  -> {func}")
         else:
-            print(f"\n{cls}: (no usages found in functions)")
+            print(f"\n{item}: (no usages found in functions)")
 
 
 if __name__ == "__main__":
