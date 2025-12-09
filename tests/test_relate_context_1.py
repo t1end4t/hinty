@@ -144,9 +144,9 @@ def extract_import_usages(target_file: Path) -> dict[str, list[str]]:
             code = f.read()
     except (FileNotFoundError, UnicodeDecodeError):
         return {}
-    
+
     tree = parser.parse(bytes(code, "utf-8"))
-    
+
     # Query to find imported items from import_from_statement
     import_query = Query(
         PY_LANGUAGE,
@@ -155,10 +155,10 @@ def extract_import_usages(target_file: Path) -> dict[str, list[str]]:
           name: (_) @import_item)
         """,
     )
-    
+
     import_cursor = QueryCursor(import_query)
     import_captures = import_cursor.captures(tree.root_node)
-    
+
     imported_names = set()
     if "import_item" in import_captures:
         for node in import_captures["import_item"]:
@@ -171,9 +171,9 @@ def extract_import_usages(target_file: Path) -> dict[str, list[str]]:
                 if name_node:
                     name = code[name_node.start_byte : name_node.end_byte]
                     imported_names.add(name)
-    
+
     usages = {name: [] for name in imported_names}
-    
+
     # Query to find function and class definitions
     def_query = Query(
         PY_LANGUAGE,
@@ -186,26 +186,26 @@ def extract_import_usages(target_file: Path) -> dict[str, list[str]]:
           body: (block) @def_body)
         """,
     )
-    
+
     def_cursor = QueryCursor(def_query)
     def_captures = def_cursor.captures(tree.root_node)
-    
+
     if "def_name" not in def_captures or "def_body" not in def_captures:
         return usages
-    
+
     def_names = []
     def_bodies = []
     for i, node in enumerate(def_captures["def_name"]):
         def_names.append(code[node.start_byte : node.end_byte])
         def_bodies.append(def_captures["def_body"][i])
-    
+
     # For each definition body, find usages of imported names
     for i, body in enumerate(def_bodies):
         def_name = def_names[i]
         id_query = Query(PY_LANGUAGE, "(identifier) @id")
         id_cursor = QueryCursor(id_query)
         id_captures = id_cursor.captures(body)
-    
+
         if "id" in id_captures:
             used = set()
             for id_node in id_captures["id"]:
@@ -215,7 +215,7 @@ def extract_import_usages(target_file: Path) -> dict[str, list[str]]:
             for item in used:
                 if def_name not in usages[item]:
                     usages[item].append(def_name)
-    
+
     return usages
 
 
