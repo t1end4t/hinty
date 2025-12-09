@@ -138,3 +138,4 @@ def get_primary_language(directory="."):
 
 if __name__ == "__main__":
     print(get_tree_with_library())
+    print(get_primary_language())
