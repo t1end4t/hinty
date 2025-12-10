@@ -171,13 +171,15 @@ def _find_usages(
                                 class_name = _get_name_from_node(parent, code)
                                 break
                             parent = parent.parent
-                    usages.append({
-                        "imported_name": name,
-                        "imported_type": imported_type,
-                        "enclosing_type": enclosing_type,
-                        "enclosing_name": enclosing_name,
-                        "class_name": class_name,
-                    })
+                    usages.append(
+                        {
+                            "imported_name": name,
+                            "imported_type": imported_type,
+                            "enclosing_type": enclosing_type,
+                            "enclosing_name": enclosing_name,
+                            "class_name": class_name,
+                        }
+                    )
 
     return usages
 
@@ -298,7 +300,9 @@ def main():
                     enclosing_str = f"{class_name}.{enclosing_name}"
                 else:
                     enclosing_str = f"{enclosing_type} {enclosing_name}"
-                usage_str = f"{imported_type} {imported_name} -> {enclosing_str}"
+                usage_str = (
+                    f"{imported_type} {imported_name} -> {enclosing_str}"
+                )
                 print(f"  - {usage_str}")
         else:
             print(f"\n{key} ({len(files)} files):")
