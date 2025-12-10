@@ -6,11 +6,6 @@
    1. [ ] Tool functions
       1. [ ] rag -> SKIP FOR NOW
    2. [ ] Make it different than chatgpt (make me not dumb)
-   3. [x] Switch model when get multi-modal inputs
-   4. [x] Handle common files
-   5. [x] Handle images, PDFs, etc.
-      1. [x] Drop command will remove clipboard images
-      2. [x] Show attached file when c-v
 2. [ ] Coding agent
    1. [ ] Rewrite logic
    2. [ ] add ask mode
@@ -21,9 +16,7 @@
    7. [ ] Add rule
    8. [ ] Make it different than aider (not create code, just hint)
 3. [ ] General features
-   1. [x] Copy/paste, especially code block
-   2. [x] Multiple lines
-   3. [ ] Better display for math
+   1. [ ] Better display for math
 
 # CAN NOT
 
@@ -31,11 +24,13 @@
 
 # Fix bug
 
-1. [x] Separate line between prompt and response
-2. [x] Run on home without error
-3. [ ] If added file, can not add it anymore (should not show in suggestion)
-4. [ ] logging should in file
-5. [ ] slow when startup
+1. [ ] Can not apply markdown when use tools
+
+# Refine
+
+1. [ ] If added file, can not add it anymore (should not show in suggestion)
+2. [ ] logging should in file
+3. [ ] slow when startup
 
 # Agents
 
