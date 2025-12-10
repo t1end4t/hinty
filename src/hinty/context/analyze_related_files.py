@@ -1,31 +1,16 @@
 import os
 import sys
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
+import tree_sitter_python
 from loguru import logger
 from tree_sitter import Language, Node, Parser, Query, QueryCursor
-import tree_sitter_python
+
+from ..core.models import CoderRelatedFiles, CoderUsage
 
 # Set up tree-sitter parser for Python
 PY_LANGUAGE = Language(tree_sitter_python.language())
 parser = Parser(PY_LANGUAGE)
-
-
-@dataclass
-class Usage:
-    imported_name: str
-    imported_type: str
-    enclosing_type: str
-    enclosing_name: str
-    class_name: Optional[str]
-
-
-@dataclass
-class RelatedFiles:
-    imported_from: list[Path]
-    usages: list[Usage]
 
 
 def _read_file_content(file_path: Path) -> str | None:
@@ -196,7 +181,7 @@ def _create_usage_from_node(
     code: str,
     imported_names: dict[str, Path],
     definitions: dict[Path, dict[str, str]],
-) -> Usage | None:
+) -> CoderUsage | None:
     """Create a Usage object from a node if it's an imported name."""
     if name not in imported_names:
         return None
@@ -220,7 +205,7 @@ def _create_usage_from_node(
         if enclosing_class:
             class_name = _get_name_from_node(enclosing_class, code)
 
-    return Usage(
+    return CoderUsage(
         imported_name=name,
         imported_type=imported_type,
         enclosing_type=enclosing_type,
@@ -234,7 +219,7 @@ def _find_usages(
     tree,
     imported_names: dict[str, Path],
     definitions: dict[Path, dict[str, str]],
-) -> list[Usage]:
+) -> list[CoderUsage]:
     """Find usages of imported names and return as list of Usage objects."""
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
     usage_cursor = QueryCursor(usage_query)
@@ -254,7 +239,7 @@ def _find_usages(
 
 def _extract_related_files(
     project_root: Path, target_file: Path
-) -> RelatedFiles:
+) -> CoderRelatedFiles:
     """
     Extract file paths that have relationships with the target Python file.
     Handles both absolute and relative imports.
@@ -262,7 +247,7 @@ def _extract_related_files(
     """
     code = _read_file_content(target_file)
     if code is None:
-        return RelatedFiles(imported_from=[], usages=[])
+        return CoderRelatedFiles(imported_from=[], usages=[])
 
     tree = parser.parse(bytes(code, "utf-8"))
     imported_from, imported_names = _get_imported_files_and_names(
@@ -271,7 +256,7 @@ def _extract_related_files(
     definitions = _collect_definitions(imported_from)
     usages = _find_usages(code, tree, imported_names, definitions)
 
-    return RelatedFiles(imported_from=imported_from, usages=usages)
+    return CoderRelatedFiles(imported_from=imported_from, usages=usages)
 
 
 def _resolve_relative_import(import_str: str, current_module: str) -> str:
@@ -330,7 +315,7 @@ def _get_module_name(file: Path, root: Path) -> str:
 
 def analyze_related_files(
     project_root: Path, target_file: Path
-) -> RelatedFiles:
+) -> CoderRelatedFiles:
     """Analyze related files for the given target file within the project root."""
     logger.info(f"Analyzing related files for {target_file}")
 
