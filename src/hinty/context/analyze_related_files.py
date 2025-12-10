@@ -22,22 +22,62 @@ def _read_file_content(file_path: Path) -> str | None:
         return None
 
 
+def _get_line_number(code: str, byte_offset: int) -> int:
+    """Get line number from byte offset in code."""
+    return code[:byte_offset].count("\n") + 1
+
+
+def _get_function_signature(node: Node, code: str) -> str:
+    """Extract function signature from function definition node."""
+    # Find the parameters node
+    for child in node.children:
+        if child.type == "parameters":
+            params = code[child.start_byte : child.end_byte]
+            # Get function name
+            name = _get_name_from_node(node, code)
+            # Get return type if exists
+            return_type = ""
+            for child in node.children:
+                if child.type == "type":
+                    return_type = (
+                        f" -> {code[child.start_byte:child.end_byte]}"
+                    )
+            return f"def {name}{params}{return_type}"
+    return ""
+
+
 def _extract_definitions_from_captures(
     code: str, captures: dict[str, list[Node]]
-) -> dict[str, str]:
-    """Extract definitions from tree-sitter captures."""
+) -> dict[str, tuple[str, int, str]]:
+    """Extract definitions with type, line number, and signature."""
     defs = {}
     for node in captures.get("class_name", []):
         name = code[node.start_byte : node.end_byte]
-        defs[name] = "class"
+        line_num = _get_line_number(code, node.start_byte)
+        # Get parent class_definition node for full signature
+        parent = node.parent
+        bases = ""
+        if parent and parent.type == "class_definition":
+            for child in parent.children:
+                if child.type == "argument_list":
+                    bases = code[child.start_byte : child.end_byte]
+        signature = f"class {name}{bases}"
+        defs[name] = ("class", line_num, signature)
+
     for node in captures.get("func_name", []):
         name = code[node.start_byte : node.end_byte]
-        defs[name] = "function"
+        line_num = _get_line_number(code, node.start_byte)
+        parent = node.parent
+        signature = ""
+        if parent and parent.type == "function_definition":
+            signature = _get_function_signature(parent, code)
+        defs[name] = ("function", line_num, signature)
+
     return defs
 
 
-def get_definitions(file_path: Path) -> dict[str, str]:
-    """Extract class and function definitions from a Python file."""
+def get_definitions(file_path: Path) -> dict[str, tuple[str, int, str]]:
+    """Extract class and function definitions with line numbers and signatures."""
     code = _read_file_content(file_path)
     if code is None:
         return {}
@@ -154,9 +194,30 @@ def _get_imported_files_and_names(
     return imported_from, imported_names
 
 
+def _extract_import_statements(code: str, tree) -> list[str]:
+    """Extract all import statements from the code."""
+    query = Query(
+        PY_LANGUAGE,
+        """
+        (import_statement) @import
+        (import_from_statement) @import_from
+        """,
+    )
+    cursor = QueryCursor(query)
+    captures = cursor.captures(tree.root_node)
+
+    imports = []
+    for node in captures.get("import", []):
+        imports.append(code[node.start_byte : node.end_byte])
+    for node in captures.get("import_from", []):
+        imports.append(code[node.start_byte : node.end_byte])
+
+    return imports
+
+
 def _collect_definitions(
     imported_files: list[Path],
-) -> dict[Path, dict[str, str]]:
+) -> dict[Path, dict[str, tuple[str, int, str]]]:
     """Collect definitions (classes/functions) from imported files."""
     definitions = {}
     for file_path in imported_files:
@@ -179,7 +240,7 @@ def _create_usage_from_node(
     name: str,
     code: str,
     imported_names: dict[str, Path],
-    definitions: dict[Path, dict[str, str]],
+    definitions: dict[Path, dict[str, tuple[str, int, str]]],
 ) -> CoderUsage | None:
     """Create a Usage object from a node if it's an imported name."""
     if name not in imported_names:
@@ -187,7 +248,8 @@ def _create_usage_from_node(
 
     file_path = imported_names[name]
     def_dict = definitions[file_path]
-    imported_type = def_dict.get(name, "unknown")
+    def_info = def_dict.get(name, ("unknown", 0, ""))
+    imported_type = def_info[0]
     enclosing = _find_enclosing_class_or_function(node)
 
     if not enclosing:
@@ -217,7 +279,7 @@ def _find_usages(
     code: str,
     tree,
     imported_names: dict[str, Path],
-    definitions: dict[Path, dict[str, str]],
+    definitions: dict[Path, dict[str, tuple[str, int, str]]],
 ) -> list[CoderUsage]:
     """Find usages of imported names and return as list of Usage objects."""
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
@@ -236,17 +298,42 @@ def _find_usages(
     return usages
 
 
+def _format_relevant_excerpt(
+    file_path: Path,
+    definitions: dict[str, tuple[str, int, str]],
+    import_statements: list[str],
+) -> str:
+    """Format relevant excerpt with import statements and definitions."""
+    parts = []
+
+    # Add import statements if any
+    if import_statements:
+        parts.append("; ".join(import_statements))
+
+    # Add definitions with line numbers and signatures
+    for name, (def_type, line_num, signature) in sorted(
+        definitions.items(), key=lambda x: x[1][1]
+    ):
+        if signature:
+            parts.append(f"{signature} (line {line_num})")
+        else:
+            parts.append(f"{def_type} {name} (line {line_num})")
+
+    return "; ".join(parts)
+
+
 def _extract_related_files(
     project_root: Path, target_file: Path
-) -> CoderRelatedFiles:
+) -> tuple[CoderRelatedFiles, dict[Path, str]]:
     """
     Extract file paths that have relationships with the target Python file.
     Handles both absolute and relative imports.
     Also extracts usages of imported classes/functions within the target file.
+    Returns tuple of (CoderRelatedFiles, dict mapping file paths to excerpts).
     """
     code = _read_file_content(target_file)
     if code is None:
-        return CoderRelatedFiles(imported_from=[], usages=[])
+        return CoderRelatedFiles(imported_from=[], usages=[]), {}
 
     tree = parser.parse(bytes(code, "utf-8"))
     imported_from, imported_names = _get_imported_files_and_names(
@@ -255,7 +342,25 @@ def _extract_related_files(
     definitions = _collect_definitions(imported_from)
     usages = _find_usages(code, tree, imported_names, definitions)
 
-    return CoderRelatedFiles(imported_from=imported_from, usages=usages)
+    # Create excerpts for each imported file
+    excerpts = {}
+    for file_path in imported_from:
+        file_code = _read_file_content(file_path)
+        if file_code:
+            file_tree = parser.parse(bytes(file_code, "utf-8"))
+            import_stmts = _extract_import_statements(file_code, file_tree)
+            # Filter imports to only show what's imported from this file
+            relevant_imports = [
+                stmt
+                for stmt in import_stmts
+                if any(name in stmt for name in imported_names.keys())
+            ]
+            excerpt = _format_relevant_excerpt(
+                file_path, definitions.get(file_path, {}), relevant_imports
+            )
+            excerpts[file_path] = excerpt
+
+    return CoderRelatedFiles(imported_from=imported_from, usages=usages), excerpts
 
 
 def _resolve_relative_import(import_str: str, current_module: str) -> str:
@@ -314,8 +419,11 @@ def _get_module_name(file: Path, root: Path) -> str:
 
 def analyze_related_files(
     project_root: Path, target_file: Path
-) -> CoderRelatedFiles:
-    """Analyze related files for the given target file within the project root."""
+) -> tuple[CoderRelatedFiles, dict[Path, str]]:
+    """
+    Analyze related files for the given target file within the project root.
+    Returns tuple of (CoderRelatedFiles, dict mapping file paths to excerpts).
+    """
     logger.info(f"Analyzing related files for {target_file}")
 
     if not target_file.is_absolute():
@@ -325,16 +433,21 @@ def analyze_related_files(
         logger.error(f"File not found: {target_file}")
         raise FileNotFoundError(f"File not found: {target_file}")
 
-    result = _extract_related_files(project_root, target_file)
+    result, excerpts = _extract_related_files(project_root, target_file)
     # Make imported_from paths relative to current working directory
     try:
         result.imported_from = [
             p.relative_to(Path.cwd()) for p in result.imported_from
         ]
+        # Update excerpts keys to use relative paths
+        excerpts = {
+            p.relative_to(Path.cwd()): excerpt
+            for p, excerpt in excerpts.items()
+        }
     except ValueError:
         pass  # Keep absolute paths if they are not under cwd
     logger.info(
         f"Found {len(result.imported_from)} imports, "
         f"{len(result.usages)} usages"
     )
-    return result
+    return result, excerpts
