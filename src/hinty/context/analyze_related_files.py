@@ -51,7 +51,7 @@ def _find_enclosing_class_or_function(node: Node) -> Node | None:
     return None
 
 
-def get_name_from_node(node: Node, code: str) -> str:
+def _get_name_from_node(node: Node, code: str) -> str:
     """Extract the name from a class or function definition node."""
     for child in node.children:
         if child.type == "identifier":
@@ -59,7 +59,7 @@ def get_name_from_node(node: Node, code: str) -> str:
     return "unknown"
 
 
-def extract_import_from(node: Node, code: str) -> tuple[str, list[str]]:
+def _extract_import_from(node: Node, code: str) -> tuple[str, list[str]]:
     """Extract module_name and list of names from an import_from_statement node."""
     sub_query = Query(
         PY_LANGUAGE,
@@ -85,7 +85,7 @@ def extract_import_from(node: Node, code: str) -> tuple[str, list[str]]:
     return module_name, names
 
 
-def module_to_file(module: str, root: Path) -> Path | None:
+def _module_to_file(module: str, root: Path) -> Path | None:
     """Convert module name to file path relative to root."""
     if not module:
         return None
@@ -107,16 +107,16 @@ def _get_imported_files_and_names(
     query_cursor = QueryCursor(query)
     captures = query_cursor.captures(tree.root_node)
 
-    current_file_module = get_module_name(target_file, project_root)
+    current_file_module = _get_module_name(target_file, project_root)
     imported_from = []
     imported_names = {}  # name -> file_path
 
     for node in captures.get("import_from", []):
-        module_str, names = extract_import_from(node, code)
-        resolved_import = resolve_relative_import(
+        module_str, names = _extract_import_from(node, code)
+        resolved_import = _resolve_relative_import(
             module_str, current_file_module
         )
-        file_path = module_to_file(resolved_import, project_root)
+        file_path = _module_to_file(resolved_import, project_root)
         if file_path and file_path.exists():
             if file_path not in imported_from:
                 imported_from.append(file_path)
@@ -157,7 +157,7 @@ def _find_usages(
                 imported_type = def_dict.get(name, "unknown")
                 enclosing = _find_enclosing_class_or_function(node)
                 if enclosing:
-                    enclosing_name = get_name_from_node(enclosing, code)
+                    enclosing_name = _get_name_from_node(enclosing, code)
                     enclosing_type = (
                         "class"
                         if enclosing.type == "class_definition"
@@ -168,7 +168,7 @@ def _find_usages(
                         parent = enclosing.parent
                         while parent:
                             if parent.type == "class_definition":
-                                class_name = get_name_from_node(parent, code)
+                                class_name = _get_name_from_node(parent, code)
                                 break
                             parent = parent.parent
                     enclosing_str = (
@@ -182,7 +182,7 @@ def _find_usages(
     return list(usage_set)
 
 
-def extract_related_files(
+def _extract_related_files(
     project_root: Path, target_file: Path
 ) -> dict[str, list[Path] | list[str]]:
     """
@@ -206,7 +206,7 @@ def extract_related_files(
     return {"imported_from": imported_from, "usages": usages}
 
 
-def resolve_relative_import(import_str: str, current_module: str) -> str:
+def _resolve_relative_import(import_str: str, current_module: str) -> str:
     """
     Resolves a relative import string (e.g., '..utils') to an absolute
     module path (e.g., 'hinty.core.utils') based on the current file's module.
@@ -247,7 +247,7 @@ def resolve_relative_import(import_str: str, current_module: str) -> str:
         return suffix
 
 
-def get_module_name(file: Path, root: Path) -> str:
+def _get_module_name(file: Path, root: Path) -> str:
     """Convert file path to module name relative to root."""
     file = file.resolve()
     root = root.resolve()
@@ -270,10 +270,10 @@ def analyze_related_files(
     if not target_file.exists():
         raise FileNotFoundError(f"File not found: {target_file}")
 
-    return extract_related_files(project_root, target_file)
+    return _extract_related_files(project_root, target_file)
 
 
-def main():
+def _main():
     if len(sys.argv) > 2:
         project_root = Path(sys.argv[1])
         target_file = Path(sys.argv[2])
@@ -297,4 +297,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    _main()
