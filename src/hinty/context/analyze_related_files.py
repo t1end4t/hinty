@@ -1,6 +1,4 @@
-import json
 import os
-import sys
 from pathlib import Path
 
 import tree_sitter_python
@@ -38,7 +36,7 @@ def _extract_definitions_from_captures(
     return defs
 
 
-def _get_definitions(file_path: Path) -> dict[str, str]:
+def get_definitions(file_path: Path) -> dict[str, str]:
     """Extract class and function definitions from a Python file."""
     code = _read_file_content(file_path)
     if code is None:
@@ -162,7 +160,7 @@ def _collect_definitions(
     """Collect definitions (classes/functions) from imported files."""
     definitions = {}
     for file_path in imported_files:
-        definitions[file_path] = _get_definitions(file_path)
+        definitions[file_path] = get_definitions(file_path)
     return definitions
 
 
@@ -333,33 +331,3 @@ def analyze_related_files(
         f"{len(result.usages)} usages"
     )
     return result
-
-
-def main():
-    if len(sys.argv) > 2:
-        project_root = Path(sys.argv[1])
-        target_file = Path(sys.argv[2])
-    else:
-        project_root = Path.cwd()
-        target_file = Path("src/hinty/cli/commands.py")
-
-    result = analyze_related_files(project_root, target_file)
-
-    related_files = []
-    for f in result.imported_from:
-        defs = _get_definitions(f)
-        excerpt = "; ".join([f"{typ} {name}" for name, typ in defs.items()])
-        related_files.append(
-            {
-                "file_path": str(f),
-                "relationship": "imports_from",
-                "relevant_excerpt": excerpt,
-            }
-        )
-
-    print(f"Analyzing file: {target_file}")
-    print(json.dumps(related_files, indent=2))
-
-
-if __name__ == "__main__":
-    main()
