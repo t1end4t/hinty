@@ -319,7 +319,7 @@ def analyze_related_files(
     logger.info(f"Analyzing related files for {target_file}")
 
     if not target_file.is_absolute():
-        target_file = project_root / target_file
+        target_file = Path.cwd() / target_file
 
     if not target_file.exists():
         logger.error(f"File not found: {target_file}")
