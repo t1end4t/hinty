@@ -12,17 +12,17 @@ from hinty.core.models import AgentResponse
 from ..baml_client import b
 from ..baml_client.stream_types import CoderOutput as StreamCoderOutput
 from ..baml_client.types import (
+    CodebaseContext,
     CoderOutput,
     ConversationMessage,
     FileInfo,
-    CodebaseContext,
 )
+from ..context.language_detection import get_primary_language
+from ..context.project_tree import get_tree
 from ..core.clients import get_client_registry
 from ..core.project_manager import ProjectManager
 from ..tools.search_and_replace import tool_search_and_replace
 from ..utils.file_operations import read_content_file
-from ..context.tree import get_tree
-from ..context.language import get_primary_language
 
 
 def _format_diff_block(search: str, replace: str) -> List[str]:
