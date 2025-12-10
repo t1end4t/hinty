@@ -40,7 +40,7 @@ def _get_function_signature(node: Node, code: str) -> str:
             for child in node.children:
                 if child.type == "type":
                     return_type = (
-                        f" -> {code[child.start_byte:child.end_byte]}"
+                        f" -> {code[child.start_byte : child.end_byte]}"
                     )
             return f"def {name}{params}{return_type}"
     return ""
@@ -360,7 +360,9 @@ def _extract_related_files(
             )
             excerpts[file_path] = excerpt
 
-    return CoderRelatedFiles(imported_from=imported_from, usages=usages), excerpts
+    return CoderRelatedFiles(
+        imported_from=imported_from, usages=usages
+    ), excerpts
 
 
 def _resolve_relative_import(import_str: str, current_module: str) -> str:
