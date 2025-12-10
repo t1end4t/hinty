@@ -16,12 +16,11 @@ def main():
         project_root = Path.cwd()
         target_file = Path("src/hinty/cli/commands.py")
 
-    result = analyze_related_files(project_root, target_file)
+    result, excerpts = analyze_related_files(project_root, target_file)
 
     related_files = []
     for f in result.imported_from:
-        defs = get_definitions(f)
-        excerpt = "; ".join([f"{typ} {name}" for name, typ in defs.items()])
+        excerpt = excerpts.get(f, "")
         related_files.append(
             {
                 "file_path": str(f),
