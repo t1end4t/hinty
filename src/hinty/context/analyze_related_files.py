@@ -9,7 +9,7 @@ PY_LANGUAGE = Language(tree_sitter_python.language())
 parser = Parser(PY_LANGUAGE)
 
 
-def get_definitions(file_path: Path) -> dict[str, str]:
+def _get_definitions(file_path: Path) -> dict[str, str]:
     """Extract class and function definitions from a Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -41,7 +41,7 @@ def get_definitions(file_path: Path) -> dict[str, str]:
     return defs
 
 
-def find_enclosing_class_or_function(node):
+def _find_enclosing_class_or_function(node):
     """Find the nearest enclosing class or function definition."""
     current = node.parent
     while current:
@@ -145,7 +145,7 @@ def extract_related_files(
     # Collect definitions from imported files
     definitions = {}
     for file_path in result["imported_from"]:
-        definitions[file_path] = get_definitions(file_path)
+        definitions[file_path] = _get_definitions(file_path)
 
     # Find usages of imported names
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
@@ -160,7 +160,7 @@ def extract_related_files(
                 file_path = imported_names[name]
                 def_dict = definitions[file_path]
                 imported_type = def_dict.get(name, "unknown")
-                enclosing = find_enclosing_class_or_function(node)
+                enclosing = _find_enclosing_class_or_function(node)
                 if enclosing:
                     enclosing_name = get_name_from_node(enclosing, code)
                     enclosing_type = (
@@ -228,22 +228,6 @@ def resolve_relative_import(import_str: str, current_module: str) -> str:
         return base_path
     else:
         return suffix
-
-
-def find_project_root(path: Path) -> Path:
-    """Find the project root by looking for .git directory or common project markers."""
-    current = path.resolve().parent
-    while current != current.parent:
-        if (current / ".git").exists():
-            return current
-        current = current.parent
-    # Fallback to looking for common directories
-    current = path.resolve().parent
-    while current != current.parent:
-        if (current / "src").exists() or (current / "tests").exists():
-            return current
-        current = current.parent
-    return path.resolve().parent
 
 
 def get_module_name(file: Path, root: Path) -> str:
