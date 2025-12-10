@@ -1,12 +1,29 @@
 import os
 import sys
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 from tree_sitter import Language, Node, Parser, Query, QueryCursor
 import tree_sitter_python
 
 # Set up tree-sitter parser for Python
 PY_LANGUAGE = Language(tree_sitter_python.language())
 parser = Parser(PY_LANGUAGE)
+
+
+@dataclass
+class Usage:
+    imported_name: str
+    imported_type: str
+    enclosing_type: str
+    enclosing_name: str
+    class_name: Optional[str]
+
+
+@dataclass
+class RelatedFiles:
+    imported_from: list[Path]
+    usages: list[Usage]
 
 
 def _get_definitions(file_path: Path) -> dict[str, str]:
@@ -141,8 +158,8 @@ def _find_usages(
     tree,
     imported_names: dict[str, Path],
     definitions: dict[Path, dict[str, str]],
-) -> list[dict]:
-    """Find usages of imported names and return as list of dicts."""
+) -> list[Usage]:
+    """Find usages of imported names and return as list of Usage objects."""
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
     usage_cursor = QueryCursor(usage_query)
     usage_captures = usage_cursor.captures(tree.root_node)
@@ -172,13 +189,13 @@ def _find_usages(
                                 break
                             parent = parent.parent
                     usages.append(
-                        {
-                            "imported_name": name,
-                            "imported_type": imported_type,
-                            "enclosing_type": enclosing_type,
-                            "enclosing_name": enclosing_name,
-                            "class_name": class_name,
-                        }
+                        Usage(
+                            imported_name=name,
+                            imported_type=imported_type,
+                            enclosing_type=enclosing_type,
+                            enclosing_name=enclosing_name,
+                            class_name=class_name,
+                        )
                     )
 
     return usages
@@ -186,7 +203,7 @@ def _find_usages(
 
 def _extract_related_files(
     project_root: Path, target_file: Path
-) -> dict[str, list[Path] | list[dict]]:
+) -> RelatedFiles:
     """
     Extract file paths that have relationships with the target Python file.
     Handles both absolute and relative imports.
@@ -196,7 +213,7 @@ def _extract_related_files(
         with open(target_file, "r", encoding="utf-8") as f:
             code = f.read()
     except (FileNotFoundError, UnicodeDecodeError):
-        return {"imported_from": [], "usages": []}
+        return RelatedFiles(imported_from=[], usages=[])
 
     tree = parser.parse(bytes(code, "utf-8"))
     imported_from, imported_names = _get_imported_files_and_names(
@@ -205,7 +222,7 @@ def _extract_related_files(
     definitions = _collect_definitions(imported_from)
     usages = _find_usages(code, tree, imported_names, definitions)
 
-    return {"imported_from": imported_from, "usages": usages}
+    return RelatedFiles(imported_from=imported_from, usages=usages)
 
 
 def _resolve_relative_import(import_str: str, current_module: str) -> str:
@@ -264,7 +281,7 @@ def _get_module_name(file: Path, root: Path) -> str:
 
 def analyze_related_files(
     project_root: Path, target_file: Path
-) -> dict[str, list[Path] | list[dict]]:
+) -> RelatedFiles:
     """Analyze related files for the given target file within the project root."""
     if not target_file.is_absolute():
         target_file = project_root / target_file
@@ -287,27 +304,19 @@ def main():
 
     print(f"Analyzing file: {target_file}")
     print("\n=== Related files for", target_file.name, "===")
-    for key, files in result.items():
-        if key == "usages":
-            print(f"\n{key} ({len(files)} usages):")
-            for usage in files:
-                imported_type = usage["imported_type"]
-                imported_name = usage["imported_name"]
-                enclosing_type = usage["enclosing_type"]
-                enclosing_name = usage["enclosing_name"]
-                class_name = usage["class_name"]
-                if class_name:
-                    enclosing_str = f"{class_name}.{enclosing_name}"
-                else:
-                    enclosing_str = f"{enclosing_type} {enclosing_name}"
-                usage_str = (
-                    f"{imported_type} {imported_name} -> {enclosing_str}"
-                )
-                print(f"  - {usage_str}")
+    print(f"\nimported_from ({len(result.imported_from)} files):")
+    for f in result.imported_from:
+        print(f"  - {f}")
+    print(f"\nusages ({len(result.usages)} usages):")
+    for usage in result.usages:
+        if usage.class_name:
+            enclosing_str = f"{usage.class_name}.{usage.enclosing_name}"
         else:
-            print(f"\n{key} ({len(files)} files):")
-            for f in files:
-                print(f"  - {f}")
+            enclosing_str = f"{usage.enclosing_type} {usage.enclosing_name}"
+        usage_str = (
+            f"{usage.imported_type} {usage.imported_name} -> {enclosing_str}"
+        )
+        print(f"  - {usage_str}")
 
 
 if __name__ == "__main__":
