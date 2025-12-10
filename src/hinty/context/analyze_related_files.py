@@ -141,12 +141,12 @@ def _find_usages(
     tree,
     imported_names: dict[str, Path],
     definitions: dict[Path, dict[str, str]],
-) -> list[str]:
-    """Find usages of imported names and build usage strings."""
+) -> list[dict]:
+    """Find usages of imported names and return as list of dicts."""
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
     usage_cursor = QueryCursor(usage_query)
     usage_captures = usage_cursor.captures(tree.root_node)
-    usage_set = set()
+    usages = []
 
     if "usage" in usage_captures:
         for node in usage_captures["usage"]:
@@ -171,20 +171,20 @@ def _find_usages(
                                 class_name = _get_name_from_node(parent, code)
                                 break
                             parent = parent.parent
-                    enclosing_str = (
-                        f"{class_name}.{enclosing_name}"
-                        if class_name
-                        else f"{enclosing_type} {enclosing_name}"
-                    )
-                    usage_str = f"{imported_type} {name} -> {enclosing_str}"
-                    usage_set.add(usage_str)
+                    usages.append({
+                        "imported_name": name,
+                        "imported_type": imported_type,
+                        "enclosing_type": enclosing_type,
+                        "enclosing_name": enclosing_name,
+                        "class_name": class_name,
+                    })
 
-    return list(usage_set)
+    return usages
 
 
 def _extract_related_files(
     project_root: Path, target_file: Path
-) -> dict[str, list[Path] | list[str]]:
+) -> dict[str, list[Path] | list[dict]]:
     """
     Extract file paths that have relationships with the target Python file.
     Handles both absolute and relative imports.
@@ -262,7 +262,7 @@ def _get_module_name(file: Path, root: Path) -> str:
 
 def analyze_related_files(
     project_root: Path, target_file: Path
-) -> dict[str, list[Path] | list[str]]:
+) -> dict[str, list[Path] | list[dict]]:
     """Analyze related files for the given target file within the project root."""
     if not target_file.is_absolute():
         target_file = project_root / target_file
@@ -289,7 +289,17 @@ def main():
         if key == "usages":
             print(f"\n{key} ({len(files)} usages):")
             for usage in files:
-                print(f"  - {usage}")
+                imported_type = usage["imported_type"]
+                imported_name = usage["imported_name"]
+                enclosing_type = usage["enclosing_type"]
+                enclosing_name = usage["enclosing_name"]
+                class_name = usage["class_name"]
+                if class_name:
+                    enclosing_str = f"{class_name}.{enclosing_name}"
+                else:
+                    enclosing_str = f"{enclosing_type} {enclosing_name}"
+                usage_str = f"{imported_type} {imported_name} -> {enclosing_str}"
+                print(f"  - {usage_str}")
         else:
             print(f"\n{key} ({len(files)} files):")
             for f in files:
