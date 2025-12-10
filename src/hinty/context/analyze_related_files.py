@@ -94,20 +94,10 @@ def module_to_file(module: str, root: Path) -> Path | None:
     return file_path if file_path.exists() else None
 
 
-def extract_related_files(
-    project_root: Path, target_file: Path
-) -> dict[str, list[Path] | list[str]]:
-    """
-    Extract file paths that have relationships with the target Python file.
-    Handles both absolute and relative imports.
-    Also extracts usages of imported classes/functions within the target file.
-    """
-    result = {
-        "imported_from": [],
-        "usages": [],
-    }
-
-    # Capture import_from_statement nodes
+def _get_imported_files_and_names(
+    project_root: Path, target_file: Path, code: str, tree
+) -> tuple[list[Path], dict[str, Path]]:
+    """Extract imported files and map imported names to their file paths."""
     query = Query(
         PY_LANGUAGE,
         """
@@ -115,44 +105,42 @@ def extract_related_files(
         """,
     )
     query_cursor = QueryCursor(query)
-
-    # Read the target file
-    try:
-        with open(target_file, "r", encoding="utf-8") as f:
-            code = f.read()
-    except (FileNotFoundError, UnicodeDecodeError):
-        return result
-
-    tree = parser.parse(bytes(code, "utf-8"))
     captures = query_cursor.captures(tree.root_node)
-
+    
     current_file_module = get_module_name(target_file, project_root)
+    imported_from = []
     imported_names = {}  # name -> file_path
-
+    
     for node in captures.get("import_from", []):
         module_str, names = extract_import_from(node, code)
-        resolved_import = resolve_relative_import(
-            module_str, current_file_module
-        )
+        resolved_import = resolve_relative_import(module_str, current_file_module)
         file_path = module_to_file(resolved_import, project_root)
         if file_path and file_path.exists():
-            if file_path not in result["imported_from"]:
-                result["imported_from"].append(file_path)
-            # Add imported names with their file_path
+            if file_path not in imported_from:
+                imported_from.append(file_path)
             for name in names:
                 imported_names[name] = file_path
+    
+    return imported_from, imported_names
 
-    # Collect definitions from imported files
+
+def _collect_definitions(imported_files: list[Path]) -> dict[Path, dict[str, str]]:
+    """Collect definitions (classes/functions) from imported files."""
     definitions = {}
-    for file_path in result["imported_from"]:
+    for file_path in imported_files:
         definitions[file_path] = _get_definitions(file_path)
+    return definitions
 
-    # Find usages of imported names
+
+def _find_usages(
+    code: str, tree, imported_names: dict[str, Path], definitions: dict[Path, dict[str, str]]
+) -> list[str]:
+    """Find usages of imported names and build usage strings."""
     usage_query = Query(PY_LANGUAGE, "(identifier) @usage")
     usage_cursor = QueryCursor(usage_query)
     usage_captures = usage_cursor.captures(tree.root_node)
-    usage_set = set()  # To avoid duplicates
-
+    usage_set = set()
+    
     if "usage" in usage_captures:
         for node in usage_captures["usage"]:
             name = code[node.start_byte : node.end_byte]
@@ -164,11 +152,8 @@ def extract_related_files(
                 if enclosing:
                     enclosing_name = get_name_from_node(enclosing, code)
                     enclosing_type = (
-                        "class"
-                        if enclosing.type == "class_definition"
-                        else "function"
+                        "class" if enclosing.type == "class_definition" else "function"
                     )
-                    # Check if this function is inside a class
                     class_name = None
                     if enclosing.type == "function_definition":
                         parent = enclosing.parent
@@ -177,16 +162,37 @@ def extract_related_files(
                                 class_name = get_name_from_node(parent, code)
                                 break
                             parent = parent.parent
-                    if class_name:
-                        enclosing_str = f"{class_name}.{enclosing_name}"
-                    else:
-                        enclosing_str = f"{enclosing_type} {enclosing_name}"
+                    enclosing_str = (
+                        f"{class_name}.{enclosing_name}" if class_name else f"{enclosing_type} {enclosing_name}"
+                    )
                     usage_str = f"{imported_type} {name} -> {enclosing_str}"
                     usage_set.add(usage_str)
+    
+    return list(usage_set)
 
-    result["usages"] = list(usage_set)
 
-    return result
+def extract_related_files(
+    project_root: Path, target_file: Path
+) -> dict[str, list[Path] | list[str]]:
+    """
+    Extract file paths that have relationships with the target Python file.
+    Handles both absolute and relative imports.
+    Also extracts usages of imported classes/functions within the target file.
+    """
+    try:
+        with open(target_file, "r", encoding="utf-8") as f:
+            code = f.read()
+    except (FileNotFoundError, UnicodeDecodeError):
+        return {"imported_from": [], "usages": []}
+    
+    tree = parser.parse(bytes(code, "utf-8"))
+    imported_from, imported_names = _get_imported_files_and_names(
+        project_root, target_file, code, tree
+    )
+    definitions = _collect_definitions(imported_from)
+    usages = _find_usages(code, tree, imported_names, definitions)
+    
+    return {"imported_from": imported_from, "usages": usages}
 
 
 def resolve_relative_import(import_str: str, current_module: str) -> str:
