@@ -1,11 +1,27 @@
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import Any, Dict, List, Union
 
 from ..baml_client.types import FetchUrlTool, SearchWebTool
 
 # Type alias for chatgpt tools
 ChatgptTool = Union[FetchUrlTool, SearchWebTool]
+
+
+@dataclass
+class CoderUsage:
+    imported_name: str
+    imported_type: str
+    enclosing_type: str
+    enclosing_name: str
+    class_name: str | None
+
+
+@dataclass
+class CoderRelatedFiles:
+    imported_from: list[Path]
+    usages: list[CoderUsage]
 
 
 @dataclass

@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 
 from hinty.context.analyze_related_files import (
-    get_definitions,
     analyze_related_files,
 )
 

@@ -6,7 +6,10 @@
    1. [ ] Tool functions
       1. [ ] rag -> SKIP FOR NOW
    2. [ ] Make it different than chatgpt (make me not dumb)
-2. [ ] Coding agent
+
+2. [ ] Prompt engineering (for baml)
+
+3. [ ] Coding agent
    1. [ ] Rewrite logic
    2. [ ] add ask mode
    3. [ ] multiple clients
@@ -15,7 +18,7 @@
    6. [ ] prompt caching
    7. [ ] Add rule
    8. [ ] Make it different than aider (not create code, just hint)
-3. [ ] General features
+4. [ ] General features
    1. [ ] Better display for math
 
 # CAN NOT
