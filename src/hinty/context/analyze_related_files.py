@@ -3,6 +3,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+
+from loguru import logger
 from tree_sitter import Language, Node, Parser, Query, QueryCursor
 import tree_sitter_python
 
@@ -26,17 +28,37 @@ class RelatedFiles:
     usages: list[Usage]
 
 
-def _get_definitions(file_path: Path) -> dict[str, str]:
-    """Extract class and function definitions from a Python file."""
+def _read_file_content(file_path: Path) -> str | None:
+    """Read file content, return None on error."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            code = f.read()
-    except (FileNotFoundError, UnicodeDecodeError):
+            return f.read()
+    except (FileNotFoundError, UnicodeDecodeError) as e:
+        logger.warning(f"Failed to read {file_path}: {e}")
+        return None
+
+
+def _extract_definitions_from_captures(
+    code: str, captures: dict[str, list[Node]]
+) -> dict[str, str]:
+    """Extract definitions from tree-sitter captures."""
+    defs = {}
+    for node in captures.get("class_name", []):
+        name = code[node.start_byte : node.end_byte]
+        defs[name] = "class"
+    for node in captures.get("func_name", []):
+        name = code[node.start_byte : node.end_byte]
+        defs[name] = "function"
+    return defs
+
+
+def _get_definitions(file_path: Path) -> dict[str, str]:
+    """Extract class and function definitions from a Python file."""
+    code = _read_file_content(file_path)
+    if code is None:
         return {}
 
     tree = parser.parse(bytes(code, "utf-8"))
-    defs = {}
-
     def_query = Query(
         PY_LANGUAGE,
         """
@@ -47,15 +69,7 @@ def _get_definitions(file_path: Path) -> dict[str, str]:
     def_cursor = QueryCursor(def_query)
     captures = def_cursor.captures(tree.root_node)
 
-    for node in captures.get("class_name", []):
-        name = code[node.start_byte : node.end_byte]
-        defs[name] = "class"
-
-    for node in captures.get("func_name", []):
-        name = code[node.start_byte : node.end_byte]
-        defs[name] = "function"
-
-    return defs
+    return _extract_definitions_from_captures(code, captures)
 
 
 def _find_enclosing_class_or_function(node: Node) -> Node | None:
@@ -111,6 +125,21 @@ def _module_to_file(module: str, root: Path) -> Path | None:
     return file_path if file_path.exists() else None
 
 
+def _process_import_node(
+    node: Node,
+    code: str,
+    current_module: str,
+    project_root: Path,
+) -> tuple[Path | None, list[str]]:
+    """Process a single import node and return file path and imported names."""
+    module_str, names = _extract_import_from(node, code)
+    resolved_import = _resolve_relative_import(module_str, current_module)
+    file_path = _module_to_file(resolved_import, project_root)
+    if file_path and file_path.exists():
+        return file_path, names
+    return None, []
+
+
 def _get_imported_files_and_names(
     project_root: Path, target_file: Path, code: str, tree
 ) -> tuple[list[Path], dict[str, Path]]:
@@ -126,15 +155,13 @@ def _get_imported_files_and_names(
 
     current_file_module = _get_module_name(target_file, project_root)
     imported_from = []
-    imported_names = {}  # name -> file_path
+    imported_names = {}
 
     for node in captures.get("import_from", []):
-        module_str, names = _extract_import_from(node, code)
-        resolved_import = _resolve_relative_import(
-            module_str, current_file_module
+        file_path, names = _process_import_node(
+            node, code, current_file_module, project_root
         )
-        file_path = _module_to_file(resolved_import, project_root)
-        if file_path and file_path.exists():
+        if file_path:
             if file_path not in imported_from:
                 imported_from.append(file_path)
             for name in names:
@@ -153,6 +180,55 @@ def _collect_definitions(
     return definitions
 
 
+def _find_enclosing_class(node: Node) -> Node | None:
+    """Find the enclosing class definition for a function node."""
+    parent = node.parent
+    while parent:
+        if parent.type == "class_definition":
+            return parent
+        parent = parent.parent
+    return None
+
+
+def _create_usage_from_node(
+    node: Node,
+    name: str,
+    code: str,
+    imported_names: dict[str, Path],
+    definitions: dict[Path, dict[str, str]],
+) -> Usage | None:
+    """Create a Usage object from a node if it's an imported name."""
+    if name not in imported_names:
+        return None
+
+    file_path = imported_names[name]
+    def_dict = definitions[file_path]
+    imported_type = def_dict.get(name, "unknown")
+    enclosing = _find_enclosing_class_or_function(node)
+
+    if not enclosing:
+        return None
+
+    enclosing_name = _get_name_from_node(enclosing, code)
+    enclosing_type = (
+        "class" if enclosing.type == "class_definition" else "function"
+    )
+    class_name = None
+
+    if enclosing.type == "function_definition":
+        enclosing_class = _find_enclosing_class(enclosing)
+        if enclosing_class:
+            class_name = _get_name_from_node(enclosing_class, code)
+
+    return Usage(
+        imported_name=name,
+        imported_type=imported_type,
+        enclosing_type=enclosing_type,
+        enclosing_name=enclosing_name,
+        class_name=class_name,
+    )
+
+
 def _find_usages(
     code: str,
     tree,
@@ -165,38 +241,13 @@ def _find_usages(
     usage_captures = usage_cursor.captures(tree.root_node)
     usages = []
 
-    if "usage" in usage_captures:
-        for node in usage_captures["usage"]:
-            name = code[node.start_byte : node.end_byte]
-            if name in imported_names:
-                file_path = imported_names[name]
-                def_dict = definitions[file_path]
-                imported_type = def_dict.get(name, "unknown")
-                enclosing = _find_enclosing_class_or_function(node)
-                if enclosing:
-                    enclosing_name = _get_name_from_node(enclosing, code)
-                    enclosing_type = (
-                        "class"
-                        if enclosing.type == "class_definition"
-                        else "function"
-                    )
-                    class_name = None
-                    if enclosing.type == "function_definition":
-                        parent = enclosing.parent
-                        while parent:
-                            if parent.type == "class_definition":
-                                class_name = _get_name_from_node(parent, code)
-                                break
-                            parent = parent.parent
-                    usages.append(
-                        Usage(
-                            imported_name=name,
-                            imported_type=imported_type,
-                            enclosing_type=enclosing_type,
-                            enclosing_name=enclosing_name,
-                            class_name=class_name,
-                        )
-                    )
+    for node in usage_captures.get("usage", []):
+        name = code[node.start_byte : node.end_byte]
+        usage = _create_usage_from_node(
+            node, name, code, imported_names, definitions
+        )
+        if usage:
+            usages.append(usage)
 
     return usages
 
@@ -209,10 +260,8 @@ def _extract_related_files(
     Handles both absolute and relative imports.
     Also extracts usages of imported classes/functions within the target file.
     """
-    try:
-        with open(target_file, "r", encoding="utf-8") as f:
-            code = f.read()
-    except (FileNotFoundError, UnicodeDecodeError):
+    code = _read_file_content(target_file)
+    if code is None:
         return RelatedFiles(imported_from=[], usages=[])
 
     tree = parser.parse(bytes(code, "utf-8"))
@@ -283,13 +332,21 @@ def analyze_related_files(
     project_root: Path, target_file: Path
 ) -> RelatedFiles:
     """Analyze related files for the given target file within the project root."""
+    logger.info(f"Analyzing related files for {target_file}")
+
     if not target_file.is_absolute():
         target_file = project_root / target_file
 
     if not target_file.exists():
+        logger.error(f"File not found: {target_file}")
         raise FileNotFoundError(f"File not found: {target_file}")
 
-    return _extract_related_files(project_root, target_file)
+    result = _extract_related_files(project_root, target_file)
+    logger.info(
+        f"Found {len(result.imported_from)} imports, "
+        f"{len(result.usages)} usages"
+    )
+    return result
 
 
 def main():
