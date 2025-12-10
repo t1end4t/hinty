@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from tree_sitter import Language, Parser, Query, QueryCursor
+from tree_sitter import Language, Node, Parser, Query, QueryCursor
 import tree_sitter_python
 
 # Set up tree-sitter parser for Python
@@ -41,7 +41,7 @@ def _get_definitions(file_path: Path) -> dict[str, str]:
     return defs
 
 
-def _find_enclosing_class_or_function(node):
+def _find_enclosing_class_or_function(node: Node) -> Node | None:
     """Find the nearest enclosing class or function definition."""
     current = node.parent
     while current:
