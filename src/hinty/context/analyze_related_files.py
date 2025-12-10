@@ -349,11 +349,13 @@ def main():
     for f in result.imported_from:
         defs = _get_definitions(f)
         excerpt = "; ".join([f"{typ} {name}" for name, typ in defs.items()])
-        related_files.append({
-            "file_path": str(f),
-            "relationship": "imports_from",
-            "relevant_excerpt": excerpt
-        })
+        related_files.append(
+            {
+                "file_path": str(f),
+                "relationship": "imports_from",
+                "relevant_excerpt": excerpt,
+            }
+        )
 
     print(f"Analyzing file: {target_file}")
     print(json.dumps(related_files, indent=2))
