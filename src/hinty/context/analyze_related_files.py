@@ -326,6 +326,13 @@ def analyze_related_files(
         raise FileNotFoundError(f"File not found: {target_file}")
 
     result = _extract_related_files(project_root, target_file)
+    # Make imported_from paths relative to current working directory
+    try:
+        result.imported_from = [
+            p.relative_to(Path.cwd()) for p in result.imported_from
+        ]
+    except ValueError:
+        pass  # Keep absolute paths if they are not under cwd
     logger.info(
         f"Found {len(result.imported_from)} imports, "
         f"{len(result.usages)} usages"
