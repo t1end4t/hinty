@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from pathlib import Path
@@ -344,21 +345,18 @@ def main():
 
     result = analyze_related_files(project_root, target_file)
 
-    print(f"Analyzing file: {target_file}")
-    print("\n=== Related files for", target_file.name, "===")
-    print(f"\nimported_from ({len(result.imported_from)} files):")
+    related_files = []
     for f in result.imported_from:
-        print(f"  - {f}")
-    print(f"\nusages ({len(result.usages)} usages):")
-    for usage in result.usages:
-        if usage.class_name:
-            enclosing_str = f"{usage.class_name}.{usage.enclosing_name}"
-        else:
-            enclosing_str = f"{usage.enclosing_type} {usage.enclosing_name}"
-        usage_str = (
-            f"{usage.imported_type} {usage.imported_name} -> {enclosing_str}"
-        )
-        print(f"  - {usage_str}")
+        defs = _get_definitions(f)
+        excerpt = "; ".join([f"{typ} {name}" for name, typ in defs.items()])
+        related_files.append({
+            "file_path": str(f),
+            "relationship": "imports_from",
+            "relevant_excerpt": excerpt
+        })
+
+    print(f"Analyzing file: {target_file}")
+    print(json.dumps(related_files, indent=2))
 
 
 if __name__ == "__main__":
