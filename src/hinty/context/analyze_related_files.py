@@ -273,7 +273,7 @@ def analyze_related_files(
     return _extract_related_files(project_root, target_file)
 
 
-def _main():
+def main():
     if len(sys.argv) > 2:
         project_root = Path(sys.argv[1])
         target_file = Path(sys.argv[2])
@@ -297,4 +297,4 @@ def _main():
 
 
 if __name__ == "__main__":
-    _main()
+    main()
