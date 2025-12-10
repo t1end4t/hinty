@@ -51,7 +51,7 @@ def _find_enclosing_class_or_function(node: Node) -> Node | None:
     return None
 
 
-def get_name_from_node(node, code: str) -> str:
+def get_name_from_node(node: Node, code: str) -> str:
     """Extract the name from a class or function definition node."""
     for child in node.children:
         if child.type == "identifier":
@@ -59,7 +59,7 @@ def get_name_from_node(node, code: str) -> str:
     return "unknown"
 
 
-def extract_import_from(node, code: str) -> tuple[str, list[str]]:
+def extract_import_from(node: Node, code: str) -> tuple[str, list[str]]:
     """Extract module_name and list of names from an import_from_statement node."""
     sub_query = Query(
         PY_LANGUAGE,
