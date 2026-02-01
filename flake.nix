@@ -107,7 +107,7 @@
 
                 languages.python = {
                   enable = true;
-                  version = "3.11";
+                  version = "3.13";
                   uv = {
                     enable = true;
                     sync.enable = true;
@@ -125,10 +125,10 @@
                 '';
 
                 env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
-                  pkgs.stdenv.cc.cc
-                  pkgs.zlib
-                  pkgs.libGL
-                  pkgs.glib
+                  # pkgs.stdenv.cc.cc
+                  # pkgs.zlib
+                  # pkgs.libGL
+                  # pkgs.glib
                 ];
               }
             ];
