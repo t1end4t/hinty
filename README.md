@@ -1,45 +1,25 @@
 # Hinty
 
-## TODO
+1. How can use AI but still improve in:
+   1. Creativity -> We have fewer ideas
+   2. Critical thinking -> We think about them less critically
+   3. Memory -> We remember them less well
+   4. Metacognition -> We have harder time doing it
 
-1. [ ] Chatgpt agent
-   1. [ ] Tool functions
-      1. [ ] rag -> SKIP FOR NOW
-   2. [ ] Make it different than chatgpt (make me not dumb)
+2. AI should be tool for thought:
+   1. Do the job -> Help me understand the job
+   2. Faster work -> Higher quality work
+   3. Right answers -> Right question
+   4. Automate the known -> Explore the unknown
 
-2. [ ] Prompt engineering (for baml)
+# What I do daily
 
-3. [ ] Coding agent
-   1. [ ] Rewrite logic
-   2. [ ] add ask mode
-   3. [ ] multiple clients
-   4. [ ] Based on commit, create message
-   5. [ ] abort stream
-   6. [ ] prompt caching
-   7. [ ] Add rule
-   8. [ ] Make it different than aider (not create code, just hint)
-4. [ ] General features
-   1. [ ] Better display for math
+1. Work like a PhD students
 
-# CAN NOT
+2. Learn new things everyday (math, coding)
 
-1. [ ] Get thinking content
+3. Health and productivity
 
-# Fix bug
+# TODO
 
-1. [ ] Can not apply markdown when use tools
-
-# Refine
-
-1. [ ] If added file, can not add it anymore (should not show in suggestion)
-2. [ ] logging should in file
-3. [ ] slow when startup
-
-# Agents
-
-1. [ ] Math coaching
-2. [ ] Prompt engineering (for baml)
-3. [ ] Researcher
-4. [ ] Writer
-5. [ ] Work with second-brain
-6. [ ] Experiment env for researcher
+1. AI help me design my own agent
