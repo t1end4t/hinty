@@ -22,4 +22,4 @@
 
 # TODO
 
-1. AI help me design my own agent
+1. [ ] Basic chat
