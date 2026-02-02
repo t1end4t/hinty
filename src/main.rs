@@ -1,4 +1,4 @@
-use rust_template::sorts::bead_sort;
+use hinty::sorts::bead_sort;
 
 fn main() {
     let arr = vec![6, 11, 12, 4, 1, 5];
