@@ -1,6 +1,6 @@
 [project]
-name = "python-template"
+name = "hinty"
 version = "0.1.0"
-description = "Add your description here"
+description = "Coding agent can help me think"
 requires-python = ">=3.13"
 dependencies = []
