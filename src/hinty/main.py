@@ -1,8 +1,9 @@
 import sys
 
+from loguru import logger
+
 from hinty.cli import create_cli
 from hinty.config import load_config
-from loguru import logger
 
 LOG_LEVEL = load_config()
 logger.remove()
