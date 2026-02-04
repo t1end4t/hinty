@@ -3,6 +3,21 @@ revision = 3
 requires-python = ">=3.13"
 
 [[package]]
+name = "baml-py"
+version = "0.218.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/58/91be8c46360e801479488f46475b3e893f0fa8884a503766f5e7814fb0c5/baml_py-0.218.1-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:5cb79998996834216b0401f80cf6ba20b524d894692004f877d5f66f8dc11867", size = 21763432, upload-time = "2026-01-27T19:39:53.554Z" },
+    { url = "https://files.pythonhosted.org/packages/52/e7/e56b5e443f48289498da95a7de984f1f7eb3ba32341198c576b7a88f6ea5/baml_py-0.218.1-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:6af7b47202d4203f1b03ed44ce8d99685d5aa02652aee6f304aad1792e65b3b3", size = 20677897, upload-time = "2026-01-27T19:39:56.914Z" },
+    { url = "https://files.pythonhosted.org/packages/59/d6/bc00800ad066a25447defa9d78e213f92af91114eb640e992f9348c61425/baml_py-0.218.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:78e06ab75aeae784591b77ba058b2b2196640348de52800d604968acf96a67a5", size = 24334816, upload-time = "2026-01-27T19:39:59.889Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/c9/e50f59a1857d57f53f354dab114e0c511e22ed43807362284dbdcb53154d/baml_py-0.218.1-cp38-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:64181571f52d5e0c10cd91ebae1fa9dfe297fcff0dcb5e36b095b8ef2c0f350b", size = 23826701, upload-time = "2026-01-27T19:40:02.953Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/9f/25dae1c1dd52e5a260aa812b4b4599725d4b15cfc3e16eb5e115e627a61f/baml_py-0.218.1-cp38-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:72a447ba2c181bf9d2118d27a705ab43906b01dd1c9ba6c202c3c7a3a1c5c96e", size = 24217757, upload-time = "2026-01-27T19:40:06.209Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/24/07417df4feca33a074629f58d240646d4870d1391e4311a79d12b106a2ef/baml_py-0.218.1-cp38-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:4343d60ec58fbdcef1c870444a8cf41d540f80da6079bb9bce8de484d7b9705a", size = 24615303, upload-time = "2026-01-27T19:40:09.3Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/d1/6429ed91f044b8f69a5f73c26ac47e9853b296e4f4800dd69d28e10a4a6b/baml_py-0.218.1-cp38-abi3-win_amd64.whl", hash = "sha256:a45f667acff4c253226168a5450f334fa99fc2693dd40fc31d8c2a4cf46cba58", size = 21966147, upload-time = "2026-01-27T19:40:12.595Z" },
+    { url = "https://files.pythonhosted.org/packages/92/28/8b81c8543654155a2ec10a26f6495b6595699024390b0e7340f56be6a83a/baml_py-0.218.1-cp38-abi3-win_arm64.whl", hash = "sha256:593d500c892e98916771dd8d55cdc562acb11ce7f13d8c048ba7df903a047e62", size = 20437606, upload-time = "2026-01-27T19:40:15.323Z" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -16,14 +31,20 @@ name = "hinty"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "baml-py" },
     { name = "loguru" },
     { name = "platformdirs" },
+    { name = "prompt-toolkit" },
+    { name = "rich" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "baml-py", specifier = ">=0.218.1" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "platformdirs", specifier = ">=4.5.1" },
+    { name = "prompt-toolkit", specifier = ">=3.0.52" },
+    { name = "rich", specifier = ">=14.3.2" },
 ]
 
 [[package]]
@@ -40,12 +61,76 @@ wheels = [
 ]
 
 [[package]]
+name = "markdown-it-py"
+version = "4.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mdurl" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5b/f5/4ec618ed16cc4f8fb3b701563655a69816155e79e24a17b651541804721d/markdown_it_py-4.0.0.tar.gz", hash = "sha256:cb0a2b4aa34f932c007117b194e945bd74e0ec24133ceb5bac59009cda1cb9f3", size = 73070, upload-time = "2025-08-11T12:57:52.854Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/94/54/e7d793b573f298e1c9013b8c4dade17d481164aa517d1d7148619c2cedbf/markdown_it_py-4.0.0-py3-none-any.whl", hash = "sha256:87327c59b172c5011896038353a81343b6754500a08cd7a4973bb48c6d578147", size = 87321, upload-time = "2025-08-11T12:57:51.923Z" },
+]
+
+[[package]]
+name = "mdurl"
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729, upload-time = "2022-08-14T12:40:10.846Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979, upload-time = "2022-08-14T12:40:09.779Z" },
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.5.1"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/cf/86/0248f086a84f01b37aaec0fa567b397df1a119f73c16f6c7a9aac73ea309/platformdirs-4.5.1.tar.gz", hash = "sha256:61d5cdcc6065745cdd94f0f878977f8de9437be93de97c1c12f853c9c0cdcbda", size = 21715, upload-time = "2025-12-05T13:52:58.638Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/28/3bfe2fa5a7b9c46fe7e13c97bda14c895fb10fa2ebf1d0abb90e0cea7ee1/platformdirs-4.5.1-py3-none-any.whl", hash = "sha256:d03afa3963c806a9bed9d5125c8f4cb2fdaf74a55ab60e5d59b3fde758104d31", size = 18731, upload-time = "2025-12-05T13:52:56.823Z" },
+]
+
+[[package]]
+name = "prompt-toolkit"
+version = "3.0.52"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wcwidth" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a1/96/06e01a7b38dce6fe1db213e061a4602dd6032a8a97ef6c1a862537732421/prompt_toolkit-3.0.52.tar.gz", hash = "sha256:28cde192929c8e7321de85de1ddbe736f1375148b02f2e17edd840042b1be855", size = 434198, upload-time = "2025-08-27T15:24:02.057Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/03/0d3ce49e2505ae70cf43bc5bb3033955d2fc9f932163e84dc0779cc47f48/prompt_toolkit-3.0.52-py3-none-any.whl", hash = "sha256:9aac639a3bbd33284347de5ad8d68ecc044b91a762dc39b7c21095fcd6a19955", size = 391431, upload-time = "2025-08-27T15:23:59.498Z" },
+]
+
+[[package]]
+name = "pygments"
+version = "2.19.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631, upload-time = "2025-06-21T13:39:12.283Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217, upload-time = "2025-06-21T13:39:07.939Z" },
+]
+
+[[package]]
+name = "rich"
+version = "14.3.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markdown-it-py" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/74/99/a4cab2acbb884f80e558b0771e97e21e939c5dfb460f488d19df485e8298/rich-14.3.2.tar.gz", hash = "sha256:e712f11c1a562a11843306f5ed999475f09ac31ffb64281f73ab29ffdda8b3b8", size = 230143, upload-time = "2026-02-01T16:20:47.908Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/45/615f5babd880b4bd7d405cc0dc348234c5ffb6ed1ea33e152ede08b2072d/rich-14.3.2-py3-none-any.whl", hash = "sha256:08e67c3e90884651da3239ea668222d19bea7b589149d8014a21c633420dbb69", size = 309963, upload-time = "2026-02-01T16:20:46.078Z" },
+]
+
+[[package]]
+name = "wcwidth"
+version = "0.5.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c2/62/a7c072fbfefb2980a00f99ca994279cb9ecf310cb2e6b2a4d2a28fe192b3/wcwidth-0.5.3.tar.gz", hash = "sha256:53123b7af053c74e9fe2e92ac810301f6139e64379031f7124574212fb3b4091", size = 157587, upload-time = "2026-01-31T03:52:10.92Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/c1/d73f12f8cdb1891334a2ccf7389eed244d3941e74d80dd220badb937f3fb/wcwidth-0.5.3-py3-none-any.whl", hash = "sha256:d584eff31cd4753e1e5ff6c12e1edfdb324c995713f75d26c29807bb84bf649e", size = 92981, upload-time = "2026-01-31T03:52:09.14Z" },
 ]
 
 [[package]]
