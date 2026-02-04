@@ -12,14 +12,6 @@
    3. Right answers -> Right question
    4. Automate the known -> Explore the unknown
 
-# What I do daily
-
-1. Work like a PhD students
-
-2. Learn new things everyday (math, coding)
-
-3. Health and productivity
-
 # TODO
 
 1. [ ] Basic chat
