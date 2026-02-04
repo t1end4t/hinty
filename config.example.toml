@@ -1,0 +1,10 @@
+[api_keys]
+groq_api_key = "GROQ_API_KEY"
+openrouter_api_key = "OPENROUTER_API_KEY"
+
+[logging]
+baml_log = "warn"   # info
+log_level = "debug" # debug
+
+[models]
+main = "groq/openai/gpt-oss-120b"
