@@ -172,3 +172,6 @@ cython_debug/
 # jupyter stuff
 .virtual_documents/
 .aider*
+
+# other stuff
+result

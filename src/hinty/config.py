@@ -11,7 +11,7 @@ from platformdirs import user_config_dir
 def create_config_from_example(config_path: Path):
     """Create config file from example template."""
     config_path.parent.mkdir(parents=True, exist_ok=True)
-    example_config_path = Path(__file__).parent.parent / "config.example.toml"
+    example_config_path = "config.example.toml"
     shutil.copy(example_config_path, config_path)
     print(
         f"Config file created at {config_path}. Please edit it with your values."
@@ -34,11 +34,12 @@ def read_config_file(config_path: Path) -> dict:
 
 def set_environment_variables(config: dict):
     """Set environment variables from config sections."""
-    sections = ["api_keys", "logging", "tools", "models"]
-    for section in sections:
-        vars_dict = config.get(section, {})
-        env_vars = {key.upper(): str(value) for key, value in vars_dict.items()}
-        os.environ.update(env_vars)
+    for section, vars_dict in config.items():
+        if isinstance(vars_dict, dict):
+            env_vars = {
+                key.upper(): str(value) for key, value in vars_dict.items()
+            }
+            os.environ.update(env_vars)
 
 
 def load_config() -> str:
